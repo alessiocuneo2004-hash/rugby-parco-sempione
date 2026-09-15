@@ -854,6 +854,125 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:4px 0}
 
 /* mentre si carica non si può toccare nulla di ciò che non c'è ancora */
 main[aria-busy="true"]{pointer-events:none}
+
+/* =====================================================================
+   HOME GENITORI (L5) — hero, card dei due figli, scheda a comparsa
+   Colori dei figli fissi (non seguono il tema chiaro/scuro, come il navy
+   dell'intestazione): sono l'identità del figlio, non un accento di UI.
+   ===================================================================== */
+.figlio-hero{
+  position:relative;overflow:hidden;background:var(--navy-fixed);color:var(--navy-fixed-ink);
+  margin:-20px -16px 0;padding:16px 20px 46px;border-radius:0 0 40px 40px;
+}
+@media (min-width:960px){.figlio-hero{margin:-20px -22px 0}}
+.figlio-hero-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(120% 110% at 85% 0%, rgba(143,192,63,.24), rgba(143,192,63,0) 62%);
+}
+.figlio-hero-eyebrow{
+  position:relative;font-family:var(--font-mono);font-size:12px;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--chart-1);
+}
+.figlio-hero-titolo{
+  position:relative;margin-top:8px;font-family:var(--font-display);font-size:52px;
+  line-height:.87;font-weight:800;text-transform:uppercase;color:#FFFFFF;
+}
+.figlio-cards{position:relative;margin-top:-30px;display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.figlio-card{
+  border-radius:24px;padding:14px 15px 15px;display:flex;flex-direction:column;gap:22px;
+  box-shadow:0 14px 28px rgba(11,27,38,.24);cursor:pointer;transition:transform .16s ease;color:#FFFFFF;
+}
+.figlio-card:active{transform:scale(.97)}
+.figlio-card-freccia{align-self:flex-end;width:16px;height:16px;color:#FFFFFF}
+.figlio-card-freccia svg{width:100%;height:100%}
+.figlio-card-nome{
+  font-family:var(--font-display);font-size:36px;line-height:.86;font-weight:800;text-transform:uppercase;
+}
+
+/* scheda a comparsa: scende dall'alto, esce verso il basso, resta ferma finché non la si
+   apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). */
+.figlio-drawer{
+  position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;overflow-y:auto;
+  background:var(--bg);transform:translateY(-100%);
+  transition:transform .42s cubic-bezier(.32,.72,0,1);touch-action:none;
+}
+.figlio-drawer.aperta{transform:translateY(0)}
+.figlio-drawer.uscita{transform:translateY(100%)}
+.figlio-maniglia{
+  position:sticky;top:0;z-index:2;align-self:center;margin-top:8px;width:52px;height:14px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.figlio-maniglia span{width:42px;height:4px;border-radius:999px;background:rgba(255,255,255,.5)}
+.figlio-drawer-inner{margin-top:-14px;flex:1;display:flex;flex-direction:column;min-height:0}
+.figlio-testata{
+  position:relative;overflow:hidden;background:var(--navy-fixed);color:#FFFFFF;
+  padding:14px 18px 54px;border-radius:0 0 90px 90px;text-align:center;
+}
+.figlio-testata-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(130% 100% at 50% -20%, rgba(143,192,63,.26), rgba(143,192,63,0) 64%);
+}
+.figlio-testata-eyebrow{
+  position:relative;font-family:var(--font-mono);font-size:12px;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--chart-1);
+}
+.figlio-testata-titolo{
+  position:relative;margin-top:8px;font-family:var(--font-display);font-size:56px;line-height:.86;
+  font-weight:800;text-transform:uppercase;color:#FFFFFF;
+}
+.figlio-selettore{position:relative;margin-top:-42px;display:flex;align-items:center;justify-content:center;gap:16px}
+.figlio-freccia{display:flex;width:32px;height:32px;align-items:center;justify-content:center;color:#B3AB96;cursor:pointer}
+.figlio-freccia svg{width:18px;height:18px}
+.figlio-avatar{
+  width:104px;height:104px;flex:none;border-radius:50%;border:6px solid var(--bg);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  box-shadow:0 14px 30px rgba(11,27,38,.26);
+}
+.figlio-avatar-nome{
+  font-family:var(--font-display);font-size:34px;line-height:.86;font-weight:800;
+  text-transform:uppercase;color:#FFFFFF;
+}
+.entra-sx{animation:figlioEntraSx .34s cubic-bezier(.23,1,.32,1) both}
+.entra-dx{animation:figlioEntraDx .34s cubic-bezier(.23,1,.32,1) both}
+@keyframes figlioEntraDx{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes figlioEntraSx{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+.figlio-puntini{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.figlio-punto{width:6px;height:5px;border-radius:999px;background:var(--surface-3)}
+.figlio-punto.on{width:20px}
+.figlio-corpo{flex:1;padding:18px 16px 24px;display:flex;flex-direction:column;gap:14px}
+.figlio-live{
+  background:#0B1B26;border-radius:34px;padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;
+  box-shadow:0 16px 34px rgba(11,27,38,.28);color:#FFFFFF;
+}
+.figlio-live-head{
+  display:flex;align-items:center;gap:9px;font-family:var(--font-mono);font-size:12px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--chart-1);
+}
+.figlio-live-dot{width:8px;height:8px;border-radius:50%;background:var(--chart-1);animation:blink 1.4s infinite}
+.figlio-live-vs{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.figlio-live-sq{font-family:var(--font-display);font-size:24px;line-height:.95;font-weight:800;text-transform:uppercase}
+.figlio-live-sq.avv{color:#B9C9D4;font-weight:700}
+.figlio-live-score{
+  display:flex;align-items:center;gap:8px;background:var(--chart-1);border-radius:999px;padding:8px 16px;
+  font-family:var(--font-display);font-weight:800;line-height:.8;font-size:40px;color:#00253F;
+}
+.figlio-live-score span{font-size:22px;color:#1C4A16}
+.figlio-prox{
+  background:var(--surface);border-radius:34px;padding:17px 20px 16px;display:flex;flex-direction:column;gap:14px;
+  box-shadow:0 8px 18px rgba(11,27,38,.10);
+}
+.figlio-prox-titolo{font-family:var(--font-display);font-size:30px;line-height:.9;font-weight:800;text-transform:uppercase;color:var(--ink)}
+.figlio-settimana{border-top:1.5px solid var(--line);padding-top:13px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.figlio-giorno{
+  border-radius:999px;background:var(--surface-3);padding:6px 0;text-align:center;
+  font-family:var(--font-mono);font-size:11px;color:var(--ink-3);
+}
+.figlio-giorno.oggi{background:var(--navy-fixed);color:var(--navy-fixed-ink)}
+.figlio-giorno.match{background:var(--chart-1);color:#1C4A16}
+.figlio-suggerimento{
+  margin-top:auto;padding-top:20px;text-align:center;font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+}
 </style>
 <div id="app">
   <header class="topbar">
@@ -953,6 +1072,9 @@ main[aria-busy="true"]{pointer-events:none}
 </div>
 
 <div id="modalRoot"></div>
+<!-- scheda a comparsa del figlio, Home genitori (L5): vive fuori da #main come i modali,
+     cosi le sue animazioni di apertura/chiusura non vengono interrotte da un ridisegno. -->
+<div id="figlioRoot"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1866,6 +1988,17 @@ function bindImgSk(rootEl) {
 let VIEW = { name: "home" };
 let _forzaAnim = false;   // vedi render(): forza la dissolvenza di vista anche a VIEW.name invariato
 let _nuovoId = null;      // vedi render(): l'elemento appena creato entra con un'animazione, non di scatto
+
+/* Home dei Genitori (L5): due figli demo, collegati alle categorie vere (U10/U12) per
+   mostrare impegni reali. Non esiste ancora, nei dati, un legame genitore-giocatore: finché
+   non c'è un vero sistema di iscrizioni/account, questi due nomi restano un esempio fisso
+   (coerente con quanto disegnato in Claude Design), ma partita in campo/prossimo impegno
+   arrivano dai dati veri della categoria del figlio. */
+const FIGLI_DEMO = {
+  leo:   { nome: "Leo",   cat: "U10", colore: "#F0C838" },
+  sofia: { nome: "Sofia", cat: "U12", colore: "#E5893A" }
+};
+let _figlioAperto = null;   // id del figlio con la scheda aperta, o null se chiusa
 const NAV_PARENT = {
   home: "home", mio: "mio", categorie: "categorie", categoria: "categorie", diario: "categorie",
   allenatori: "allenatori", allenatore: "allenatori",
@@ -2004,6 +2137,8 @@ function bannerPartita(p, mode) {
 }
 
 function vHome() {
+  if (ruoloCorrente().livello === 5) return vHomeGenitore();
+
   const oggi = todayISO();
   const ordinaOra = (a, b) => (a.data + (a.ora || "")) < (b.data + (b.ora || "")) ? -1 : 1;
   const prossime = S.partite
@@ -2020,11 +2155,10 @@ function vHome() {
   const tornei = torneiInArrivo();
   const coms = [...S.comunicazioni].sort((a, b) =>
     (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1));
-  const spettatore = ruoloCorrente().livello === 5;
 
   return `<div class="stack-lg">
     <div class="stack" style="gap:16px">
-      <h1 class="page-title" style="margin-bottom:16px">${spettatore ? "Bacheca" : "Home"}</h1>
+      <h1 class="page-title" style="margin-bottom:16px">Home</h1>
       ${banners.join("")}
       <div class="statgrid">
         <div class="card stat"><div class="eyebrow">Categorie</div><div class="k num">${S.categorie.length}</div></div>
@@ -2036,7 +2170,7 @@ function vHome() {
 
     <div>
       <div class="sec-head">
-        <h2>${spettatore ? "Avvisi" : "Comunicazioni"}<i class="sec-dot"></i></h2>
+        <h2>Comunicazioni<i class="sec-dot"></i></h2>
         ${can("comunicazioni") ? btnAdd("Nuova", "comEdit", "") : ""}
       </div>
       <div class="stack">
@@ -2061,7 +2195,7 @@ function vHome() {
 
     ${/* Prossimi appuntamenti: tornei e partite in arrivo, con il giorno grande a sinistra */""}
     <div>
-      <div class="sec-head"><h2>${spettatore ? "Quando si gioca" : "Prossimi appuntamenti"}</h2></div>
+      <div class="sec-head"><h2>Prossimi appuntamenti</h2></div>
       <div class="stack">
         ${appuntamentiHome().map(ap => `
           <div class="card ${ap.vai ? "clickable" : ""}" style="display:flex;align-items:center;gap:12px;padding:12px 14px"
@@ -2076,6 +2210,215 @@ function vHome() {
     </div>
   </div>`;
 }
+
+/* =====================================================================
+   HOME GENITORI (L5) — due card figlio, scheda a comparsa
+   Disegnata da Alessio in Claude Design ("Prototipo - Home e scheda figlio");
+   qui tradotta 1:1 nell'HTML/CSS/JS dell'app: stessa gerarchia visiva, stessi
+   colori per figlio, stessa logica di apertura/trascinamento/cambio figlio.
+   ===================================================================== */
+function vHomeGenitore() {
+  const coms = [...S.comunicazioni].sort((a, b) =>
+    (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1));
+
+  return `<div class="stack-lg">
+    <div class="figlio-hero">
+      <div class="figlio-hero-glow"></div>
+      <div class="figlio-hero-eyebrow">Bentornato</div>
+      <div class="figlio-hero-titolo">Genitore</div>
+    </div>
+
+    <div class="figlio-cards">
+      ${Object.entries(FIGLI_DEMO).map(([id, f]) => `
+        <div class="figlio-card" style="background:${f.colore}"
+             data-act="figlioApri" data-arg="${id}" role="button" tabindex="0" aria-label="Apri la scheda di ${esc(f.nome)}">
+          <span class="figlio-card-freccia">${ic("right")}</span>
+          <span class="figlio-card-nome">${esc(f.nome)}</span>
+        </div>`).join("")}
+    </div>
+
+    <div>
+      <div class="sec-head"><h2>La settimana<i class="sec-dot"></i></h2></div>
+      <div class="stack">
+        ${appuntamentiHome().map(ap => `
+          <div class="card ${ap.vai ? "clickable" : ""}" style="display:flex;align-items:center;gap:12px;padding:12px 14px"
+               ${ap.vai ? `data-act="go" data-arg="${esc(JSON.stringify(ap.vai))}" role="button" tabindex="0"` : ""}>
+            ${dataGrande(ap.data)}
+            <div class="grow stack" style="gap:2px">
+              <div class="title">${esc(ap.titolo)}</div>
+              <div class="muted">${esc(ap.sotto)}</div>
+            </div>
+          </div>`).join("") || `<div class="empty">Nessun appuntamento in programma.</div>`}
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-head"><h2>Comunicazioni<i class="sec-dot"></i></h2></div>
+      <div class="stack">
+        ${coms.length ? coms.map(c => `
+          <div class="card com-card ${c.fissata ? "pinned" : ""}">
+            <div class="row">
+              ${c.fissata ? `<span class="pill tag">${ic("pin")} In evidenza</span>` : ""}
+              <span class="muted num">${fmtDate(c.data)}</span>
+              <span class="grow"></span>
+            </div>
+            <h3>${esc(c.titolo)}</h3>
+            ${longText(c.corpo, "", "due-righe")}
+          </div>`).join("") : `<div class="empty">Nessuna comunicazione.</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* contenuto della scheda a comparsa per il figlio `id`: testata + selettore + impegno vero
+   preso dalla categoria collegata (U10/U12) — partita in corso se c'è, altrimenti la prossima. */
+function figlioContenutoHTML(id) {
+  const f = FIGLI_DEMO[id];
+  const cat = S.categorie.find(c => c.nome === f.cat);
+  const oggi = todayISO();
+  const ordinaOra = (a, b) => (a.data + (a.ora || "")) < (b.data + (b.ora || "")) ? -1 : 1;
+  const partiteCat = cat ? S.partite.filter(p => p.categoria === cat.id) : [];
+  const live = partiteCat.find(p => p.stato === "in_corso");
+  const prossima = !live && partiteCat
+    .filter(p => p.stato === "programmata" && p.data >= oggi)
+    .sort(ordinaOra)[0];
+
+  const corpo = live ? `
+    <div class="figlio-live">
+      <div class="figlio-live-head"><span class="figlio-live-dot"></span>In campo ora</div>
+      <div class="figlio-live-vs">
+        <div class="stack" style="gap:2px;min-width:0">
+          <div class="figlio-live-sq">${esc(S.settings.club)}</div>
+          <div class="figlio-live-sq avv">${esc(live.avversario)}</div>
+        </div>
+        <div class="figlio-live-score">${live.puntiNoi ?? 0}<span>–</span>${live.puntiLoro ?? 0}</div>
+      </div>
+    </div>` : prossima ? `
+    <div class="figlio-prox">
+      <div class="row" style="gap:14px;align-items:flex-start">
+        <div class="grow stack" style="gap:3px;min-width:0">
+          <div class="eyebrow">Prossimo impegno</div>
+          <div class="figlio-prox-titolo">${esc(nomeCat(prossima.categoria))} — ${esc(prossima.avversario)}</div>
+          <div class="muted">${esc(prossima.ora || "—")} · ${esc(prossima.luogo || "—")}</div>
+        </div>
+        ${dataGrande(prossima.data)}
+      </div>
+      <div class="figlio-settimana">${settimanaFiglioHTML(prossima.data)}</div>
+    </div>` : `<div class="empty">Nessun impegno in programma per ${esc(f.nome)}.</div>`;
+
+  return `
+    <div class="figlio-testata">
+      <div class="figlio-testata-glow"></div>
+      <div class="figlio-testata-eyebrow">La settimana di</div>
+      <div class="figlio-testata-titolo">${esc(f.nome)}</div>
+    </div>
+    <div class="figlio-selettore">
+      <span class="figlio-freccia" data-act="figlioCambia" role="button" tabindex="0" aria-label="Passa all'altro figlio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${IC.left}</svg>
+      </span>
+      <div class="figlio-avatar" style="background:${f.colore}">
+        <span class="figlio-avatar-nome ${id === "leo" ? "entra-sx" : "entra-dx"}">${esc(f.nome)}</span>
+      </div>
+      <span class="figlio-freccia" data-act="figlioCambia" role="button" tabindex="0" aria-label="Passa all'altro figlio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${IC.right}</svg>
+      </span>
+    </div>
+    <div class="figlio-puntini">
+      ${Object.keys(FIGLI_DEMO).map(k => `<span class="figlio-punto ${k === id ? "on" : ""}" style="${k === id ? `background:${FIGLI_DEMO[k].colore}` : ""}"></span>`).join("")}
+    </div>
+    <div class="figlio-corpo">
+      ${corpo}
+      <div class="figlio-suggerimento">Trascina verso il basso o tocca la maniglia per tornare alla Home</div>
+    </div>`;
+}
+/* striscia dei 7 giorni da oggi in poi, iniziali italiane (L M M G V S D):
+   oggi in navy, il giorno della prossima partita in verde, gli altri neutri. */
+function settimanaFiglioHTML(dataProssima) {
+  const GIORNI = ["L", "M", "M", "G", "V", "S", "D"]; // lun..dom
+  const oggi = todayISO();
+  let html = "";
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(oggi + "T00:00:00");
+    d.setDate(d.getDate() + i);
+    const iso = isoLocal(d);
+    const idx = (d.getDay() + 6) % 7;
+    const cls = iso === oggi ? "oggi" : (iso === dataProssima ? "match" : "");
+    html += `<div class="figlio-giorno ${cls}">${GIORNI[idx]}</div>`;
+  }
+  return html;
+}
+
+/* la scheda vive in #figlioRoot, fuori dal ciclo di render(), come i modali: cosi le sue
+   animazioni non vengono interrotte se qualcos'altro nell'app chiama render() nel frattempo. */
+let _figlioTimer = null;
+function apriFiglio(id) {
+  clearTimeout(_figlioTimer);
+  _figlioAperto = id;
+  const root = document.getElementById("figlioRoot");
+  root.innerHTML = `<div class="figlio-drawer">
+    <div class="figlio-maniglia" data-act="figlioChiudi" role="button" tabindex="0" aria-label="Chiudi la scheda"><span></span></div>
+    <div class="figlio-drawer-inner" id="figlioInner">${figlioContenutoHTML(id)}</div>
+  </div>`;
+  const el = root.querySelector(".figlio-drawer");
+  void el.offsetWidth;   // forza il disegno alla posizione di partenza prima di animare l'ingresso
+  el.classList.add("aperta");
+  bindFiglioGesti(el);
+}
+function chiudiFiglio() {
+  const root = document.getElementById("figlioRoot");
+  const el = root.querySelector(".figlio-drawer");
+  if (!el) return;
+  _figlioAperto = null;
+  el.classList.remove("aperta");
+  el.classList.add("uscita");
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { root.innerHTML = ""; return; }
+  clearTimeout(_figlioTimer);
+  _figlioTimer = setTimeout(() => { root.innerHTML = ""; }, 420);
+}
+function cambiaFiglio() {
+  if (!_figlioAperto) return;
+  _figlioAperto = _figlioAperto === "leo" ? "sofia" : "leo";
+  const inner = document.getElementById("figlioInner");
+  if (!inner) return;
+  inner.innerHTML = figlioContenutoHTML(_figlioAperto);
+  bindFiglioGesti(inner.closest(".figlio-drawer"));
+}
+/* trascinare in verticale chiude (segue il dito, come "a tendina"); in orizzontale cambia
+   figlio solo al rilascio, se il gesto supera 70px — esattamente come nel prototipo. */
+function bindFiglioGesti(el) {
+  if (!el) return;
+  let drag = null;
+  el.onpointerdown = e => {
+    if (!el.classList.contains("aperta")) return;
+    drag = { x0: e.clientX, y0: e.clientY, modo: null, dy: 0 };
+    el.setPointerCapture?.(e.pointerId);
+  };
+  el.onpointermove = e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (!drag.modo) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      drag.modo = Math.abs(dy) > Math.abs(dx) ? "chiudi" : "cambia";
+    }
+    drag.dx = dx; drag.dy = dy;
+    if (drag.modo === "chiudi") {
+      el.style.transition = "none";
+      el.style.transform = `translateY(${dy > 0 ? dy * .85 : dy * .35}px)`;
+    }
+  };
+  const fine = () => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    el.style.transition = ""; el.style.transform = "";
+    if (d.modo === "chiudi" && Math.abs(d.dy) > 70) { chiudiFiglio(); return; }
+    if (d.modo === "cambia" && Math.abs(d.dx) > 70) cambiaFiglio();
+  };
+  el.onpointerup = fine;
+  el.onpointercancel = fine;
+}
+ACT.figlioApri = id => apriFiglio(id);
+ACT.figlioChiudi = () => chiudiFiglio();
+ACT.figlioCambia = () => cambiaFiglio();
 /* prossimi appuntamenti mostrati in home: tornei del club + partite programmate */
 function appuntamentiHome() {
   const oggi = todayISO();
