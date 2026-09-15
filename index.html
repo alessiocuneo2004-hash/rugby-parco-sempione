@@ -875,8 +875,10 @@ main[aria-busy="true"]{pointer-events:none}
 }
 @media (min-width:960px){.figlio-hero{margin:-20px -22px 0}}
 .figlio-hero-glow{
+  /* piccola e concentrata: deve spegnersi del tutto ben prima del bordo arrotondato,
+     altrimenti il ritaglio (overflow:hidden) la taglia di netto invece di farla sfumare */
   position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(120% 110% at 85% 0%, rgba(143,192,63,.24), rgba(143,192,63,0) 62%);
+  background-image:radial-gradient(70% 60% at 85% 0%, rgba(143,192,63,.22), rgba(143,192,63,0) 58%);
 }
 .figlio-hero-brand{position:relative;display:flex;align-items:center;gap:11px}
 .figlio-hero-brand img{width:26px;height:auto;display:block}
@@ -952,7 +954,11 @@ main[aria-busy="true"]{pointer-events:none}
    l'intestazione dell'app (che cosi resta nascosta, come nel disegno) ma sotto la barra
    di navigazione, che rimane visibile/usabile mentre la scheda è aperta. */
 .figlio-drawer{
+  /* a schermo intero copre anche l'area della barra di stato del telefono (a differenza
+     della vera intestazione dell'app, che ha già il suo padding-top per quello): senza
+     questo la maniglia e la testata finiscono sotto l'orologio/le icone di sistema. */
   position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;overflow-y:auto;
+  padding-top:env(safe-area-inset-top);
   background:var(--bg);transform:translateY(-100%);
   transition:transform .42s cubic-bezier(.32,.72,0,1);touch-action:none;
 }
@@ -971,7 +977,7 @@ main[aria-busy="true"]{pointer-events:none}
 }
 .figlio-testata-glow{
   position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(130% 100% at 50% -20%, rgba(143,192,63,.26), rgba(143,192,63,0) 64%);
+  background-image:radial-gradient(85% 65% at 50% -10%, rgba(143,192,63,.24), rgba(143,192,63,0) 55%);
 }
 .figlio-testata-logo{position:relative;width:32px;height:auto;margin-top:22px}
 .figlio-testata-eyebrow{
