@@ -857,42 +857,102 @@ main[aria-busy="true"]{pointer-events:none}
 
 /* =====================================================================
    HOME GENITORI (L5) — hero, card dei due figli, scheda a comparsa
+   Valori (colori, misure, pesi) ricalcati 1:1 dal prototipo Claude Design
+   di Alessio ("Prototipo - Home e scheda figlio"), non riadattati alla
+   scala tipografica del resto dell'app: qui la fedeltà al disegno vince.
    Colori dei figli fissi (non seguono il tema chiaro/scuro, come il navy
    dell'intestazione): sono l'identità del figlio, non un accento di UI.
    ===================================================================== */
+.figlio-sfondo{
+  transform-origin:top center;
+  transition:transform .42s cubic-bezier(.32,.72,0,1), filter .42s cubic-bezier(.32,.72,0,1);
+}
+.figlio-sfondo.risucchiato{transform:scale(.96);filter:brightness(.72)}
+
 .figlio-hero{
   position:relative;overflow:hidden;background:var(--navy-fixed);color:var(--navy-fixed-ink);
-  margin:-20px -16px 0;padding:16px 20px 46px;border-radius:0 0 40px 40px;
+  margin:-20px -16px 0;padding:14px 20px 18px;border-radius:0 0 40px 40px;
 }
 @media (min-width:960px){.figlio-hero{margin:-20px -22px 0}}
 .figlio-hero-glow{
   position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(120% 110% at 85% 0%, rgba(143,192,63,.24), rgba(143,192,63,0) 62%);
 }
+.figlio-hero-brand{position:relative;display:flex;align-items:center;gap:11px}
+.figlio-hero-brand img{width:26px;height:auto;display:block}
+.figlio-hero-brand span{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#B9C9D4;
+}
 .figlio-hero-eyebrow{
-  position:relative;font-family:var(--font-mono);font-size:12px;
+  position:relative;margin-top:22px;font-family:var(--font-mono);font-size:12px;
   letter-spacing:.26em;text-transform:uppercase;color:var(--chart-1);
 }
-.figlio-hero-titolo{
-  position:relative;margin-top:8px;font-family:var(--font-display);font-size:52px;
-  line-height:.87;font-weight:800;text-transform:uppercase;color:#FFFFFF;
+.figlio-hero-riga{position:relative;margin-top:10px;margin-bottom:35px;display:flex;align-items:center;gap:14px}
+.figlio-hero-nome{
+  flex:1;min-width:0;font-family:var(--font-display);font-size:58px;line-height:.87;
+  font-weight:800;text-transform:uppercase;color:#FFFFFF;
 }
-.figlio-cards{position:relative;margin-top:-30px;display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.figlio-hero-ruolo{
+  flex:none;display:flex;flex-direction:column;gap:3px;text-align:right;
+  border-right:2px solid rgba(143,192,63,.7);padding-right:11px;
+  font-family:var(--font-mono);font-size:11px;line-height:1.35;letter-spacing:.16em;
+  text-transform:uppercase;color:#B9C9D4;
+}
+.figlio-hero-ruolo .bianco{color:#FFFFFF}
+.figlio-cards{position:relative;margin-top:-16px;padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:11px;z-index:3}
 .figlio-card{
-  border-radius:24px;padding:14px 15px 15px;display:flex;flex-direction:column;gap:22px;
+  border-radius:24px;padding:14px 15px 15px;display:flex;flex-direction:column;gap:14px;
   box-shadow:0 14px 28px rgba(11,27,38,.24);cursor:pointer;transition:transform .16s ease;color:#FFFFFF;
 }
 .figlio-card:active{transform:scale(.97)}
 .figlio-card-freccia{align-self:flex-end;width:16px;height:16px;color:#FFFFFF}
 .figlio-card-freccia svg{width:100%;height:100%}
 .figlio-card-nome{
-  font-family:var(--font-display);font-size:36px;line-height:.86;font-weight:800;text-transform:uppercase;
+  font-family:var(--font-display);font-size:40px;line-height:.86;font-weight:800;text-transform:uppercase;
 }
 
+/* sezioni "La settimana" / "Comunicazioni" della Home genitori: lista piatta con
+   divisori sottili (non le card bianche generiche usate nel resto dell'app — qui si
+   segue il disegno originale, più minimale). */
+.figlio-sezione{padding:0 20px;margin-top:26px}
+.figlio-sezione-testa{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.figlio-sezione-testa span:first-child{
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);
+}
+.figlio-riga{flex:1;height:1px;background:rgba(0,37,63,.16)}
+.figlio-conta{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.figlio-conta.lime{color:var(--chart-1)}
+.figlio-lista{display:flex;flex-direction:column;gap:8px}
+.figlio-divisore{height:1px;background:rgba(0,37,63,.12)}
+.figlio-riga-impegno{display:flex;align-items:center;gap:13px}
+.figlio-riga-impegno.clickable{cursor:pointer}
+.figlio-riga-impegno.clickable:active{opacity:.7}
+.figlio-riga-titolo{font-family:var(--font-display);font-size:28px;line-height:.9;font-weight:800;text-transform:uppercase;color:var(--ink)}
+.figlio-riga-sub{font-family:var(--font-data);font-size:13.5px;color:var(--ink-4)}
+.figlio-databadge{width:46px;flex:none;border-radius:14px;background:var(--surface-2);padding:7px 0 6px;text-align:center}
+.figlio-databadge .n{font-family:var(--font-display);font-size:22px;line-height:.86;font-weight:800;color:var(--ink)}
+.figlio-databadge .g{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4)}
+.figlio-databadge.evid{background:var(--navy-fixed)}
+.figlio-databadge.evid .n{color:#FFFFFF}
+.figlio-databadge.evid .g{color:var(--chart-1)}
+.figlio-com{display:flex;gap:13px;padding:0 16px}
+.figlio-com.evidenza{
+  background:var(--surface);border-radius:22px;padding:13px 16px 14px;
+  box-shadow:0 6px 14px rgba(11,27,38,.08);
+}
+.figlio-com-barra{width:4px;flex:none;border-radius:999px;background:var(--surface-3)}
+.figlio-com-barra.lime{background:var(--chart-1)}
+.figlio-com-eyebrow{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.figlio-com-titolo{margin-top:4px;font-family:var(--font-display);font-size:26px;line-height:.92;font-weight:800;text-transform:uppercase;color:var(--ink)}
+.figlio-com-corpo{margin-top:3px;font-family:var(--font-data);font-size:13.5px;color:var(--ink-4)}
+.figlio-com-corpo.piano{color:var(--ink-2)}
+
 /* scheda a comparsa: scende dall'alto, esce verso il basso, resta ferma finché non la si
-   apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). */
+   apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). Sta sopra
+   l'intestazione dell'app (che cosi resta nascosta, come nel disegno) ma sotto la barra
+   di navigazione, che rimane visibile/usabile mentre la scheda è aperta. */
 .figlio-drawer{
-  position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;overflow-y:auto;
+  position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;overflow-y:auto;
   background:var(--bg);transform:translateY(-100%);
   transition:transform .42s cubic-bezier(.32,.72,0,1);touch-action:none;
 }
@@ -906,23 +966,25 @@ main[aria-busy="true"]{pointer-events:none}
 .figlio-drawer-inner{margin-top:-14px;flex:1;display:flex;flex-direction:column;min-height:0}
 .figlio-testata{
   position:relative;overflow:hidden;background:var(--navy-fixed);color:#FFFFFF;
-  padding:14px 18px 54px;border-radius:0 0 90px 90px;text-align:center;
+  padding:14px 18px 54px;border-radius:0 0 260px 260px / 0 0 120px 120px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
 }
 .figlio-testata-glow{
   position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(130% 100% at 50% -20%, rgba(143,192,63,.26), rgba(143,192,63,0) 64%);
 }
+.figlio-testata-logo{position:relative;width:32px;height:auto;margin-top:22px}
 .figlio-testata-eyebrow{
   position:relative;font-family:var(--font-mono);font-size:12px;letter-spacing:.26em;
   text-transform:uppercase;color:var(--chart-1);
 }
 .figlio-testata-titolo{
-  position:relative;margin-top:8px;font-family:var(--font-display);font-size:56px;line-height:.86;
+  position:relative;font-family:var(--font-display);font-size:56px;line-height:.86;text-align:center;
   font-weight:800;text-transform:uppercase;color:#FFFFFF;
 }
 .figlio-selettore{position:relative;margin-top:-42px;display:flex;align-items:center;justify-content:center;gap:16px}
 .figlio-freccia{display:flex;width:32px;height:32px;align-items:center;justify-content:center;color:#B3AB96;cursor:pointer}
-.figlio-freccia svg{width:18px;height:18px}
+.figlio-freccia svg{width:15px;height:15px}
 .figlio-avatar{
   width:104px;height:104px;flex:none;border-radius:50%;border:6px solid var(--bg);
   display:flex;align-items:center;justify-content:center;overflow:hidden;
@@ -937,9 +999,12 @@ main[aria-busy="true"]{pointer-events:none}
 @keyframes figlioEntraDx{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes figlioEntraSx{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
 .figlio-puntini{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px}
-.figlio-punto{width:6px;height:5px;border-radius:999px;background:var(--surface-3)}
+.figlio-punto{width:6px;height:5px;border-radius:999px;background:var(--surface-3);transition:width .28s cubic-bezier(.23,1,.32,1)}
 .figlio-punto.on{width:20px}
-.figlio-corpo{flex:1;padding:18px 16px 24px;display:flex;flex-direction:column;gap:14px}
+.figlio-corpo{
+  flex:1;padding:18px 16px 100px;display:flex;flex-direction:column;gap:14px;
+}
+@media (min-width:960px){.figlio-corpo{padding-bottom:60px}}
 .figlio-live{
   background:#0B1B26;border-radius:34px;padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;
   box-shadow:0 16px 34px rgba(11,27,38,.28);color:#FFFFFF;
@@ -950,18 +1015,28 @@ main[aria-busy="true"]{pointer-events:none}
 }
 .figlio-live-dot{width:8px;height:8px;border-radius:50%;background:var(--chart-1);animation:blink 1.4s infinite}
 .figlio-live-vs{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.figlio-live-sq{font-family:var(--font-display);font-size:24px;line-height:.95;font-weight:800;text-transform:uppercase}
+.figlio-live-squadre{display:flex;flex-direction:column;gap:5px;min-width:0}
+.figlio-live-sq{font-family:var(--font-display);font-size:27px;line-height:.92;font-weight:800;text-transform:uppercase}
 .figlio-live-sq.avv{color:#B9C9D4;font-weight:700}
 .figlio-live-score{
   display:flex;align-items:center;gap:8px;background:var(--chart-1);border-radius:999px;padding:8px 16px;
-  font-family:var(--font-display);font-weight:800;line-height:.8;font-size:40px;color:#00253F;
+  font-family:var(--font-display);font-weight:800;line-height:.8;
 }
-.figlio-live-score span{font-size:22px;color:#1C4A16}
+.figlio-live-score .noi{font-size:46px;color:#00253F}
+.figlio-live-score .sep{font-size:24px;color:#1C4A16}
+.figlio-live-score .loro{font-size:46px;color:#1C4A16}
 .figlio-prox{
   background:var(--surface);border-radius:34px;padding:17px 20px 16px;display:flex;flex-direction:column;gap:14px;
   box-shadow:0 8px 18px rgba(11,27,38,.10);
 }
-.figlio-prox-titolo{font-family:var(--font-display);font-size:30px;line-height:.9;font-weight:800;text-transform:uppercase;color:var(--ink)}
+.figlio-prox-riga{display:flex;align-items:center;gap:14px}
+.figlio-prox-titolo{font-family:var(--font-display);font-size:36px;line-height:.88;font-weight:800;text-transform:uppercase;color:var(--ink)}
+.figlio-prox-data{
+  width:62px;height:62px;flex:none;border-radius:50%;background:var(--navy-fixed);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.figlio-prox-data .n{font-family:var(--font-display);font-size:27px;line-height:.82;font-weight:800;color:#FFFFFF}
+.figlio-prox-data .m{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--chart-1)}
 .figlio-settimana{border-top:1.5px solid var(--line);padding-top:13px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .figlio-giorno{
   border-radius:999px;background:var(--surface-3);padding:6px 0;text-align:center;
@@ -2217,15 +2292,44 @@ function vHome() {
    qui tradotta 1:1 nell'HTML/CSS/JS dell'app: stessa gerarchia visiva, stessi
    colori per figlio, stessa logica di apertura/trascinamento/cambio figlio.
    ===================================================================== */
+const GIORNI3 = ["lun", "mar", "mer", "gio", "ven", "sab", "dom"];
+/* "ieri", "3 giorni fa"... come nel prototipo (l'app finora mostrava solo date assolute) */
+function tempoRelativo(iso) {
+  const g = Math.round((new Date(todayISO() + "T00:00:00") - new Date(iso + "T00:00:00")) / 86400000);
+  if (g <= 0) return "oggi";
+  if (g === 1) return "ieri";
+  if (g < 14) return g + " giorni fa";
+  return fmtDate(iso, false);
+}
+/* riquadro data della lista "La settimana": navy per il primo impegno (il più vicino),
+   crema per gli altri — stessa gerarchia del prototipo. */
+function dataGrandeFiglio(iso, evidenziata) {
+  const d = new Date(iso + "T00:00:00");
+  const idx = (d.getDay() + 6) % 7;
+  return `<div class="figlio-databadge ${evidenziata ? "evid" : ""}">
+    <div class="n">${d.getDate()}</div>
+    <div class="g">${GIORNI3[idx]}</div>
+  </div>`;
+}
+
 function vHomeGenitore() {
   const coms = [...S.comunicazioni].sort((a, b) =>
     (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1));
+  const impegni = appuntamentiHome();
+  const nuove = S.comunicazioni.filter(c => Math.round((new Date(todayISO() + "T00:00:00") - new Date(c.data + "T00:00:00")) / 86400000) <= 7).length;
 
-  return `<div class="stack-lg">
+  return `<div class="figlio-sfondo" id="figlioSfondo">
     <div class="figlio-hero">
       <div class="figlio-hero-glow"></div>
+      <div class="figlio-hero-brand">
+        <img src="${S.settings.logo || LOGO_DEFAULT}" alt="">
+        <span>${esc(S.settings.club)}</span>
+      </div>
       <div class="figlio-hero-eyebrow">Bentornato</div>
-      <div class="figlio-hero-titolo">Genitore</div>
+      <div class="figlio-hero-riga">
+        <div class="figlio-hero-nome">Matteo<br>Bianchi</div>
+        <div class="figlio-hero-ruolo"><div>Genitore</div><div class="bianco">socio 0421</div></div>
+      </div>
     </div>
 
     <div class="figlio-cards">
@@ -2237,33 +2341,40 @@ function vHomeGenitore() {
         </div>`).join("")}
     </div>
 
-    <div>
-      <div class="sec-head"><h2>La settimana<i class="sec-dot"></i></h2></div>
-      <div class="stack">
-        ${appuntamentiHome().map(ap => `
-          <div class="card ${ap.vai ? "clickable" : ""}" style="display:flex;align-items:center;gap:12px;padding:12px 14px"
+    <div class="figlio-sezione">
+      <div class="figlio-sezione-testa"><span>La settimana</span><span class="figlio-riga"></span><span class="figlio-conta">${impegni.length} impegni</span></div>
+      <div class="figlio-lista">
+        ${impegni.length ? impegni.map((ap, i) => `
+          ${i > 0 ? `<div class="figlio-divisore"></div>` : ""}
+          <div class="figlio-riga-impegno ${ap.vai ? "clickable" : ""}"
                ${ap.vai ? `data-act="go" data-arg="${esc(JSON.stringify(ap.vai))}" role="button" tabindex="0"` : ""}>
-            ${dataGrande(ap.data)}
-            <div class="grow stack" style="gap:2px">
-              <div class="title">${esc(ap.titolo)}</div>
-              <div class="muted">${esc(ap.sotto)}</div>
+            ${dataGrandeFiglio(ap.data, i === 0)}
+            <div class="grow" style="flex:1;min-width:0">
+              <div class="figlio-riga-titolo">${esc(ap.titolo)}</div>
+              <div class="figlio-riga-sub">${esc(ap.sotto)}</div>
             </div>
-          </div>`).join("") || `<div class="empty">Nessun appuntamento in programma.</div>`}
+          </div>`).join("") : `<div class="empty">Nessun appuntamento in programma.</div>`}
       </div>
     </div>
 
-    <div>
-      <div class="sec-head"><h2>Comunicazioni<i class="sec-dot"></i></h2></div>
-      <div class="stack">
-        ${coms.length ? coms.map(c => `
-          <div class="card com-card ${c.fissata ? "pinned" : ""}">
-            <div class="row">
-              ${c.fissata ? `<span class="pill tag">${ic("pin")} In evidenza</span>` : ""}
-              <span class="muted num">${fmtDate(c.data)}</span>
-              <span class="grow"></span>
+    <div class="figlio-sezione">
+      <div class="figlio-sezione-testa"><span>Comunicazioni</span><span class="figlio-riga"></span><span class="figlio-conta lime">${nuove} nuove</span></div>
+      <div class="figlio-lista" style="gap:10px">
+        ${coms.length ? coms.slice(0, 3).map(c => c.fissata ? `
+          <div class="figlio-com evidenza">
+            <span class="figlio-com-barra lime"></span>
+            <div class="grow" style="flex:1;min-width:0">
+              <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
+              <div class="figlio-com-titolo">${esc(c.titolo)}</div>
+              <div class="figlio-com-corpo">${esc(c.corpo)}</div>
             </div>
-            <h3>${esc(c.titolo)}</h3>
-            ${longText(c.corpo, "", "due-righe")}
+          </div>` : `
+          <div class="figlio-com">
+            <span class="figlio-com-barra"></span>
+            <div class="grow" style="flex:1;min-width:0">
+              <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
+              <div class="figlio-com-corpo piano">${esc(c.titolo)} — ${esc(c.corpo)}</div>
+            </div>
           </div>`).join("") : `<div class="empty">Nessuna comunicazione.</div>`}
       </div>
     </div>
@@ -2287,21 +2398,21 @@ function figlioContenutoHTML(id) {
     <div class="figlio-live">
       <div class="figlio-live-head"><span class="figlio-live-dot"></span>In campo ora</div>
       <div class="figlio-live-vs">
-        <div class="stack" style="gap:2px;min-width:0">
+        <div class="figlio-live-squadre">
           <div class="figlio-live-sq">${esc(S.settings.club)}</div>
           <div class="figlio-live-sq avv">${esc(live.avversario)}</div>
         </div>
-        <div class="figlio-live-score">${live.puntiNoi ?? 0}<span>–</span>${live.puntiLoro ?? 0}</div>
+        <div class="figlio-live-score"><span class="noi">${live.puntiNoi ?? 0}</span><span class="sep">–</span><span class="loro">${live.puntiLoro ?? 0}</span></div>
       </div>
     </div>` : prossima ? `
     <div class="figlio-prox">
-      <div class="row" style="gap:14px;align-items:flex-start">
-        <div class="grow stack" style="gap:3px;min-width:0">
+      <div class="figlio-prox-riga">
+        <div class="grow" style="flex:1;min-width:0">
           <div class="eyebrow">Prossimo impegno</div>
           <div class="figlio-prox-titolo">${esc(nomeCat(prossima.categoria))} — ${esc(prossima.avversario)}</div>
           <div class="muted">${esc(prossima.ora || "—")} · ${esc(prossima.luogo || "—")}</div>
         </div>
-        ${dataGrande(prossima.data)}
+        <div class="figlio-prox-data"><div class="n">${new Date(prossima.data + "T00:00:00").getDate()}</div><div class="m">${MESI[new Date(prossima.data + "T00:00:00").getMonth()]}</div></div>
       </div>
       <div class="figlio-settimana">${settimanaFiglioHTML(prossima.data)}</div>
     </div>` : `<div class="empty">Nessun impegno in programma per ${esc(f.nome)}.</div>`;
@@ -2309,8 +2420,9 @@ function figlioContenutoHTML(id) {
   return `
     <div class="figlio-testata">
       <div class="figlio-testata-glow"></div>
-      <div class="figlio-testata-eyebrow">La settimana di</div>
-      <div class="figlio-testata-titolo">${esc(f.nome)}</div>
+      <img class="figlio-testata-logo" src="${S.settings.logo || LOGO_DEFAULT}" alt="">
+      <div class="figlio-testata-eyebrow">Bentornato Matteo</div>
+      <div class="figlio-testata-titolo">La settimana<br>di ${esc(f.nome)}</div>
     </div>
     <div class="figlio-selettore">
       <span class="figlio-freccia" data-act="figlioCambia" role="button" tabindex="0" aria-label="Passa all'altro figlio">
@@ -2349,11 +2461,14 @@ function settimanaFiglioHTML(dataProssima) {
 }
 
 /* la scheda vive in #figlioRoot, fuori dal ciclo di render(), come i modali: cosi le sue
-   animazioni non vengono interrotte se qualcos'altro nell'app chiama render() nel frattempo. */
+   animazioni non vengono interrotte se qualcos'altro nell'app chiama render() nel frattempo.
+   Lo sfondo (#figlioSfondo, dentro #main) si rimpicciolisce e si scurisce leggermente mentre
+   la scheda scivola sopra: stesso effetto di profondità del prototipo. */
 let _figlioTimer = null;
 function apriFiglio(id) {
   clearTimeout(_figlioTimer);
   _figlioAperto = id;
+  document.getElementById("figlioSfondo")?.classList.add("risucchiato");
   const root = document.getElementById("figlioRoot");
   root.innerHTML = `<div class="figlio-drawer">
     <div class="figlio-maniglia" data-act="figlioChiudi" role="button" tabindex="0" aria-label="Chiudi la scheda"><span></span></div>
@@ -2369,6 +2484,7 @@ function chiudiFiglio() {
   const el = root.querySelector(".figlio-drawer");
   if (!el) return;
   _figlioAperto = null;
+  document.getElementById("figlioSfondo")?.classList.remove("risucchiato");
   el.classList.remove("aperta");
   el.classList.add("uscita");
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) { root.innerHTML = ""; return; }
@@ -3918,6 +4034,12 @@ function renderChrome() {
 function render() {
   clearTimeout(_attesa);            // se stavamo aspettando, il contenuto vero ha la precedenza
   renderChrome();
+  // una navigazione vera (tasto Indietro, voce di menu...) chiude sempre la scheda del figlio,
+  // se era aperta: #main sta per essere ricostruito da zero, non avrebbe più senso lasciarla lì.
+  clearTimeout(_figlioTimer);
+  _figlioAperto = null;
+  const figlioRoot = document.getElementById("figlioRoot");
+  if (figlioRoot) figlioRoot.innerHTML = "";
 
   const main = document.getElementById("main");
   main.removeAttribute("aria-busy");
