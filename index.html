@@ -875,10 +875,13 @@ main[aria-busy="true"]{pointer-events:none}
 }
 @media (min-width:960px){.figlio-hero{margin:-20px -22px 0}}
 .figlio-hero-glow{
-  /* piccola e concentrata: deve spegnersi del tutto ben prima del bordo arrotondato,
-     altrimenti il ritaglio (overflow:hidden) la taglia di netto invece di farla sfumare */
-  position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(70% 60% at 85% 0%, rgba(143,192,63,.22), rgba(143,192,63,0) 58%);
+  /* non parte da inset:0 ma un po' più sotto: subito sopra c'è la vera intestazione
+     dell'app, navy piatto senza sfumatura — nella fascia di raccordo (i primi 44px) niente
+     bagliore, cosi il colore combacia esattamente, pixel per pixel, invece di affidarsi
+     al solo calcolo del gradiente per restare impercettibile li. Si spegne anche prima del
+     bordo arrotondato in basso, cosi il ritaglio (overflow:hidden) non la taglia di netto. */
+  position:absolute;top:44px;left:0;right:0;bottom:0;pointer-events:none;
+  background-image:radial-gradient(75% 65% at 85% 18%, rgba(143,192,63,.22), rgba(143,192,63,0) 55%);
 }
 .figlio-hero-brand{position:relative;display:flex;align-items:center;gap:11px}
 .figlio-hero-brand img{width:26px;height:auto;display:block}
@@ -971,8 +974,11 @@ main[aria-busy="true"]{pointer-events:none}
 .figlio-maniglia span{width:42px;height:4px;border-radius:999px;background:rgba(255,255,255,.5)}
 .figlio-drawer-inner{margin-top:-14px;flex:1;display:flex;flex-direction:column;min-height:0}
 .figlio-testata{
+  /* più alta del valore originale del prototipo (pensato per una tela fissa di 860px):
+     su un telefono vero, spesso più alto, la stessa misura in pixel sembrava tagliata
+     corta invece che una forma piena e intenzionale. */
   position:relative;overflow:hidden;background:var(--navy-fixed);color:#FFFFFF;
-  padding:14px 18px 54px;border-radius:0 0 260px 260px / 0 0 120px 120px;
+  padding:14px 18px 90px;border-radius:0 0 260px 260px / 0 0 130px 130px;
   display:flex;flex-direction:column;align-items:center;gap:10px;
 }
 .figlio-testata-glow{
@@ -988,7 +994,7 @@ main[aria-busy="true"]{pointer-events:none}
   position:relative;font-family:var(--font-display);font-size:56px;line-height:.86;text-align:center;
   font-weight:800;text-transform:uppercase;color:#FFFFFF;
 }
-.figlio-selettore{position:relative;margin-top:-42px;display:flex;align-items:center;justify-content:center;gap:16px}
+.figlio-selettore{position:relative;margin-top:-52px;display:flex;align-items:center;justify-content:center;gap:16px}
 .figlio-freccia{display:flex;width:32px;height:32px;align-items:center;justify-content:center;color:#B3AB96;cursor:pointer}
 .figlio-freccia svg{width:15px;height:15px}
 .figlio-avatar{
