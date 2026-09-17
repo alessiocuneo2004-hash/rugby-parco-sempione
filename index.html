@@ -313,8 +313,12 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
   }
   html[data-menu="classico"] .nav button{
     height:60px;min-height:60px;padding:0;gap:4px;border-radius:30px;
+    justify-content:center;line-height:1;
     font-family:var(--font-mono);font-size:10px;font-weight:400;letter-spacing:.12em;
   }
+  /* la spaziatura tra le lettere aggiunge spazio solo a destra dell'ultima: senza
+     questo rientro l'etichetta risulta spostata di mezzo carattere verso sinistra */
+  html[data-menu="classico"] .nav button span{margin-left:.12em}
   html[data-menu="classico"] .nav button svg{width:21px;height:21px}
   html[data-menu="classico"] .nav button.on,
   html[data-menu="classico"] .nav button.on svg{color:var(--chart-1)}
@@ -2331,7 +2335,7 @@ function miaAreaHTML(a) {
   const cat = sue[sue.length - 1];
   const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#8FC03F";
   return `<div class="figlio-cards uno">
-    <div class="figlio-card mia-area" style="background:${tinta};color:${inkSuColore(tinta)}"
+    <div class="figlio-card mia-area" style="background:${tinta}"
          data-act="miaArea" role="button" tabindex="0" aria-label="Vai a La mia area">
       <span class="figlio-card-freccia">${ic("right")}</span>
       <span class="figlio-card-nome">La mia area</span>
