@@ -239,7 +239,7 @@ a{color:var(--ink)}
   .role-pill .lvl:not(.l1){background:none;border:1.5px solid rgba(255,255,255,.55);color:var(--navy-fixed-ink)}
 }
 
-main{padding:20px 16px 100px;min-width:0;position:relative;z-index:1}
+main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;position:relative;z-index:1}
 @media (min-width:960px){
   #app{grid-template-columns:212px minmax(0,1fr);column-gap:0}
   .topbar{grid-column:1/-1}
@@ -296,6 +296,28 @@ main{padding:20px 16px 100px;min-width:0;position:relative;z-index:1}
   .nav button.on{color:var(--navy-fixed-ink)}
   .nav button.on svg{color:var(--live-pill-bg)}
   .nav button.on::before{display:none}
+}
+/* col menu classico la barra è una pastiglia navy staccata dai bordi (disegno di Claude
+   Design): la fascia dietro prende il colore della pagina, cosi il contenuto che scorre
+   non si intravede sotto la pastiglia. Gli altri due stili di menu restano come sono. */
+@media (max-width:959px){
+  html[data-menu="classico"] .nav{
+    background:var(--bg);min-height:0;align-items:stretch;
+    padding:8px max(16px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));
+    padding-right:max(16px,env(safe-area-inset-right));
+  }
+  html[data-menu="classico"] .nav::before{
+    content:"";position:absolute;top:8px;height:60px;
+    left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));
+    border-radius:30px;background:var(--navy-fixed);box-shadow:0 10px 26px rgba(11,27,38,.24);
+  }
+  html[data-menu="classico"] .nav button{
+    height:60px;min-height:60px;padding:0;gap:4px;border-radius:30px;
+    font-family:var(--font-mono);font-size:10px;font-weight:400;letter-spacing:.12em;
+  }
+  html[data-menu="classico"] .nav button svg{width:21px;height:21px}
+  html[data-menu="classico"] .nav button.on,
+  html[data-menu="classico"] .nav button.on svg{color:var(--chart-1)}
 }
 @media (min-width:960px){
   .nav{
@@ -927,6 +949,20 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-cards.uno{grid-template-columns:1fr}
 .figlio-card.mia-area{min-height:104px;justify-content:space-between}
 .figlio-card.mia-area .figlio-card-freccia{color:currentColor;width:20px;height:20px}
+/* passaggio a "La mia area": il banner si alza e si allarga fuori schermo mentre il
+   resto della Home arretra, cosi il cambio di schermata sembra un seguito del tocco. */
+.figlio-card.mia-area.parte{animation:miaAreaParte .32s cubic-bezier(.32,.72,0,1) forwards}
+@keyframes miaAreaParte{
+  22%{transform:scale(.97)}
+  100%{transform:scale(1.14) translateY(-14px);opacity:0}
+}
+/* stesso linguaggio della scheda figlio: la Home arretra e si scurisce invece di
+   svanire, cosi si capisce che resta lì sotto */
+.figlio-sfondo.indietreggia .figlio-hero,
+.figlio-sfondo.indietreggia .figlio-sezioni{
+  animation:miaAreaArretra .32s cubic-bezier(.32,.72,0,1) forwards;
+}
+@keyframes miaAreaArretra{to{transform:scale(.97);filter:brightness(.72);opacity:.55}}
 
 /* sezioni "La settimana" / "Comunicazioni" della Home genitori: lista piatta con
    divisori sottili (non le card bianche generiche usate nel resto dell'app — qui si
@@ -1049,7 +1085,9 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-punto{width:6px;height:5px;border-radius:999px;background:var(--surface-3);transition:width .28s cubic-bezier(.23,1,.32,1)}
 .figlio-punto.on{width:20px}
 .figlio-corpo{
-  flex:1;padding:18px 16px 100px;display:flex;flex-direction:column;gap:14px;
+  flex:1;display:flex;flex-direction:column;gap:14px;
+  /* lo spazio in fondo tiene conto della pastiglia del menu, che galleggia sopra la scheda */
+  padding:18px 16px calc(96px + env(safe-area-inset-bottom));
 }
 @media (min-width:960px){.figlio-corpo{padding-bottom:60px}}
 .figlio-live{
@@ -2286,21 +2324,29 @@ function vHome() {
 
 /* scorciatoia a tutta larghezza verso "La mia area", al posto delle card dei figli.
    Prende il colore della categoria allenata: se un allenatore ne segue più di una vince
-   la più grande (S.categorie va dalla più piccola alla più grande). Senza un profilo
-   scelto sul dispositivo si mostra il colore dell'U6, come esempio. */
+   la più grande (S.categorie va dalla più piccola alla più grande). Chi non allena
+   nessuna categoria — o non ha ancora scelto il proprio profilo — resta sul verde. */
 function miaAreaHTML(a) {
   const sue = a ? S.categorie.filter(c => (a.categorie || []).includes(c.id)) : [];
-  const cat = sue.length ? sue[sue.length - 1] : S.categorie.find(c => c.nome === "U6");
-  const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#00253F";
+  const cat = sue[sue.length - 1];
+  const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#8FC03F";
   return `<div class="figlio-cards uno">
     <div class="figlio-card mia-area" style="background:${tinta};color:${inkSuColore(tinta)}"
-         data-act="go" data-arg="${esc(JSON.stringify({ name: "mio" }))}"
-         role="button" tabindex="0" aria-label="Vai a La mia area">
+         data-act="miaArea" role="button" tabindex="0" aria-label="Vai a La mia area">
       <span class="figlio-card-freccia">${ic("right")}</span>
       <span class="figlio-card-nome">La mia area</span>
     </div>
   </div>`;
 }
+/* il banner non salta di colpo nella schermata: si espande verso l'alto mentre il resto
+   della Home arretra, poi il cambio vista arriva a transizione finita. */
+ACT.miaArea = (arg, el) => {
+  const vai = () => go({ name: "mio" });
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return vai();
+  el.classList.add("parte");
+  document.getElementById("figlioSfondo")?.classList.add("indietreggia");
+  setTimeout(vai, 320);
+};
 
 /* intestazione della Home, uguale per tutti i livelli (disegno di Claude Design):
    scudo + nome del club + pastiglia del livello, "Bentornato" e il nome in grande. */
