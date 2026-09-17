@@ -303,23 +303,23 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 @media (max-width:959px){
   html[data-menu="classico"] .nav{
     background:var(--bg);min-height:0;align-items:stretch;
-    padding:8px max(16px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));
-    padding-right:max(16px,env(safe-area-inset-right));
+    padding:8px max(14px,env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom));
+    padding-right:max(14px,env(safe-area-inset-right));
   }
   html[data-menu="classico"] .nav::before{
-    content:"";position:absolute;top:8px;height:60px;
-    left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));
-    border-radius:30px;background:var(--navy-fixed);box-shadow:0 10px 26px rgba(11,27,38,.24);
+    content:"";position:absolute;top:8px;height:66px;
+    left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));
+    border-radius:33px;background:var(--navy-fixed);box-shadow:0 10px 26px rgba(11,27,38,.24);
   }
   html[data-menu="classico"] .nav button{
-    height:60px;min-height:60px;padding:0;gap:4px;border-radius:30px;
+    height:66px;min-height:66px;padding:0;gap:5px;border-radius:33px;
     justify-content:center;line-height:1;
-    font-family:var(--font-mono);font-size:10px;font-weight:400;letter-spacing:.12em;
+    font-family:var(--font-mono);font-size:10.5px;font-weight:400;letter-spacing:.12em;
   }
   /* la spaziatura tra le lettere aggiunge spazio solo a destra dell'ultima: senza
      questo rientro l'etichetta risulta spostata di mezzo carattere verso sinistra */
   html[data-menu="classico"] .nav button span{margin-left:.12em}
-  html[data-menu="classico"] .nav button svg{width:21px;height:21px}
+  html[data-menu="classico"] .nav button svg{width:23px;height:23px}
   html[data-menu="classico"] .nav button.on,
   html[data-menu="classico"] .nav button.on svg{color:var(--chart-1)}
 }
