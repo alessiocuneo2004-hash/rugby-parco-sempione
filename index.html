@@ -53,6 +53,7 @@
   --accent-soft-ink:#3D6B12;
   --navy:#00253F;          /* navy: chip ad alto contrasto, si scambia col verde in scuro */
   --navy-light:#004070;    /* navy chiaro: accento testuale su chiaro (sigle, giorni) */
+  --titolo:#00253F;        /* titolone di schermata: lo stesso navy della testata col logo */
   --navy-ink:#FFFFFF;
   --navy-fixed:#00253F; --navy-fixed-ink:#FFFFFF; /* intestazione/barra: sempre navy, in entrambi i temi */
   --tag-line:#B9C6CE;   /* bordo delle etichette tonde (filtri, tipo partita) */
@@ -87,7 +88,7 @@
     --nav-item:#7C9AAE; --nav-active-bg:#8FC03F; --nav-active-fg:#0B1B26;
     --accent:#8FC03F; --accent-ui:#8FC03F; --accent-hover:#9FCC57; --accent-ink:#0B1B26;
     --accent-soft:rgba(143,192,63,.15); --accent-soft-ink:#A8CE6A;
-    --navy:#8FC03F; --navy-light:#9FC2DA; --navy-ink:#0B1B26;
+    --navy:#8FC03F; --navy-light:#9FC2DA; --navy-ink:#0B1B26; --titolo:#9FC2DA;
     --navy-fixed:#00253F; --navy-fixed-ink:#FFFFFF; --tag-line:#2C5C86;
     --rule:#8FC03F;
     --live-bg:#F4EEDC;     /* card "foglio di carta" sul blu notte */
@@ -113,7 +114,7 @@
   --nav-item:#7C9AAE; --nav-active-bg:#00253F; --nav-active-fg:#FFFFFF;
   --accent:#8FC03F; --accent-ui:#8FC03F; --accent-hover:#7FAE33; --accent-ink:#0B1B26;
   --accent-soft:#E9F1DA; --accent-soft-ink:#3D6B12;
-  --navy:#00253F; --navy-light:#004070; --navy-ink:#FFFFFF; --rule:#8FC03F;
+  --navy:#00253F; --navy-light:#004070; --navy-ink:#FFFFFF; --rule:#8FC03F; --titolo:#00253F;
   --navy-fixed:#00253F; --navy-fixed-ink:#FFFFFF; --tag-line:#B9C6CE;
   --live-bg:#00253F; --live-fg:#FFFFFF; --live-muted:#7C9AAE; --live-score:#FFFFFF;
   --live-pill-bg:#8FC03F; --live-pill-ink:#0B1B26;
@@ -135,7 +136,7 @@
   --nav-item:#7C9AAE; --nav-active-bg:#8FC03F; --nav-active-fg:#0B1B26;
   --accent:#8FC03F; --accent-ui:#8FC03F; --accent-hover:#9FCC57; --accent-ink:#0B1B26;
   --accent-soft:rgba(143,192,63,.15); --accent-soft-ink:#A8CE6A;
-  --navy:#8FC03F; --navy-light:#9FC2DA; --navy-ink:#0B1B26; --rule:#8FC03F;
+  --navy:#8FC03F; --navy-light:#9FC2DA; --navy-ink:#0B1B26; --rule:#8FC03F; --titolo:#9FC2DA;
   --navy-fixed:#00253F; --navy-fixed-ink:#FFFFFF; --tag-line:#2C5C86;
   --live-bg:#F4EEDC; --live-fg:#00253F; --live-muted:#8A8578; --live-score:#00253F;
   --live-pill-bg:#8FC03F; --live-pill-ink:#0B1B26;
@@ -380,9 +381,10 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* contatore di sezione: solo il pallino verde, senza numero (design system) */
 .sec-dot{width:9px;height:9px;flex:none;border-radius:50%;background:var(--accent)}
 /* titolo di schermata: 72px, il più grande della scala */
-/* il titolone in cima a ogni schermata usa il navy chiaro del design system,
-   non l'inchiostro dei testi: e' un'insegna, non una riga da leggere */
-.page-title{font-size:80px;line-height:.88;color:var(--navy-light)}
+/* il titolone in cima a ogni schermata riprende il navy della testata col logo:
+   e' un'insegna, non una riga da leggere. Sul tema scuro passa all'azzurro chiaro,
+   perche' su fondo scuro quel navy sparirebbe. */
+.page-title{font-size:80px;line-height:.88;color:var(--titolo)}
 .muted{color:var(--ink-3);font-size:16px;font-family:var(--font-data)}
 .small{font-size:17px;color:var(--ink-2)}
 .num{font-variant-numeric:tabular-nums}
