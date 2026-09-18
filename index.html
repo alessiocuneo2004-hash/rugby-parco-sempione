@@ -380,7 +380,9 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* contatore di sezione: solo il pallino verde, senza numero (design system) */
 .sec-dot{width:9px;height:9px;flex:none;border-radius:50%;background:var(--accent)}
 /* titolo di schermata: 72px, il più grande della scala */
-.page-title{font-size:80px;line-height:.88;color:var(--ink)}
+/* il titolone in cima a ogni schermata usa il navy chiaro del design system,
+   non l'inchiostro dei testi: e' un'insegna, non una riga da leggere */
+.page-title{font-size:80px;line-height:.88;color:var(--navy-light)}
 .muted{color:var(--ink-3);font-size:16px;font-family:var(--font-data)}
 .small{font-size:17px;color:var(--ink-2)}
 .num{font-variant-numeric:tabular-nums}
@@ -595,6 +597,11 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 @keyframes popIn{from{opacity:0}}
 @keyframes viewIn{from{opacity:0}}
 main.anim>*{animation:viewIn .14s ease-out}
+/* navigazione "in avanti" (dal banner della Home alla propria area): la schermata
+   nuova entra da destra, come una pagina spinta sopra quella di prima. La Home non
+   viene animata in uscita: il cambio parte subito al tocco, senza attese. */
+@keyframes viewSpinta{from{opacity:0;transform:translateX(20px)}}
+main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 /* elemento appena creato (vedi _nuovoId in 06-views.js): entra invece di comparire già al
    suo posto in cima alla lista. Classe generica, riusabile ovunque serva lo stesso effetto. */
 .entra{animation:entra .22s ease-out}
@@ -953,20 +960,6 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-cards.uno{grid-template-columns:1fr}
 .figlio-card.mia-area{min-height:104px;justify-content:space-between}
 .figlio-card.mia-area .figlio-card-freccia{color:currentColor;width:20px;height:20px}
-/* passaggio a "La mia area": il banner si alza e si allarga fuori schermo mentre il
-   resto della Home arretra, cosi il cambio di schermata sembra un seguito del tocco. */
-.figlio-card.mia-area.parte{animation:miaAreaParte .32s cubic-bezier(.32,.72,0,1) forwards}
-@keyframes miaAreaParte{
-  22%{transform:scale(.97)}
-  100%{transform:scale(1.14) translateY(-14px);opacity:0}
-}
-/* stesso linguaggio della scheda figlio: la Home arretra e si scurisce invece di
-   svanire, cosi si capisce che resta lì sotto */
-.figlio-sfondo.indietreggia .figlio-hero,
-.figlio-sfondo.indietreggia .figlio-sezioni{
-  animation:miaAreaArretra .32s cubic-bezier(.32,.72,0,1) forwards;
-}
-@keyframes miaAreaArretra{to{transform:scale(.97);filter:brightness(.72);opacity:.55}}
 
 /* sezioni "La settimana" / "Comunicazioni" della Home genitori: lista piatta con
    divisori sottili (non le card bianche generiche usate nel resto dell'app — qui si
@@ -2151,6 +2144,7 @@ function bindImgSk(rootEl) {
 
 let VIEW = { name: "home" };
 let _forzaAnim = false;   // vedi render(): forza la dissolvenza di vista anche a VIEW.name invariato
+let _spinta = false;      // vedi render(): la prossima vista entra da destra, non in dissolvenza
 let _nuovoId = null;      // vedi render(): l'elemento appena creato entra con un'animazione, non di scatto
 
 /* Home dei Genitori (L5): due figli demo, collegati alle categorie vere (U10/U12) per
@@ -2342,15 +2336,10 @@ function miaAreaHTML(a) {
     </div>
   </div>`;
 }
-/* il banner non salta di colpo nella schermata: si espande verso l'alto mentre il resto
-   della Home arretra, poi il cambio vista arriva a transizione finita. */
-ACT.miaArea = (arg, el) => {
-  const vai = () => go({ name: "mio" });
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return vai();
-  el.classList.add("parte");
-  document.getElementById("figlioSfondo")?.classList.add("indietreggia");
-  setTimeout(vai, 320);
-};
+/* il tocco porta subito nella propria area: l'unica cosa animata è la schermata che
+   arriva, che entra da destra (vedi .spinta). Far aspettare il cambio di vista per
+   mostrare un effetto sul banner è proprio quello che faceva sembrare l'app lenta. */
+ACT.miaArea = () => { _spinta = true; go({ name: "mio" }); };
 
 /* intestazione della Home, uguale per tutti i livelli (disegno di Claude Design):
    scudo + nome del club + pastiglia del livello, "Bentornato" e il nome in grande. */
@@ -4173,11 +4162,13 @@ function render() {
   // cambia di colpo (da "Chi sei?" all'intera scheda personale); _forzaAnim la fa entrare
   // con la stessa dissolvenza, invece di comparire di scatto.
   if (render._ultimaVista !== VIEW.name || _forzaAnim) {
-    main.classList.remove("anim");
+    main.classList.remove("anim", "spinta");
     void main.offsetWidth;
     main.classList.add("anim");
+    if (_spinta) main.classList.add("spinta");
     _forzaAnim = false;
   }
+  _spinta = false;
   render._ultimaVista = VIEW.name;
   misuraTopbar();   // la testata della Home esiste solo ora che #main è stato riempito
   bindCharts(main);
