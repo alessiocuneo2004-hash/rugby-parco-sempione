@@ -900,7 +900,7 @@ main[aria-busy="true"]{pointer-events:none}
    ===================================================================== */
 .figlio-sfondo{
   transform-origin:top center;
-  transition:transform .42s cubic-bezier(.32,.72,0,1), filter .42s cubic-bezier(.32,.72,0,1);
+  transition:transform .44s cubic-bezier(.32,.72,0,1), filter .44s cubic-bezier(.32,.72,0,1);
 }
 .figlio-sfondo.risucchiato{transform:scale(.96);filter:brightness(.72)}
 
@@ -948,18 +948,20 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-hero-ruolo .bianco{color:#FFFFFF}
 .figlio-cards{position:relative;margin-top:-16px;padding:0 12px;display:grid;grid-template-columns:1fr 1fr;gap:11px;z-index:3}
 .figlio-card{
-  border-radius:24px;padding:14px 15px 15px;display:flex;flex-direction:column;gap:14px;
+  position:relative;overflow:hidden;height:112px;box-sizing:border-box;
+  border-radius:24px;padding:14px 15px;display:flex;flex-direction:column;
   box-shadow:0 14px 28px rgba(11,27,38,.24);cursor:pointer;color:#FFFFFF;
 }
 .figlio-card-freccia{align-self:flex-end;width:16px;height:16px;color:#FFFFFF}
 .figlio-card-freccia svg{width:100%;height:100%}
+/* nome grande che sborda sotto il bordo e viene tagliato, come le sigle delle categorie */
 .figlio-card-nome{
-  font-family:var(--font-display);font-size:40px;line-height:.86;font-weight:800;text-transform:uppercase;
+  position:absolute;left:15px;bottom:-12px;white-space:nowrap;
+  font-family:var(--font-display);font-size:72px;line-height:1;font-weight:800;text-transform:uppercase;
 }
 /* livelli 1-4: al posto delle due card figlio c'è una sola card larga, la scorciatoia
    verso "La mia area". Sfondo navy perché è l'unica azione della fascia. */
 .figlio-cards.uno{grid-template-columns:1fr}
-.figlio-card.mia-area{min-height:104px;justify-content:space-between}
 .figlio-card.mia-area .figlio-card-freccia{color:currentColor;width:20px;height:20px}
 
 /* sezioni "La settimana" / "Comunicazioni" della Home genitori: lista piatta con
@@ -1019,7 +1021,7 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-com-corpo{margin-top:3px;font-family:var(--font-data);font-size:13.5px;color:var(--ink-4)}
 .figlio-com-corpo.piano{color:var(--ink-2)}
 
-/* scheda a comparsa: scende dall'alto, esce verso il basso, resta ferma finché non la si
+/* scheda a comparsa: sale dal basso e torna giù da dove è venuta, resta ferma finché non la si
    apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). Sta sopra
    l'intestazione dell'app (che cosi resta nascosta, come nel disegno) ma sotto la barra
    di navigazione, che rimane visibile/usabile mentre la scheda è aperta. */
@@ -1029,8 +1031,8 @@ html[data-senza-topbar] .topbar{display:none}
      questo la maniglia e la testata finiscono sotto l'orologio/le icone di sistema. */
   position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;overflow-y:auto;
   padding-top:env(safe-area-inset-top);
-  background:var(--bg);transform:translateY(-100%);
-  transition:transform .42s cubic-bezier(.32,.72,0,1);touch-action:none;
+  background:var(--bg);transform:translateY(100%);
+  transition:transform .44s cubic-bezier(.32,.72,0,1);touch-action:none;
 }
 .figlio-drawer.aperta{transform:translateY(0)}
 .figlio-drawer.uscita{transform:translateY(100%)}
@@ -2610,7 +2612,7 @@ function chiudiFiglio() {
   el.classList.add("uscita");
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) { root.innerHTML = ""; return; }
   clearTimeout(_figlioTimer);
-  _figlioTimer = setTimeout(() => { root.innerHTML = ""; }, 420);
+  _figlioTimer = setTimeout(() => { root.innerHTML = ""; }, 440);
 }
 function cambiaFiglio() {
   if (!_figlioAperto) return;
