@@ -949,9 +949,8 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-cards{position:relative;margin-top:-16px;padding:0 12px;display:grid;grid-template-columns:1fr 1fr;gap:11px;z-index:3}
 .figlio-card{
   border-radius:24px;padding:14px 15px 15px;display:flex;flex-direction:column;gap:14px;
-  box-shadow:0 14px 28px rgba(11,27,38,.24);cursor:pointer;transition:transform .16s ease;color:#FFFFFF;
+  box-shadow:0 14px 28px rgba(11,27,38,.24);cursor:pointer;color:#FFFFFF;
 }
-.figlio-card:active{transform:scale(.97)}
 .figlio-card-freccia{align-self:flex-end;width:16px;height:16px;color:#FFFFFF}
 .figlio-card-freccia svg{width:100%;height:100%}
 .figlio-card-nome{
@@ -990,7 +989,6 @@ html[data-senza-topbar] .topbar{display:none}
   border-radius:18px;padding:10px 12px;box-shadow:0 3px 9px rgba(11,27,38,.11);
 }
 .figlio-riga-impegno.clickable{cursor:pointer}
-.figlio-riga-impegno.clickable:active{opacity:.7}
 .figlio-riga-titolo{font-family:var(--font-display);font-size:26px;line-height:.9;font-weight:700;text-transform:uppercase;color:var(--ink)}
 .figlio-riga-titolo.primo{font-weight:800}
 .figlio-riga-sub{font-family:var(--font-data);font-size:13.5px;color:var(--ink-4)}
@@ -1003,9 +1001,8 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-avviso{
   display:flex;align-items:center;gap:11px;cursor:pointer;
   background:rgba(229,137,58,.16);border:1.5px solid rgba(229,137,58,.5);
-  border-radius:20px;padding:11px 14px;transition:transform .16s ease;
+  border-radius:20px;padding:11px 14px;
 }
-.figlio-avviso:active{transform:scale(.99)}
 .figlio-avviso-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#E5893A}
 .figlio-avviso-txt{flex:1;min-width:0;font-family:var(--font-data);font-size:14px;line-height:1.3;color:var(--ink)}
 .figlio-avviso-chev{width:15px;height:15px;flex:none;color:var(--navy-light)}
@@ -1131,6 +1128,31 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-suggerimento{
   margin-top:auto;padding-top:20px;text-align:center;font-family:var(--font-mono);
   font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+}
+
+/* ================= pressione ================= */
+/* tutto cio' che si tocca si stringe un poco sotto il dito: e' la conferma che il tocco
+   e' arrivato. Rientra veloce (100ms) e torna morbido (160ms), cosi anche un tocco
+   rapido si vede. Va in fondo al file per vincere sulle transizioni dei singoli pezzi. */
+:root{--ease-out:cubic-bezier(.23,1,.32,1)}
+.btn,.iconbtn,.chip,.tile,.card.clickable,.nav button,.list-row.clickable,.altro-item,
+.role-pill,.cat-card,.hero-card.clickable,.figlio-card,.figlio-riga-impegno.clickable,
+.figlio-avviso,.figlio-freccia{
+  transition:transform .16s var(--ease-out),background-color .12s ease-out,color .12s ease-out,
+    border-color .12s ease-out,filter .12s ease-out;
+}
+.btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
+.list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
+.hero-card.clickable:active,.figlio-card:active,.figlio-riga-impegno.clickable:active,
+.figlio-avviso:active,.figlio-freccia:active{
+  transform:scale(.97);transition-duration:.1s;
+}
+/* "riduci movimento": niente rimpicciolimento, resta solo lo scurimento al tocco */
+@media (prefers-reduced-motion:reduce){
+  .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
+  .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
+  .hero-card.clickable:active,.figlio-card:active,.figlio-riga-impegno.clickable:active,
+  .figlio-avviso:active,.figlio-freccia:active{transform:none;filter:brightness(.93)}
 }
 </style>
 <div id="app">
@@ -2167,6 +2189,9 @@ const NAV_PARENT = {
 };
 
 const ACT = {};
+// Safari su iPhone applica :active (l'effetto di pressione) solo se la pagina ascolta i
+// tocchi: senza questo ascoltatore vuoto le card non reagiscono mai al dito.
+document.addEventListener("touchstart", () => {}, { passive: true });
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-act]");
   if (!el) return;
