@@ -918,6 +918,10 @@ html[data-senza-topbar] .topbar{display:none}
      non taglia di netto la sfumatura. */
   position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(75% 65% at 85% 18%, rgba(143,192,63,.22), rgba(143,192,63,0) 55%);
+  /* il bordo alto resta navy pieno (#00253F, lo stesso della barra di stato del telefono,
+     vedi theme-color): la sfumatura entra solo più in basso, senza linea di stacco */
+  -webkit-mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
+  mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
 }
 .figlio-hero-brand #menuBtn{flex:none;border-color:rgba(255,255,255,.28);background:none;color:#FFFFFF}
 .figlio-hero-brand{position:relative;display:flex;align-items:center;gap:12px}
@@ -1026,33 +1030,36 @@ html[data-senza-topbar] .topbar{display:none}
    l'intestazione dell'app (che cosi resta nascosta, come nel disegno) ma sotto la barra
    di navigazione, che rimane visibile/usabile mentre la scheda è aperta. */
 .figlio-drawer{
-  /* a schermo intero copre anche l'area della barra di stato del telefono (a differenza
-     della vera intestazione dell'app, che ha già il suo padding-top per quello): senza
-     questo la maniglia e la testata finiscono sotto l'orologio/le icone di sistema. */
+  /* a schermo intero, anche sotto la barra di stato: è la testata navy a coprire quella
+     fascia (col suo padding-top), cosi in alto non resta una striscia color crema. */
   position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;overflow-y:auto;
-  padding-top:env(safe-area-inset-top);
   background:var(--bg);transform:translateY(100%);
   transition:transform .44s cubic-bezier(.32,.72,0,1);touch-action:none;
 }
 .figlio-drawer.aperta{transform:translateY(0)}
 .figlio-drawer.uscita{transform:translateY(100%)}
 .figlio-maniglia{
-  position:sticky;top:0;z-index:2;align-self:center;margin-top:8px;width:52px;height:14px;
+  position:absolute;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+  z-index:2;width:52px;height:14px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
 .figlio-maniglia span{width:42px;height:4px;border-radius:999px;background:rgba(255,255,255,.5)}
-.figlio-drawer-inner{margin-top:-14px;flex:1;display:flex;flex-direction:column;min-height:0}
+.figlio-drawer-inner{flex:1;display:flex;flex-direction:column;min-height:0}
 .figlio-testata{
   /* più alta del valore originale del prototipo (pensato per una tela fissa di 860px):
      su un telefono vero, spesso più alto, la stessa misura in pixel sembrava tagliata
      corta invece che una forma piena e intenzionale. */
   position:relative;overflow:hidden;background:var(--navy-fixed);color:#FFFFFF;
-  padding:14px 18px 90px;border-radius:0 0 260px 260px / 0 0 130px 130px;
+  padding:calc(14px + env(safe-area-inset-top)) 18px 90px;border-radius:0 0 260px 260px / 0 0 130px 130px;
   display:flex;flex-direction:column;align-items:center;gap:10px;
 }
 .figlio-testata-glow{
   position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(130% 100% at 50% -20%, rgba(143,192,63,.26), rgba(143,192,63,0) 64%);
+  /* il bordo alto resta navy pieno (#00253F, lo stesso della barra di stato del telefono,
+     vedi theme-color): la sfumatura entra solo più in basso, senza linea di stacco */
+  -webkit-mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
+  mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
 }
 .figlio-testata-logo{position:relative;width:32px;height:auto;margin-top:22px}
 .figlio-testata-eyebrow{
