@@ -2656,7 +2656,8 @@ function bindFiglioGesti(el) {
     }
     drag.dx = dx; drag.dy = dy;
     if (drag.modo === "chiudi") {
-      let tira = dy;
+      // si chiude solo tirando verso il basso: verso l'alto la scheda resta ferma
+      let tira = Math.max(0, dy);
       if (drag.scorre) {
         const meta = drag.s0 - dy;
         el.scrollTop = Math.max(0, meta);
@@ -2664,14 +2665,14 @@ function bindFiglioGesti(el) {
       }
       drag.giu = tira;
       el.style.transition = "none";
-      el.style.transform = tira ? `translateY(${tira > 0 ? tira * .85 : tira * .35}px)` : "";
+      el.style.transform = tira ? `translateY(${tira * .85}px)` : "";
     }
   };
   const fine = () => {
     if (!drag) return;
     const d = drag; drag = null;
     el.style.transition = ""; el.style.transform = "";
-    if (d.modo === "chiudi" && Math.abs(d.giu) > 70) { chiudiFiglio(); return; }
+    if (d.modo === "chiudi" && d.giu > 70) { chiudiFiglio(); return; }
     if (d.modo === "cambia" && Math.abs(d.dx) > 70) cambiaFiglio();
   };
   el.onpointerup = fine;
