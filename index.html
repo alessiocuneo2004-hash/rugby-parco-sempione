@@ -473,6 +473,10 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 .data-grande{display:flex;flex-direction:column;align-items:center;width:52px;flex:none}
 .data-grande .giorno-n{font-family:var(--font-display);font-size:34px;line-height:.9;font-weight:800;color:var(--ink)}
 .data-grande .muted{text-transform:uppercase;letter-spacing:.02em}
+/* nei banner dei tornei la data sta in un riquadro crema, come nella "settimana" della Home */
+.torneo-card .data-grande{width:54px;padding:8px 0 7px;border-radius:14px;background:var(--surface-2)}
+.torneo-card .data-grande .giorno-n{font-size:30px}
+.torneo-card .data-grande .muted{font-size:12px;line-height:1.2}
 /* data/ora della card partita: mai spezzata su piu righe */
 .quando{white-space:nowrap}
 /* nella riga orario i pulsanti vanno a capo se giorno+titolo+ora riempiono la riga */
@@ -997,8 +1001,8 @@ html[data-senza-topbar] .topbar{display:none}
   border-radius:18px;padding:10px 12px;box-shadow:0 3px 9px rgba(11,27,38,.11);
 }
 .figlio-riga-impegno.clickable{cursor:pointer}
-.figlio-riga-titolo{font-family:var(--font-display);font-size:26px;line-height:.9;font-weight:700;text-transform:uppercase;color:var(--ink)}
-.figlio-riga-titolo.primo{font-weight:800}
+/* titoli dei banner della Home: Archivo ExtraBold maiuscolo, come i banner di Tornei ed Eventi */
+.figlio-riga-titolo{font-family:var(--font);font-size:17px;line-height:1.2;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
 .figlio-riga-sub{font-family:var(--font-data);font-size:13.5px;color:var(--ink-4)}
 .figlio-databadge{width:46px;flex:none;border-radius:14px;background:var(--surface-2);padding:7px 0 6px;text-align:center}
 .figlio-databadge .n{font-family:var(--font-display);font-size:22px;line-height:.86;font-weight:800;color:var(--ink)}
@@ -1023,7 +1027,7 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-com-barra{width:4px;flex:none;border-radius:999px;background:var(--surface-3)}
 .figlio-com-barra.lime{background:var(--chart-1)}
 .figlio-com-eyebrow{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
-.figlio-com-titolo{margin-top:4px;font-family:var(--font-display);font-size:26px;line-height:.92;font-weight:800;text-transform:uppercase;color:var(--ink)}
+.figlio-com-titolo{margin-top:4px;font-family:var(--font);font-size:17px;line-height:1.2;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
 .figlio-com-corpo{margin-top:3px;font-family:var(--font-data);font-size:13.5px;color:var(--ink-4)}
 .figlio-com-corpo.piano{color:var(--ink-2)}
 
