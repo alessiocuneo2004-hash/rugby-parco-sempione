@@ -1044,7 +1044,11 @@ html[data-senza-topbar] .topbar{display:none}
   display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
 .figlio-maniglia span{width:42px;height:4px;border-radius:999px;background:rgba(255,255,255,.5)}
-.figlio-drawer-inner{flex:1;display:flex;flex-direction:column;min-height:0}
+.figlio-drawer-inner{flex:1 0 auto;display:flex;flex-direction:column}
+/* testata, cerchio e contenuto non si comprimono mai: se lo schermo è basso la scheda
+   scorre. Prima, con più contenuto (Sofia con la partita in corso), il browser
+   schiacciava la testata e il cerchio finiva sopra il titolo. */
+.figlio-drawer-inner>*{flex-shrink:0}
 .figlio-testata{
   /* più alta del valore originale del prototipo (pensato per una tela fissa di 860px):
      su un telefono vero, spesso più alto, la stessa misura in pixel sembrava tagliata
@@ -2636,7 +2640,11 @@ function bindFiglioGesti(el) {
   let drag = null;
   el.onpointerdown = e => {
     if (!el.classList.contains("aperta")) return;
-    drag = { x0: e.clientX, y0: e.clientY, modo: null, dy: 0 };
+    // se il contenuto è più alto dello schermo, il trascinamento verticale scorre la
+    // scheda (il tocco nativo è disattivato da touch-action:none); la chiusura scatta
+    // solo tirando verso il basso quando si è già in cima.
+    drag = { x0: e.clientX, y0: e.clientY, modo: null, dy: 0, giu: 0,
+             s0: el.scrollTop, scorre: el.scrollHeight > el.clientHeight + 1 };
     el.setPointerCapture?.(e.pointerId);
   };
   el.onpointermove = e => {
@@ -2648,15 +2656,22 @@ function bindFiglioGesti(el) {
     }
     drag.dx = dx; drag.dy = dy;
     if (drag.modo === "chiudi") {
+      let tira = dy;
+      if (drag.scorre) {
+        const meta = drag.s0 - dy;
+        el.scrollTop = Math.max(0, meta);
+        tira = meta < 0 ? -meta : 0;
+      }
+      drag.giu = tira;
       el.style.transition = "none";
-      el.style.transform = `translateY(${dy > 0 ? dy * .85 : dy * .35}px)`;
+      el.style.transform = tira ? `translateY(${tira > 0 ? tira * .85 : tira * .35}px)` : "";
     }
   };
   const fine = () => {
     if (!drag) return;
     const d = drag; drag = null;
     el.style.transition = ""; el.style.transform = "";
-    if (d.modo === "chiudi" && Math.abs(d.dy) > 70) { chiudiFiglio(); return; }
+    if (d.modo === "chiudi" && Math.abs(d.giu) > 70) { chiudiFiglio(); return; }
     if (d.modo === "cambia" && Math.abs(d.dx) > 70) cambiaFiglio();
   };
   el.onpointerup = fine;
