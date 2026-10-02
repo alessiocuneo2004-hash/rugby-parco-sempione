@@ -457,7 +457,7 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 .list-row .grow{flex:1;min-width:0}
 .title{font-weight:600;font-size:19px;color:var(--ink);line-height:1.25}
 /* titoli dei banner cliccabili in Tornei ed Eventi: stesso Archivo, ma maiuscolo */
-.title.maiusc{text-transform:uppercase;letter-spacing:.02em}
+.title.maiusc{text-transform:uppercase;letter-spacing:.02em;font-weight:900}
 /* riga di elenco del design system: sigla del giorno a sinistra (Chivo 700 navy chiaro),
    titolo 19/600, orario a destra in Chivo tabellare */
 .list-row .giorno{
@@ -3469,7 +3469,7 @@ function vPartite() {
       </div>
       <div class="row" style="margin-top:10px">
         <div class="grow">
-          <div class="title maiusc" style="font-size:16.5px;font-weight:800">${esc(S.settings.club.replace("Rugby ", ""))} — ${esc(p.avversario)}</div>
+          <div class="title maiusc" style="font-size:16.5px">${esc(S.settings.club.replace("Rugby ", ""))} — ${esc(p.avversario)}</div>
           <div class="muted">${ic("place", "icon-inline")}${esc(p.luogo)}</div>
         </div>
         ${(isLive || done) ? `
