@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Rugby Parco Sempione — Gestione squadra</title>
+<title>Rugby Parco Sempione Gestione squadra</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- barra di stato del telefono in tinta con l'intestazione (Safari iOS, Chrome Android) -->
 <meta name="theme-color" content="#00253F">
@@ -1292,18 +1292,20 @@ const LS_KEY = "rps_gestione_v1";
 
 /* ---------- utilità ---------- */
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+// il trattino lungo non compare mai nelle scritte dell'app (scelta di Alessio): al suo posto
+// uno spazio, anche nei dati già salvati sul dispositivo prima di questa regola
+const esc = s => String(s ?? "").replace(/\s*—\s*/g, " ").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const MESI = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
 const GIORNI = ["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"];
 
 function fmtDate(iso, withYear = true) {
-  if (!iso) return "—";
+  if (!iso) return " ";
   const d = new Date(iso + (iso.length === 10 ? "T12:00" : ""));
   if (isNaN(d)) return iso;
   return d.getDate() + " " + MESI[d.getMonth()] + (withYear ? " " + d.getFullYear() : "");
 }
 function fmtDateLong(iso) {
-  if (!iso) return "—";
+  if (!iso) return " ";
   const d = new Date(iso + "T12:00");
   if (isNaN(d)) return iso;
   const gg = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
@@ -1383,13 +1385,13 @@ function defaultData() {
       ruoli:         { r2: false, r3: false, r4: false, r5: false }
     },
     eventi: [
-      { id: uid(), nome: "Cena di inizio stagione", data: "2026-09-12", ora: "20:00", luogo: "Club house — Campo Parco Sempione", costo: "25 € adulti · 12 € under 12", descr: "Cena di benvenuto per famiglie, giocatori e staff: presentazione della stagione 2026/27 e lotteria a premi. Prenotazione entro il 5 settembre in segreteria.", locandina: "" },
+      { id: uid(), nome: "Cena di inizio stagione", data: "2026-09-12", ora: "20:00", luogo: "Club house Campo Parco Sempione", costo: "25 € adulti · 12 € under 12", descr: "Cena di benvenuto per famiglie, giocatori e staff: presentazione della stagione 2026/27 e lotteria a premi. Prenotazione entro il 5 settembre in segreteria.", locandina: "" },
       { id: uid(), nome: "Sei Nazioni su maxischermo: Italia–Francia", data: "2027-02-06", ora: "15:30", luogo: "Club house", costo: "Gratuito", descr: "Guardiamo la partita tutti insieme al club. Merenda offerta ai bambini, birra e salamelle per i grandi.", locandina: "" }
     ],
     contatti: [
       { id: uid(), nome: "Segreteria", descr: "Iscrizioni, quote e certificati medici", telefono: "+39 340 123 4567", email: "segreteria@rugbyparcosempione.it" },
       { id: uid(), nome: "Direzione sportiva", descr: "", telefono: "+39 348 765 4321", email: "direzione@rugbyparcosempione.it" },
-      { id: uid(), nome: "Campo Parco Sempione", descr: "Viale del Campo 1, Milano — ingresso lato parcheggio", telefono: "", email: "" }
+      { id: uid(), nome: "Campo Parco Sempione", descr: "Viale del Campo 1, Milano ingresso lato parcheggio", telefono: "", email: "" }
     ],
     comunicazioni: [
       { id: uid(), titolo: "Raduno inizio stagione 2026/27", corpo: "Sabato 5 settembre ore 10:00 al campo: raduno di apertura per tutte le categorie. Presentazione staff, consegna kit e merenda insieme. Sono invitati anche i genitori.", data: "2026-07-01", fissata: true, autore: "Direzione" },
@@ -1413,7 +1415,7 @@ function defaultData() {
           { id: uid(), giorno: 2, dalle: "17:30", alle: "18:30", luogo: "Campo Parco Sempione" },
           { id: uid(), giorno: 6, dalle: "10:00", alle: "11:15", luogo: "Campo Parco Sempione" }
         ],
-        tornei: [{ id: uid(), nome: "Raggruppamento FIR n.1", data: "2026-10-11", luogo: "Milano — Giuriati", note: "" }],
+        tornei: [{ id: uid(), nome: "Raggruppamento FIR n.1", data: "2026-10-11", luogo: "Milano Giuriati", note: "" }],
         diario: mkDiario(),
         comunicazioni: [],
         rosa: rosa(["Alessandro P.", "Marta R.", "Leonardo S.", "Emma T.", "Riccardo V.", "Sofia Z."])
@@ -1438,7 +1440,7 @@ function defaultData() {
           { id: uid(), giorno: 3, dalle: "18:00", alle: "19:30", luogo: "Campo Parco Sempione" }
         ],
         tornei: [
-          { id: uid(), nome: "Torneo della Madonnina", data: "2026-09-20", luogo: "Milano — Idroscalo", note: "Ritrovo ore 8:15 al campo." },
+          { id: uid(), nome: "Torneo della Madonnina", data: "2026-09-20", luogo: "Milano Idroscalo", note: "Ritrovo ore 8:15 al campo." },
           { id: uid(), nome: "Raggruppamento FIR n.1", data: "2026-10-11", luogo: "Segrate", note: "" }
         ],
         diario: mkDiario(),
@@ -1459,18 +1461,18 @@ function defaultData() {
       }
     ],
     allenatori: [
-      { id: co.ale,    nome: "Alessio Cuneo",     titolo: "Allenatore FIR — Livello 2", categorie: [catIds.u10], contratto: 80, telefono: "+39 333 111 2233", email: "a.cuneo@rugbyparcosempione.it", presenze: seedPresenze("2025-09-08", 42, 2, 0.08, 7) },
-      { id: co.marco,  nome: "Marco Bellini",     titolo: "Educatore FIR — Livello 1",  categorie: [catIds.u8],  contratto: 80, telefono: "+39 333 222 3344", email: "", presenze: seedPresenze("2025-09-08", 42, 2, 0.18, 13) },
+      { id: co.ale,    nome: "Alessio Cuneo",     titolo: "Allenatore FIR Livello 2", categorie: [catIds.u10], contratto: 80, telefono: "+39 333 111 2233", email: "a.cuneo@rugbyparcosempione.it", presenze: seedPresenze("2025-09-08", 42, 2, 0.08, 7) },
+      { id: co.marco,  nome: "Marco Bellini",     titolo: "Educatore FIR Livello 1",  categorie: [catIds.u8],  contratto: 80, telefono: "+39 333 222 3344", email: "", presenze: seedPresenze("2025-09-08", 42, 2, 0.18, 13) },
       { id: co.giulia, nome: "Giulia Ferraro",    titolo: "Educatrice minirugby",       categorie: [catIds.pm],  contratto: 40, telefono: "+39 333 333 4455", email: "", presenze: seedPresenze("2025-09-13", 42, 1, 0.12, 21) },
-      { id: co.pietro, nome: "Pietro Colombo",    titolo: "Allenatore FIR — Livello 1", categorie: [catIds.u12], contratto: 80, telefono: "+39 333 444 5566", email: "", presenze: seedPresenze("2025-09-09", 42, 2, 0.10, 31) },
-      { id: co.sara,   nome: "Sara Moretti",      titolo: "Educatrice FIR — Livello 1", categorie: [catIds.u6, catIds.pm], contratto: 60, telefono: "+39 333 555 6677", email: "", presenze: seedPresenze("2025-09-09", 42, 2, 0.22, 43) },
+      { id: co.pietro, nome: "Pietro Colombo",    titolo: "Allenatore FIR Livello 1", categorie: [catIds.u12], contratto: 80, telefono: "+39 333 444 5566", email: "", presenze: seedPresenze("2025-09-09", 42, 2, 0.10, 31) },
+      { id: co.sara,   nome: "Sara Moretti",      titolo: "Educatrice FIR Livello 1", categorie: [catIds.u6, catIds.pm], contratto: 60, telefono: "+39 333 555 6677", email: "", presenze: seedPresenze("2025-09-09", 42, 2, 0.22, 43) },
       { id: co.davide, nome: "Davide Ripamonti",  titolo: "Aiuto allenatore",           categorie: [catIds.u10], contratto: 60, telefono: "", email: "", presenze: seedPresenze("2025-09-08", 42, 2, 0.30, 55) },
       { id: co.luca,   nome: "Luca Vismara",      titolo: "Preparatore atletico",       categorie: [catIds.u12], contratto: 40, telefono: "", email: "", presenze: seedPresenze("2025-09-09", 42, 1, 0.15, 61) }
     ],
     partite: [
       { id: uid(), data: "2026-06-07", ora: "10:00", categoria: catIds.u12, avversario: "ASR Milano", luogo: "Campo Parco Sempione", casa: true, tipo: "Amichevole", stato: "terminata", puntiNoi: 7, puntiLoro: 5, convocati: [], note: "Bella prova del reparto trequarti.", info: [] },
       { id: uid(), data: "2026-05-24", ora: "11:00", categoria: catIds.u10, avversario: "Rugby Cernusco", luogo: "Cernusco s/N", casa: false, tipo: "Torneo", stato: "terminata", puntiNoi: 4, puntiLoro: 6, convocati: [], note: "", info: [] },
-      { id: uid(), data: "2026-09-20", ora: "09:30", categoria: catIds.u10, avversario: "Torneo della Madonnina", luogo: "Milano — Idroscalo", casa: false, tipo: "Torneo", stato: "programmata", puntiNoi: null, puntiLoro: null, convocati: [], note: "Ritrovo ore 8:15 al campo.",
+      { id: uid(), data: "2026-09-20", ora: "09:30", categoria: catIds.u10, avversario: "Torneo della Madonnina", luogo: "Milano Idroscalo", casa: false, tipo: "Torneo", stato: "programmata", puntiNoi: null, puntiLoro: null, convocati: [], note: "Ritrovo ore 8:15 al campo.",
         info: [{ id: uid(), testo: "Si gioca anche in caso di pioggia leggera: portare un ricambio completo.", quando: "2026-07-04T18:30", autore: "Allenatore" }] },
       { id: uid(), data: "2026-10-04", ora: "10:30", categoria: catIds.u12, avversario: "Rugby Monza", luogo: "Monza", casa: false, tipo: "Torneo", stato: "programmata", puntiNoi: null, puntiLoro: null, convocati: [], note: "", info: [], collegaTorneo: "Torneo Città di Monza|2026-10-04" }
     ]
@@ -1551,7 +1553,7 @@ function impegniAllenatore(a) {
   const cats = a.categorie.map(getCat).filter(Boolean);
   for (const c of cats) {
     for (const t of c.tornei) if (t.data >= oggi)
-      out.push({ tipo: "Torneo", data: t.data, ora: "09:00", fine: "17:00", titolo: t.nome + " — " + c.nome, luogo: t.luogo || "" });
+      out.push({ tipo: "Torneo", data: t.data, ora: "09:00", fine: "17:00", titolo: t.nome + " " + c.nome, luogo: t.luogo || "" });
     for (const o of c.orari) {
       for (let i = 0; i < 14; i++) {
         const d = new Date(); d.setDate(d.getDate() + i);
@@ -1564,7 +1566,7 @@ function impegniAllenatore(a) {
   }
   for (const p of S.partite)
     if (a.categorie.includes(p.categoria) && p.stato !== "terminata" && p.data >= oggi)
-      out.push({ tipo: "Partita", data: p.data, ora: p.ora || "10:00", fine: addMin(p.ora || "10:00", 120), titolo: nomeCat(p.categoria) + " — " + p.avversario, luogo: p.luogo || "" });
+      out.push({ tipo: "Partita", data: p.data, ora: p.ora || "10:00", fine: addMin(p.ora || "10:00", 120), titolo: nomeCat(p.categoria) + " " + p.avversario, luogo: p.luogo || "" });
   return out.sort((x, y) => (x.data + x.ora) < (y.data + y.ora) ? -1 : 1);
 }
 /* Link "aggiungi a Google Calendar" per un impegno */
@@ -1615,7 +1617,7 @@ function icsAllenatore(a) {
       const d = p.data.replace(/-/g, "");
       const ora = (p.ora || "10:00");
       evento(d + "T" + ora.replace(":", "") + "00", d + "T" + addMin(ora, 120).replace(":", "") + "00",
-        nomeCat(p.categoria) + " — " + p.avversario, p.luogo);
+        nomeCat(p.categoria) + " " + p.avversario, p.luogo);
     }
   L.push("END:VCALENDAR");
   return L.join("\r\n");
@@ -1637,7 +1639,7 @@ function torneiInArrivo() {
 /* ---------- scorciatoie dati ---------- */
 const getCat = id => S.categorie.find(c => c.id === id);
 const getCoach = id => S.allenatori.find(a => a.id === id);
-const nomeCat = id => (getCat(id) || {}).nome || "—";
+const nomeCat = id => (getCat(id) || {}).nome || " ";
 const coachDiCat = cat => cat.allenatori.map(getCoach).filter(Boolean);
 
 const DIARIO_TIPI = [
@@ -2314,7 +2316,7 @@ const backBtn = v =>
    HOME — comunicazioni importanti
    ===================================================================== */
 function bannerPartita(p, mode) {
-  const titolo = nomeCat(p.categoria) + " — " + p.avversario;
+  const titolo = nomeCat(p.categoria) + " " + p.avversario;
   const arg = esc(JSON.stringify({ name: "partita", id: p.id }));
   const score = `<div class="scorebig num">${p.puntiNoi ?? 0}<span class="vs">–</span>${p.puntiLoro ?? 0}</div>`;
   const esito = (p.puntiNoi ?? 0) > (p.puntiLoro ?? 0) ? "Vittoria" : (p.puntiNoi ?? 0) < (p.puntiLoro ?? 0) ? "Sconfitta" : "Pareggio";
@@ -2336,7 +2338,7 @@ function bannerPartita(p, mode) {
     <div class="hero-card clickable" data-act="go" data-arg="${arg}" role="button" tabindex="0">
       <div class="eyebrow">Prossimo impegno</div>
       <div class="big">${esc(titolo)}</div>
-      <div class="sub">${fmtDateLong(p.data)} · ore ${esc(p.ora || "—")} · ${esc(p.luogo)}</div>
+      <div class="sub">${fmtDateLong(p.data)} · ore ${esc(p.ora || " ")} · ${esc(p.luogo)}</div>
     </div>`;
 }
 
@@ -2460,7 +2462,7 @@ function homeSezioniHTML(avviso) {
             <span class="figlio-com-barra"></span>
             <div class="grow" style="flex:1;min-width:0">
               <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
-              <div class="figlio-com-corpo piano">${esc(c.titolo)} — ${esc(c.corpo)}</div>
+              <div class="figlio-com-corpo piano">${esc(c.titolo)} ${esc(c.corpo)}</div>
               ${azioni(c)}
             </div>
           </div>`).join("") :
@@ -2549,8 +2551,8 @@ function figlioContenutoHTML(id) {
       <div class="figlio-prox-riga">
         <div class="grow" style="flex:1;min-width:0">
           <div class="eyebrow">Prossimo impegno</div>
-          <div class="figlio-prox-titolo">${esc(nomeCat(prossima.categoria))} — ${esc(prossima.avversario)}</div>
-          <div class="muted">${esc(prossima.ora || "—")} · ${esc(prossima.luogo || "—")}</div>
+          <div class="figlio-prox-titolo">${esc(nomeCat(prossima.categoria))} ${esc(prossima.avversario)}</div>
+          <div class="muted">${esc(prossima.ora || " ")} · ${esc(prossima.luogo || " ")}</div>
         </div>
         <div class="figlio-prox-data"><div class="n">${new Date(prossima.data + "T00:00:00").getDate()}</div><div class="m">${MESI[new Date(prossima.data + "T00:00:00").getMonth()]}</div></div>
       </div>
@@ -2706,7 +2708,7 @@ function appuntamentiHome() {
       ? (v.titolo + "|" + v.data) === p.collegaTorneo
       : v.data === p.data && v.titolo === p.avversario);
     const voce = {
-      data: p.data, titolo: nomeCat(p.categoria) + " — " + p.avversario,
+      data: p.data, titolo: nomeCat(p.categoria) + " " + p.avversario,
       sotto: [p.luogo, p.ora].filter(Boolean).join(" · "),
       vai: { name: "partita", id: p.id }
     };
@@ -2756,7 +2758,7 @@ function bannerRuoloMio(a) {
       <span class="big">L${ruolo.livello} · ${esc(ruolo.nome)}</span>
       ${ic("right", "chev-down")}
       <select id="roleSwitch" aria-label="Cambia il ruolo con cui vedi l'app">
-        ${S.ruoli.map(x => `<option value="${x.id}" ${x.id === ruolo.id ? "selected" : ""}>L${x.livello} — ${esc(x.nome)}</option>`).join("")}
+        ${S.ruoli.map(x => `<option value="${x.id}" ${x.id === ruolo.id ? "selected" : ""}>L${x.livello} ${esc(x.nome)}</option>`).join("")}
       </select>
     </div>
   </div>`;
@@ -2779,9 +2781,9 @@ function cardAspetto() {
       <div class="field">
         <label>Stile del menu</label>
         <select id="menuSwitch">
-          <option value="classico" ${S.settings.menu === "classico" ? "selected" : ""}>Classico — barra in basso sul telefono, colonna sul PC</option>
-          <option value="tendina" ${S.settings.menu === "tendina" ? "selected" : ""}>A tendina — si apre dall'icona ☰ in alto a sinistra</option>
-          <option value="alto" ${S.settings.menu === "alto" ? "selected" : ""}>Barra in alto — sezioni in fila sotto l'intestazione</option>
+          <option value="classico" ${S.settings.menu === "classico" ? "selected" : ""}>Classico barra in basso sul telefono, colonna sul PC</option>
+          <option value="tendina" ${S.settings.menu === "tendina" ? "selected" : ""}>A tendina si apre dall'icona ☰ in alto a sinistra</option>
+          <option value="alto" ${S.settings.menu === "alto" ? "selected" : ""}>Barra in alto sezioni in fila sotto l'intestazione</option>
         </select>
       </div>
       <p class="small">Prova i tre stili e tieni quello che ti convince: cambia solo il modo di spostarsi tra le sezioni, non i contenuti.</p>
@@ -2789,7 +2791,7 @@ function cardAspetto() {
       <div class="field">
         <label>Prova di caricamento</label>
         <select id="skSwitch">
-          <option value="0" ${!Number(S.settings.provaCaricamento) ? "selected" : ""}>Spenta — le schermate compaiono subito</option>
+          <option value="0" ${!Number(S.settings.provaCaricamento) ? "selected" : ""}>Spenta le schermate compaiono subito</option>
           <option value="700" ${Number(S.settings.provaCaricamento) === 700 ? "selected" : ""}>Breve (0,7 s)</option>
           <option value="1800" ${Number(S.settings.provaCaricamento) === 1800 ? "selected" : ""}>Lunga (1,8 s)</option>
         </select>
@@ -2916,7 +2918,7 @@ function dataGrande(iso) {
 /* pastiglia con la tinta della categoria; `vai` la rende cliccabile verso la categoria */
 function pillCat(cid, vai, sigla) {
   const c = getCat(cid);
-  if (!c) return `<span class="pill">—</span>`;
+  if (!c) return `<span class="pill"> </span>`;
   const tinta = coloreCat(c, S.categorie.indexOf(c));
   const arg = vai ? ` data-act="go" data-arg="${esc(JSON.stringify({ name: "categoria", id: c.id }))}" role="button" tabindex="0"` : "";
   return `<span class="pill${vai ? " clickable" : ""}" style="background:${tinta};color:${inkSuColore(tinta)}"${arg}>${esc(sigla ? siglaCat(c) : c.nome)}</span>`;
@@ -3003,7 +3005,7 @@ function vCategoria(id) {
             ${dataGrande(t.data)}
             <div class="grow">
               <div class="title">${esc(t.nome)}</div>
-              <div class="muted">${ic("place", "icon-inline")}${esc(t.luogo)}${t.note ? " — " + esc(t.note) : ""}</div>
+              <div class="muted">${ic("place", "icon-inline")}${esc(t.luogo)}${t.note ? " " + esc(t.note) : ""}</div>
             </div>
             ${can("categorie") ? btnIcon("edit", "torneoEdit", JSON.stringify({ cat: c.id, id: t.id }), "", "Modifica") + btnIcon("trash", "torneoDel", JSON.stringify({ cat: c.id, id: t.id }), "danger", "Elimina") : ""}
           </div>`).join("") || `<div class="empty">Nessun torneo inserito.</div>`}
@@ -3064,7 +3066,7 @@ ACT.catComEdit = arg => {
   const c = getCat(cat);
   const m = c.comunicazioni.find(x => x.id === id);
   openModal({
-    title: m ? "Modifica comunicazione" : "Nuova comunicazione — " + c.nome,
+    title: m ? "Modifica comunicazione" : "Nuova comunicazione " + c.nome,
     fields: [
       { key: "titolo", label: "Titolo", value: m?.titolo, required: true },
       { key: "corpo", label: "Testo", type: "textarea", value: m?.corpo },
@@ -3107,7 +3109,7 @@ ACT.catCoaches = id => {
     title: "Allenatori di " + c.nome,
     fields: [{
       key: "sel", label: "Seleziona lo staff", type: "checkgroup", value: c.allenatori,
-      options: S.allenatori.map(a => ({ v: a.id, t: a.nome + " — " + a.titolo }))
+      options: S.allenatori.map(a => ({ v: a.id, t: a.nome + " " + a.titolo }))
     }],
     onSave: v => {
       c.allenatori = v.sel;
@@ -3178,7 +3180,7 @@ ACT.torneoDel = arg => {
 ACT.rosaAdd = id => {
   const c = getCat(id);
   openModal({
-    title: "Aggiungi giocatore — " + c.nome,
+    title: "Aggiungi giocatore " + c.nome,
     fields: [{ key: "nome", label: "Nome giocatore", required: true, placeholder: "es. Mario R." }],
     onSave: v => { c.rosa.push({ id: uid(), nome: v.nome }); save(); render(); }
   });
@@ -3229,9 +3231,9 @@ ACT.diarioEdit = arg => {
   const v0 = c.diario[tipo].find(x => x.id === id);
   const t = DIARIO_TIPI.find(x => x.key === tipo);
   openModal({
-    title: (v0 ? "Modifica — " : "Nuova voce — ") + t.nome,
+    title: (v0 ? "Modifica " : "Nuova voce ") + t.nome,
     fields: [
-      { key: "titolo", label: "Titolo", value: v0?.titolo, required: true, placeholder: tipo === "sedute" ? "es. Seduta del 12/09 — placcaggio" : "" },
+      { key: "titolo", label: "Titolo", value: v0?.titolo, required: true, placeholder: tipo === "sedute" ? "es. Seduta del 12/09 placcaggio" : "" },
       { key: "data", label: "Data", type: "date", value: v0?.data || todayISO() },
       { key: "testo", label: "Contenuto", type: "textarea", rows: 8, value: v0?.testo, placeholder: "Obiettivi, esercizi, note..." }
     ],
@@ -3346,7 +3348,7 @@ function vAllenatore(id) {
         ${shown.map(p => `
           <div class="list-row">
             <span class="pill ${p.presente ? "good" : "bad"}">${p.presente ? "Presente" : "Assente"}</span>
-            <div class="grow"><b class="num">${fmtDate(p.data)}</b>${p.note ? ` <span class="muted">— ${esc(p.note)}</span>` : ""}</div>
+            <div class="grow"><b class="num">${fmtDate(p.data)}</b>${p.note ? ` <span class="muted">${esc(p.note)}</span>` : ""}</div>
             ${can("presenze") ? `
               <label class="switch" title="Presente sì/no">
                 <input type="checkbox" ${p.presente ? "checked" : ""} data-act="presToggle" data-arg="${esc(JSON.stringify({ coach: a.id, id: p.id }))}"><i></i>
@@ -3364,7 +3366,7 @@ ACT.coachEdit = id => {
     title: a ? "Modifica allenatore" : "Nuovo allenatore",
     fields: [
       { key: "nome", label: "Nome e cognome", value: a?.nome, required: true },
-      { key: "titolo", label: "Titolo / qualifica", value: a?.titolo, placeholder: "es. Allenatore FIR — Livello 1" },
+      { key: "titolo", label: "Titolo / qualifica", value: a?.titolo, placeholder: "es. Allenatore FIR Livello 1" },
       { key: "telefono", label: "Telefono", type: "tel", value: a?.telefono, placeholder: "+39 ..." },
       { key: "email", label: "Email", type: "email", value: a?.email },
       { key: "contratto", label: "Sedute da contratto (stagione)", type: "number", min: 0, value: a ? a.contratto : 80 },
@@ -3397,7 +3399,7 @@ ACT.coachEdit = id => {
 ACT.presAdd = id => {
   const a = getCoach(id);
   openModal({
-    title: "Registra presenza — " + a.nome,
+    title: "Registra presenza " + a.nome,
     fields: [
       { key: "data", label: "Data seduta", type: "date", value: todayISO(), required: true },
       { key: "presente", label: "Presente", type: "checkbox", value: true },
@@ -3473,7 +3475,7 @@ function vPartite() {
       </div>
       <div class="row" style="margin-top:10px">
         <div class="grow">
-          <div class="title maiusc" style="font-size:16.5px">${esc(S.settings.club.replace("Rugby ", ""))} — ${esc(p.avversario)}</div>
+          <div class="title maiusc" style="font-size:16.5px">${esc(S.settings.club.replace("Rugby ", ""))} ${esc(p.avversario)}</div>
           <div class="muted">${ic("place", "icon-inline")}${esc(p.luogo)}</div>
         </div>
         ${(isLive || done) ? `
@@ -3575,7 +3577,7 @@ function vPartita(id) {
     </div>
 
     <div class="hero-card" style="text-align:center">
-      <div class="eyebrow" style="color:var(--live-muted)">${fmtDateLong(p.data)} · ore ${esc(p.ora || "—")}</div>
+      <div class="eyebrow" style="color:var(--live-muted)">${fmtDateLong(p.data)} · ore ${esc(p.ora || " ")}</div>
       ${/* tabellone come nel mockup: punteggio unico e grande, nomi squadra sotto, comandi sotto ciascuna */""}
       <div class="scorebig num">${p.puntiNoi ?? 0}<span class="vs">–</span>${p.puntiLoro ?? 0}</div>
       <div class="tabellone">
@@ -3663,7 +3665,7 @@ ACT.matchStato = arg => {
     if (stato === "programmata") { p.puntiNoi = null; p.puntiLoro = null; }
     else { p.puntiNoi = p.puntiNoi ?? 0; p.puntiLoro = p.puntiLoro ?? 0; }
     save(); render();
-    toast(stato === "in_corso" ? "Partita in corso — aggiorna il punteggio in tempo reale" : stato === "terminata" ? "Risultato registrato" : "Stato annullato");
+    toast(stato === "in_corso" ? "Partita in corso aggiorna il punteggio in tempo reale" : stato === "terminata" ? "Risultato registrato" : "Stato annullato");
   };
   // "Annulla" cancella il punteggio: se c'è già un risultato segnato, un tocco sbagliato
   // con le mani fredde non deve poterlo cancellare senza chiedere conferma.
@@ -3730,12 +3732,12 @@ ACT.matchEdit = id => {
       {
         key: "collegaTorneo", label: "Torneo collegato (facoltativo)", type: "select", value: p?.collegaTorneo || "",
         options: (() => {
-          const prossimi = torneiInArrivo().map(t => ({ v: t.nome + "|" + t.data, t: t.nome + " — " + fmtDate(t.data) }));
+          const prossimi = torneiInArrivo().map(t => ({ v: t.nome + "|" + t.data, t: t.nome + " " + fmtDate(t.data) }));
           // se la partita era già collegata a un torneo ormai passato, tienilo in lista:
           // altrimenti salvare senza toccare il campo lo scollegherebbe senza volerlo
           const passato = p?.collegaTorneo && !prossimi.some(o => o.v === p.collegaTorneo)
             ? [{ v: p.collegaTorneo, t: p.collegaTorneo.split("|")[0] + " (passato)" }] : [];
-          return [{ v: "", t: "Nessuno — partita singola" }, ...prossimi, ...passato];
+          return [{ v: "", t: "Nessuno partita singola" }, ...prossimi, ...passato];
         })()
       },
       { key: "data", label: "Data", type: "date", value: p?.data || todayISO(), required: true },
@@ -3867,7 +3869,7 @@ ACT.eventoEdit = id => {
         const nuovo = { id: uid(), ...v, locandina: "" };
         S.eventi.push(nuovo);
         save(); go({ name: "evento", id: nuovo.id });
-        toast("Evento creato — ora puoi caricare la locandina");
+        toast("Evento creato ora puoi caricare la locandina");
       }
     }
   });
@@ -3991,8 +3993,8 @@ function vImpostazioni() {
               ${S.ruoli.map(x => x.livello === 1 ?
                 `<td><span class="permdot" title="La Direzione modifica sempre tutto"><i class="on"></i></span></td>` :
                 x.livello === 5 ?
-                `<td><span class="muted" title="I Genitori sono solo spettatori">—</span></td>` :
-                `<td><label class="permdot" title="${esc(x.nome)} — ${esc(s.nome)}"><input type="checkbox" ${S.permessi[s.key][x.id] ? "checked" : ""} ${canRoles ? "" : "disabled"} data-act="permToggle" data-arg="${esc(JSON.stringify({ sez: s.key, ruolo: x.id }))}"><i></i></label></td>`
+                `<td><span class="muted" title="I Genitori sono solo spettatori"> </span></td>` :
+                `<td><label class="permdot" title="${esc(x.nome)} ${esc(s.nome)}"><input type="checkbox" ${S.permessi[s.key][x.id] ? "checked" : ""} ${canRoles ? "" : "disabled"} data-act="permToggle" data-arg="${esc(JSON.stringify({ sez: s.key, ruolo: x.id }))}"><i></i></label></td>`
               ).join("")}
             </tr>`).join("")}
           </tbody>
