@@ -1808,6 +1808,7 @@ const IC = {
   mail:  '<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7.5 12 13.5l8.5-6"/>',
   info:  '<circle cx="12" cy="12" r="8.7"/><path d="M12 11v5M12 7.6v.4"/>',
   gear:  '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/>',
+  ingranaggio: '<path d="M10.3 3.3h3.4l.5 2.4c.6.2 1.1.5 1.6.9l2.3-.8 1.7 2.9-1.8 1.6c.1.6.1 1.2 0 1.8l1.8 1.6-1.7 2.9-2.3-.8c-.5.4-1 .7-1.6.9l-.5 2.4h-3.4l-.5-2.4c-.6-.2-1.1-.5-1.6-.9l-2.3.8-1.7-2.9 1.8-1.6c-.1-.6-.1-1.2 0-1.8L3.9 8.7l1.7-2.9 2.3.8c.5-.4 1-.7 1.6-.9z"/><circle cx="12" cy="12" r="3"/>',
   user:  '<circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20.2c.9-3.9 3.8-6 7.2-6s6.3 2.1 7.2 6"/>',
   calplus:'<rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3.5v4M16 3.5v4M12 12.5v5M9.5 15h5"/>'
 };
@@ -4637,7 +4638,7 @@ function openAltro() {
     { v: "mio", t: "La mia area", icona: "user" },
     { v: "allenatori", t: "Allenatori", icona: "users" },
     { v: "contatti", t: "Contatti", icona: "phone" },
-    { v: "impostazioni", t: "Ruoli e impostazioni", icona: "gear" }
+    { v: "impostazioni", t: "Impostazioni", icona: "ingranaggio" }
   ].filter(x => canSee(x.v));
   const r = ruoloCorrente();
   const a = getCoach(S.settings.profiloAllenatore);
