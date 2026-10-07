@@ -1127,6 +1127,26 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-com-corpo{margin-top:3px;line-height:normal;font-family:var(--font-data);font-size:calc(13.5px * var(--st));color:var(--ink-4)}
 .figlio-com-nota{font-family:var(--font-data);font-size:calc(13.5px * var(--st));line-height:1.35;color:var(--home-nota)}
 
+/* intestazione di "La mia area": card del colore della categoria col nome enorme,
+   stesse misure della card della scheda figlio (alta 250px, angoli 24px, nome 190px) */
+.mia-card{
+  position:relative;overflow:hidden;height:250px;box-sizing:border-box;border-radius:24px;
+  padding:16px 20px;margin-top:-6px;
+}
+.mia-card-testa{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:30px}
+.mia-card-eti{font-family:var(--font-mono);font-size:calc(11px * var(--st));letter-spacing:.14em;text-transform:uppercase;color:#00253F}
+.mia-cambia{
+  flex:none;border:0;cursor:pointer;border-radius:999px;padding:7px 14px;background:rgba(255,255,255,.32);color:#00253F;
+  font-family:var(--font-mono);font-size:calc(11px * var(--st));letter-spacing:.14em;text-transform:uppercase;
+  transition:transform 160ms cubic-bezier(.23,1,.32,1);
+}
+.mia-cambia:active{transform:scale(.95)}
+.mia-nome{
+  position:absolute;left:16px;bottom:-.19em;margin:0;
+  font-family:var(--font-display);font-size:190px;line-height:1.05;font-weight:800;
+  text-transform:uppercase;color:#FFFFFF;white-space:nowrap;letter-spacing:0;
+}
+
 /* scheda a comparsa: sale dal basso e torna giù da dove è venuta, resta ferma finché non la si
    apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). Sta sopra
    l'intestazione dell'app (che cosi resta nascosta, come nel disegno) ma sotto la barra
@@ -2964,6 +2984,37 @@ ACT.comDel = id => confirmModal("Eliminare questa comunicazione?", () => {
 /* intestazione di "La mia area": cerchio con la foto (iniziali se manca) + banner del
    ruolo attivo — è arrivato qui dal pallino L1/L2... dell'intestazione (rolePillHTML),
    che ora apre questa pagina invece del vecchio modale "Con che ruolo vuoi usare l'app?". */
+/* intestazione di "La mia area", sullo stesso disegno della scheda del figlio: card piena
+   del colore della categoria allenata (la più grande se sono più d'una; verde per chi non
+   allena) col nome di battesimo enorme in bianco, tagliato dal bordo in basso. Se il nome
+   è troppo lungo per la larghezza, adattaNomeMia() lo rimpicciolisce finché ci sta. */
+function miaTestataHTML(a) {
+  const r = ruoloCorrente();
+  const sue = a ? S.categorie.filter(c => (a.categorie || []).includes(c.id)) : [];
+  const cat = sue[sue.length - 1];
+  const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#8FC03F";
+  const nome = a ? a.nome.split(" ")[0] : r.nome;
+  return `
+  <div class="mia-card" style="background:${tinta}">
+    <div class="mia-card-testa">
+      <span class="mia-card-eti">La mia area${sue.length ? " · " + sue.map(siglaCat).join(" ") : ""}</span>
+      ${a ? `<button class="mia-cambia" data-act="mioScegli" data-arg="">Cambia</button>` : ""}
+    </div>
+    <h1 class="mia-nome entra-sx">${esc(nome)}</h1>
+  </div>`;
+}
+function adattaNomeMia(root) {
+  const n = root.querySelector(".mia-nome");
+  if (!n) return;
+  const fit = () => {
+    n.style.fontSize = "";
+    const max = n.parentElement.clientWidth - 32;
+    let fs = parseFloat(getComputedStyle(n).fontSize);
+    while (n.scrollWidth > max && fs > 60) { fs -= 4; n.style.fontSize = fs + "px"; }
+  };
+  fit();
+  document.fonts?.ready.then(fit);
+}
 function bannerRuoloMio(a) {
   const ruolo = ruoloCorrente();
   return `
@@ -3022,15 +3073,11 @@ function vMio() {
   // qui arrivano solo dal pallino del livello nell'intestazione, per poter tornare a un
   // altro ruolo — quindi solo foto e banner del ruolo, nient'altro sotto.
   if (ruoloCorrente().livello === 5) return `<div class="stack-lg">
-    <div>
-      <h1 class="page-title">La mia area</h1>
-    </div>
+    ${miaTestataHTML(a)}
     ${bannerRuoloMio(a)}
   </div>`;
   if (!a) return `<div class="stack-lg">
-    <div>
-      <h1 class="page-title">La mia area</h1>
-    </div>
+    ${miaTestataHTML(a)}
     ${bannerRuoloMio(a)}
     <div class="card">
       <h3 style="font-size:calc(17px * var(--st));margin-bottom:6px">Chi sei?</h3>
@@ -3051,12 +3098,7 @@ function vMio() {
   const imp = impegniAllenatore(a);
   const COLORI_TIPO = { Allenamento: "blue", Torneo: "green", Partita: "warn" };
   return `<div class="stack-lg">
-    <div>
-      <div class="row">
-        <h1 class="page-title grow">La mia area</h1>
-        <button class="btn small ghost" data-act="mioScegli" data-arg="">Cambia</button>
-      </div>
-    </div>
+    ${miaTestataHTML(a)}
 
     ${bannerRuoloMio(a)}
 
@@ -4451,6 +4493,7 @@ function render() {
   bindLongText(main);
   bindImgSk(main);
   if (VIEW.name === "home") bindSettimana(main); else _settGiorno = null;
+  if (VIEW.name === "mio") adattaNomeMia(main);
 
   const rs = document.getElementById("roleSwitch");
   if (rs) rs.addEventListener("change", () => { S.ruoloCorrente = rs.value; save(); render(); toast("Ora vedi l'app come: " + ruoloCorrente().nome); });
