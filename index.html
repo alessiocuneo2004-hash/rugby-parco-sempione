@@ -1127,25 +1127,57 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-com-corpo{margin-top:3px;line-height:normal;font-family:var(--font-data);font-size:calc(13.5px * var(--st));color:var(--ink-4)}
 .figlio-com-nota{font-family:var(--font-data);font-size:calc(13.5px * var(--st));line-height:1.35;color:var(--home-nota)}
 
-/* intestazione di "La mia area": card del colore della categoria col nome enorme,
-   stesse misure della card della scheda figlio (alta 250px, angoli 24px, nome 190px) */
-.mia-card{
-  position:relative;overflow:hidden;height:250px;box-sizing:border-box;border-radius:24px;
-  padding:16px 20px;margin-top:-6px;
+/* intestazione di "La mia area" (Claude Design): fascia a tutta larghezza del colore della
+   categoria, al posto della topbar, angoli in basso da 40px come la testata della Home */
+.mia-testa{
+  position:relative;z-index:2;overflow:hidden;box-sizing:border-box;
+  margin:-20px -16px 0;border-radius:0 0 40px 40px;
+  height:calc(275px + env(safe-area-inset-top));
+  padding:calc(28px + env(safe-area-inset-top)) 20px 0;color:#00253F;
 }
-.mia-card-testa{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:30px}
-.mia-card-eti{font-family:var(--font-mono);font-size:calc(11px * var(--st));letter-spacing:.14em;text-transform:uppercase;color:#00253F}
-.mia-cambia{
-  flex:none;border:0;cursor:pointer;border-radius:999px;padding:7px 14px;background:rgba(255,255,255,.32);color:#00253F;
-  font-family:var(--font-mono);font-size:calc(11px * var(--st));letter-spacing:.14em;text-transform:uppercase;
-  transition:transform 160ms cubic-bezier(.23,1,.32,1);
+@media (min-width:960px){.mia-testa{margin:-20px -22px 0}}
+.mia-testa-riga{position:relative;z-index:1;display:flex;align-items:center;gap:8px}
+.mia-testa-io{
+  flex:1;min-width:0;display:flex;align-items:center;gap:8px;
+  background:none;border:0;padding:0;color:inherit;text-align:left;font:inherit;cursor:pointer;
 }
-.mia-cambia:active{transform:scale(.95)}
+div.mia-testa-io{cursor:default}
+.mia-testa-io .avatar{flex:none;background:#00253F;color:#FFFFFF}
+.mia-testa-io .avatar svg{width:18px;height:18px}
+.mia-testa-chi{flex:1;min-width:0;display:flex;flex-direction:column}
+.mia-testa-chi .n{
+  font-family:var(--font-display);font-weight:800;font-size:calc(24px * var(--st));line-height:.9;
+  text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.mia-testa-chi .s{
+  font-family:var(--font-mono);font-weight:500;font-size:calc(11px * var(--st));line-height:1.55;
+  letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.mia-ruolo{
+  position:relative;flex:none;display:flex;align-items:center;gap:5px;cursor:pointer;
+  background:#00253F;border-radius:999px;padding:6px 8px 6px 6px;box-shadow:0 10px 26px rgba(11,27,38,.18);
+}
+.mia-ruolo .liv{
+  border:1.5px solid rgba(255,255,255,.55);color:#FFFFFF;border-radius:20px;
+  font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.08em;padding:3px 8px;line-height:1.3;
+}
+.mia-ruolo .nome{
+  font-family:var(--font-display);font-weight:800;font-size:calc(16px * var(--st));line-height:1;
+  text-transform:uppercase;letter-spacing:.01em;color:#FFFFFF;
+}
+.mia-ruolo .chev{width:14px;height:14px;flex:none;color:#7C9AAE;transform:rotate(90deg)}
+.mia-ruolo select{position:absolute;inset:0;opacity:0;cursor:pointer;border:0;width:100%}
+.mia-testa #menuBtn{flex:none;border-color:rgba(0,37,63,.28);background:none;color:#00253F}
+/* categorie scure: testo e iniziali chiari */
+.mia-testa.scura{color:#FFFFFF}
+.mia-testa.scura .mia-testa-io .avatar{background:#FFFFFF;color:#00253F}
+.mia-testa.scura #menuBtn{border-color:rgba(255,255,255,.28);color:#FFFFFF}
 .mia-nome{
   position:absolute;left:16px;bottom:-.19em;margin:0;
-  font-family:var(--font-display);font-size:190px;line-height:1.05;font-weight:800;
+  font-family:var(--font-display);font-size:130px;line-height:1.05;font-weight:800;
   text-transform:uppercase;color:#FFFFFF;white-space:nowrap;letter-spacing:0;
 }
+.mia-corpo{margin-top:32px}
 
 /* scheda a comparsa: sale dal basso e torna giù da dove è venuta, resta ferma finché non la si
    apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). Sta sopra
@@ -2985,24 +3017,52 @@ ACT.comDel = id => confirmModal("Eliminare questa comunicazione?", () => {
 /* intestazione di "La mia area": cerchio con la foto (iniziali se manca) + banner del
    ruolo attivo — è arrivato qui dal pallino L1/L2... dell'intestazione (rolePillHTML),
    che ora apre questa pagina invece del vecchio modale "Con che ruolo vuoi usare l'app?". */
-/* intestazione di "La mia area", sullo stesso disegno della scheda del figlio: card piena
-   del colore della categoria allenata (la più grande se sono più d'una; verde per chi non
-   allena) col nome di battesimo enorme in bianco, tagliato dal bordo in basso. Se il nome
-   è troppo lungo per la larghezza, adattaNomeMia() lo rimpicciolisce finché ci sta. */
+/* intestazione di "La mia area" (disegno di Claude Design): al posto della topbar c'è una
+   fascia a tutta larghezza del colore della categoria allenata (la più grande se sono più
+   d'una; verde per chi non allena), angoli in basso arrotondati come la testata della Home.
+   In alto: iniziali, nome e "La mia area · U10", e a destra la pastiglia del ruolo, che
+   cambia il ruolo con cui si vede l'app (select trasparente sopra). In basso il nome di
+   battesimo enorme in bianco, tagliato dal bordo; adattaNomeMia() lo rimpicciolisce se
+   non ci sta. Toccare nome e iniziali porta alla scelta del profilo (era il "Cambia"). */
 function miaTestataHTML(a) {
   const r = ruoloCorrente();
   const sue = a ? S.categorie.filter(c => (a.categorie || []).includes(c.id)) : [];
   const cat = sue[sue.length - 1];
   const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#8FC03F";
   const nome = a ? a.nome.split(" ")[0] : r.nome;
+  const sotto = "La mia area" + (sue.length ? " · " + sue.map(siglaCat).join(" ") : "");
+  const chi = `
+      ${a ? avatarHTML(a, 38, "border-radius:50%") : `<div class="avatar" style="width:38px;height:38px;border-radius:50%">${ic("user")}</div>`}
+      <span class="mia-testa-chi">
+        <span class="n">${esc(a ? a.nome : r.nome)}</span>
+        <span class="s">${esc(sotto)}</span>
+      </span>`;
   return `
-  <div class="mia-card" style="background:${tinta}">
-    <div class="mia-card-testa">
-      <span class="mia-card-eti">La mia area${sue.length ? " · " + sue.map(siglaCat).join(" ") : ""}</span>
-      ${a ? `<button class="mia-cambia" data-act="mioScegli" data-arg="">Cambia</button>` : ""}
+  <header class="mia-testa${tintaScura(tinta) ? " scura" : ""}" style="background:${tinta}">
+    <div class="mia-testa-riga">
+      ${a ? `<button class="mia-testa-io" data-act="mioScegli" data-arg="" aria-label="Cambia profilo">${chi}</button>`
+          : `<div class="mia-testa-io">${chi}</div>`}
+      <div class="mia-ruolo" title="Versione di prova: tocca per cambiare il ruolo con cui vedi l'app">
+        <span class="liv">L${r.livello}</span>
+        <span class="nome">${esc(r.nome)}</span>
+        ${ic("right", "chev")}
+        <select id="roleSwitch" aria-label="Cambia il ruolo con cui vedi l'app">
+          ${S.ruoli.map(x => `<option value="${x.id}" ${x.id === r.id ? "selected" : ""}>L${x.livello} ${esc(x.nome)}</option>`).join("")}
+        </select>
+      </div>
+      ${MENU_BTN}
     </div>
     <h1 class="mia-nome entra-sx">${esc(nome)}</h1>
-  </div>`;
+  </header>`;
+}
+/* colori di categoria scuri (es. U8 #004070): lì il testo navy non si leggerebbe */
+function tintaScura(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+  if (!m) return false;
+  const n = parseInt(m[1], 16), ch = [n >> 16, (n >> 8) & 255, n & 255].map(v => {
+    v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4);
+  });
+  return .2126 * ch[0] + .7152 * ch[1] + .0722 * ch[2] < .2;
 }
 function adattaNomeMia(root) {
   const n = root.querySelector(".mia-nome");
@@ -3073,13 +3133,8 @@ function vMio() {
   // i Genitori (L5) non hanno una "mia area" vera (niente presenze/impegni da allenatore):
   // qui arrivano solo dal pallino del livello nell'intestazione, per poter tornare a un
   // altro ruolo — quindi solo foto e banner del ruolo, nient'altro sotto.
-  if (ruoloCorrente().livello === 5) return `<div class="stack-lg">
-    ${miaTestataHTML(a)}
-    ${bannerRuoloMio(a)}
-  </div>`;
-  if (!a) return `<div class="stack-lg">
-    ${miaTestataHTML(a)}
-    ${bannerRuoloMio(a)}
+  if (ruoloCorrente().livello === 5) return miaTestataHTML(a);
+  if (!a) return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
     <div class="card">
       <h3 style="font-size:calc(17px * var(--st));margin-bottom:6px">Chi sei?</h3>
       <p class="small" style="margin-bottom:12px">Scegli il tuo nome: questo dispositivo lo ricorderà e qui vedrai le tue presenze e i tuoi impegni. Potrai cambiarlo quando vuoi.</p>
@@ -3098,10 +3153,7 @@ function vMio() {
   const mesi = presenzePerMese(a);
   const imp = impegniAllenatore(a);
   const COLORI_TIPO = { Allenamento: "blue", Torneo: "green", Partita: "warn" };
-  return `<div class="stack-lg">
-    ${miaTestataHTML(a)}
-
-    ${bannerRuoloMio(a)}
+  return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
 
     ${/* i numeri stanno gia nell'anello: qui basta la card presenze (come nel mockup) */""}
     <div class="card">
@@ -4426,7 +4478,7 @@ function renderChrome() {
   document.documentElement.setAttribute("data-menu", stileMenu);
   // nella Home il marchio sta già dentro la testata navy: tenere anche la topbar
   // significherebbe mostrare scudo e nome del club due volte di fila.
-  document.documentElement.toggleAttribute("data-senza-topbar", VIEW.name === "home");
+  document.documentElement.toggleAttribute("data-senza-topbar", VIEW.name === "home" || VIEW.name === "mio");
   misuraTopbar();
   // solo il menu classico raggruppa le sezioni secondarie sotto "Altro" (max 5 voci in basso)
   const usaAltro = stileMenu === "classico" && !spettatore;
@@ -4561,7 +4613,7 @@ function render() {
 function misuraTopbar() {
   // il menu a tendina si apre sotto questa quota: con la topbar nascosta (Home) il
   // riferimento diventa la riga del marchio dentro la testata navy.
-  const brand = document.querySelector(".figlio-hero-brand");
+  const brand = document.querySelector(".figlio-hero-brand, .mia-testa-riga");
   const h = document.querySelector(".topbar").offsetHeight ||
     (brand ? Math.ceil(brand.getBoundingClientRect().bottom) + 8 : 0);
   if (h) document.documentElement.style.setProperty("--topbar-h", h + "px");
