@@ -356,7 +356,7 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
   .nav button[data-view="altro"]{display:none}
 }
 
-/* pannello "Altro" */
+/* voci a elenco (usate in "La mia area" per scegliere il profilo) */
 .altro-item{
   display:flex;align-items:center;gap:13px;width:100%;padding:12px;
   border:1px solid var(--line);background:var(--surface);border-radius:var(--r-md);cursor:pointer;
@@ -365,6 +365,48 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 .altro-item:hover{background:var(--surface-2)}
 .altro-item svg{width:20px;height:20px;color:var(--accent-soft-ink);flex:none}
 .altro-item .d{display:block;font-size:calc(16px * var(--st));font-weight:400;font-family:var(--font-data);color:var(--ink-3)}
+
+/* menu "Altro" a comparsa (mobile): pannello navy che sale dal pulsante, ancorato
+   all'angolo in basso a destra (da lì nasce l'animazione) */
+.altro-velo{position:fixed;inset:0;z-index:39}
+.altro-menu{
+  position:fixed;z-index:41;right:max(14px,env(safe-area-inset-right));
+  width:min(300px, calc(100vw - 28px));box-sizing:border-box;padding:4px 0 8px;
+  background:var(--navy-fixed);color:#FFFFFF;border:1px solid rgba(255,255,255,.08);border-radius:30px;
+  box-shadow:0 18px 40px rgba(11,27,38,.32);
+  transform-origin:bottom right;animation:altroEntra 180ms cubic-bezier(.23,1,.32,1) both;
+}
+.altro-menu.uscita{animation:altroEsce 120ms cubic-bezier(.23,1,.32,1) both;pointer-events:none}
+@keyframes altroEntra{from{opacity:0;transform:translateY(8px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes altroEsce{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.97)}}
+@media (prefers-reduced-motion: reduce){
+  @keyframes altroEntra{from{opacity:0}to{opacity:1}}
+  @keyframes altroEsce{from{opacity:1}to{opacity:0}}
+}
+.altro-testa{
+  display:flex;align-items:center;gap:13px;padding:14px 18px 14px;margin-bottom:6px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.altro-testa img{width:42px;height:42px;object-fit:contain;flex:none}
+.altro-chi{flex:1;min-width:0}
+.altro-chi .n{font-family:var(--font);font-size:calc(17px * var(--st));font-weight:700;line-height:1.2;color:#FFFFFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.altro-chi .s{font-family:var(--font-data);font-size:calc(13px * var(--st));color:#B9C9D4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.altro-liv{flex:none;background:var(--chart-1);color:#00253F;font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:10px}
+.altro-voce{
+  display:flex;align-items:center;gap:16px;width:100%;min-height:52px;padding:0 22px;
+  background:none;border:0;cursor:pointer;text-align:left;color:#FFFFFF;
+  font-family:var(--font);font-size:calc(17px * var(--st));font-weight:500;
+  transition:background-color 120ms ease;
+}
+.altro-voce svg{width:22px;height:22px;flex:none;color:#7C9AAE}
+.altro-voce.on,.altro-voce.on svg{color:var(--chart-1)}
+.altro-voce:active{background:rgba(255,255,255,.06)}
+@media (hover:hover) and (pointer:fine){.altro-voce:hover{background:rgba(255,255,255,.06)}}
+/* il pulsante "Altro" resta acceso finché il menu è aperto */
+.nav button[data-view="altro"].aperto{color:var(--chart-1)}
+.nav button[data-view="altro"].aperto::after{
+  content:"";position:absolute;inset:6px 4px;border-radius:26px;background:rgba(143,192,63,.14);pointer-events:none;
+}
 
 /* ================= building blocks ================= */
 .card{
@@ -4364,6 +4406,7 @@ function renderChrome() {
 function render() {
   clearTimeout(_attesa);            // se stavamo aspettando, il contenuto vero ha la precedenza
   renderChrome();
+  closeAltro();   // una navigazione chiude sempre il menu "Altro", se era aperto
   // una navigazione vera (tasto Indietro, voce di menu...) chiude sempre la scheda del figlio,
   // se era aperta: #main sta per essere ricostruito da zero, non avrebbe più senso lasciarla lì.
   clearTimeout(_figlioTimer);
@@ -4539,46 +4582,78 @@ document.addEventListener("click", e => {
   if (nav.classList.contains("open") && !nav.contains(e.target) && !e.target.closest("#menuBtn")) chiudiTendina();
 });
 
-/* pannello "Altro" (mobile) */
+/* menu "Altro" (mobile): un pannello navy che sale dal pulsante "Altro" della barra, ancorato
+   sopra la barra stessa e allineato al suo bordo destro (ispirazione: menu account a
+   comparsa). In testa chi sta usando l'app, poi le sezioni raggruppate sotto "Altro".
+   Un velo trasparente sotto il pannello lo chiude al primo tocco fuori. */
+let _altroTimer = null;
+function altroAperto() { return !!document.querySelector("#altroRoot .altro-menu:not(.uscita)"); }
 function openAltro() {
+  clearTimeout(_altroTimer);
   const voci = [
-    { v: "mio", t: "La mia area", d: "Le tue presenze e i prossimi impegni", icona: "user" },
-    { v: "allenatori", t: "Allenatori", d: "Schede, contratti e presenze staff", icona: "users" },
-    { v: "contatti", t: "Contatti", d: "Rubrica società e staff", icona: "phone" },
-    { v: "impostazioni", t: "Ruoli e impostazioni", d: "Permessi, tema, logo, backup", icona: "gear" }
+    { v: "mio", t: "La mia area", icona: "user" },
+    { v: "allenatori", t: "Allenatori", icona: "users" },
+    { v: "contatti", t: "Contatti", icona: "phone" },
+    { v: "impostazioni", t: "Ruoli e impostazioni", icona: "gear" }
   ].filter(x => canSee(x.v));
-  MODAL = { altro: true };
-  document.getElementById("modalRoot").innerHTML = `
-  <div class="modal-veil" data-veil="1">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Altre sezioni">
-      <div class="row">
-        <h3 class="grow">Altre sezioni</h3>
-        <button class="iconbtn" data-close="1" aria-label="Chiudi">${ic("x")}</button>
+  const r = ruoloCorrente();
+  const a = getCoach(S.settings.profiloAllenatore);
+  const parent = NAV_PARENT[VIEW.name];
+  let root = document.getElementById("altroRoot");
+  if (!root) { root = document.createElement("div"); root.id = "altroRoot"; document.body.appendChild(root); }
+  // il pannello si appoggia 10px sopra la pastiglia della barra (che nel menu classico
+  // parte 8px sotto il bordo alto della barra)
+  const nav = document.getElementById("nav");
+  const sotto = innerHeight - nav.getBoundingClientRect().top - 8 + 10;
+  root.innerHTML = `
+    <div class="altro-velo" data-act="altroChiudi"></div>
+    <div class="altro-menu" role="menu" aria-label="Altre sezioni" style="bottom:${sotto}px">
+      <div class="altro-testa">
+        <img src="${S.settings.logo || LOGO_DEFAULT}" alt="">
+        <div class="altro-chi">
+          <div class="n">${esc(a ? a.nome : r.nome)}</div>
+          <div class="s">${esc(a ? r.nome : S.settings.club)}</div>
+        </div>
+        <span class="altro-liv">L${r.livello}</span>
       </div>
       ${voci.map(x => `
-        <button class="altro-item" data-act="altroGo" data-arg="${x.v}">
-          ${ic(x.icona)}
-          <span>${esc(x.t)}<span class="d">${esc(x.d)}</span></span>
+        <button class="altro-voce ${x.v === parent ? "on" : ""}" role="menuitem" data-act="altroGo" data-arg="${x.v}">
+          ${ic(x.icona)}<span>${esc(x.t)}</span>
         </button>`).join("")}
-    </div>
-  </div>`;
-  const veil = document.querySelector("#modalRoot .modal-veil");
-  veil.addEventListener("click", e => { if (e.target.dataset.veil) closeModal(); });
-  veil.querySelector("[data-close]").addEventListener("click", closeModal);
+    </div>`;
+  nav.querySelector('[data-view="altro"]').classList.add("aperto");
+  nav.querySelector('[data-view="altro"]').setAttribute("aria-expanded", "true");
+  root.querySelector(".altro-voce")?.focus({ preventScroll: true });
 }
-ACT.altroGo = v => { closeModal(); go({ name: v }); };
+function closeAltro() {
+  const root = document.getElementById("altroRoot");
+  const menu = root?.querySelector(".altro-menu");
+  const b = document.querySelector('#nav [data-view="altro"]');
+  b?.classList.remove("aperto");
+  b?.setAttribute("aria-expanded", "false");
+  if (!menu || menu.classList.contains("uscita")) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { root.innerHTML = ""; return; }
+  menu.classList.add("uscita");
+  root.querySelector(".altro-velo")?.remove();
+  clearTimeout(_altroTimer);
+  _altroTimer = setTimeout(() => { root.innerHTML = ""; }, 140);
+}
+ACT.altroGo = v => { closeAltro(); go({ name: v }); };
+ACT.altroChiudi = () => closeAltro();
 
 /* nav */
 document.getElementById("nav").addEventListener("click", e => {
   const b = e.target.closest("button[data-view]");
   if (!b) return;
   chiudiTendina();
-  if (b.dataset.view === "altro") openAltro();
-  else go({ name: b.dataset.view });
+  if (b.dataset.view === "altro") { altroAperto() ? closeAltro() : openAltro(); return; }
+  closeAltro();
+  go({ name: b.dataset.view });
 });
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
   if (MODAL) closeModal();
+  closeAltro();
   chiudiTendina();
 });
 
