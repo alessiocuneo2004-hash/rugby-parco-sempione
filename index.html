@@ -81,6 +81,7 @@
   --shadow-rilievo:0 10px 26px rgba(11,27,38,.18);
   --shadow:var(--shadow-card);
   --sk:#EAE6DB;                        /* segnaposto di caricamento */
+  --home-fascia:rgba(244,238,220,.78); --home-strip:#F1EEE6; --home-barretta:#E7E0CB; --home-nota:#3D4E58; --home-meta:#8A8578; --home-dot:rgba(0,37,63,.2); --home-tratteggio:rgba(0,37,63,.22);
   --sk-glow:rgba(255,255,255,.7);      /* riflesso che scorre sul segnaposto */
   --r-lg:20px; --r-md:14px; --r-sm:12px; --r-chip:4px;
   --r-pill:20px;   /* etichette: sempre a capsula */
@@ -115,6 +116,7 @@
     --shadow-rilievo:0 20px 44px rgba(0,20,40,.42);
     --shadow:var(--shadow-card);
     --sk:#0A3557; --sk-glow:rgba(180,210,235,.16);
+  --home-fascia:rgba(0,19,31,.78); --home-strip:#0A3252; --home-barretta:#2C5C86; --home-nota:#C7D4DC; --home-meta:#8FA6B8; --home-dot:rgba(159,194,218,.25); --home-tratteggio:rgba(159,194,218,.3);
   }
 }
 :root[data-theme="light"]{
@@ -138,6 +140,7 @@
   --shadow-rilievo:0 10px 26px rgba(11,27,38,.18);
   --shadow:var(--shadow-card);
   --sk:#EAE6DB; --sk-glow:rgba(255,255,255,.7);
+  --home-fascia:rgba(244,238,220,.78); --home-strip:#F1EEE6; --home-barretta:#E7E0CB; --home-nota:#3D4E58; --home-meta:#8A8578; --home-dot:rgba(0,37,63,.2); --home-tratteggio:rgba(0,37,63,.22);
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -160,6 +163,7 @@
   --shadow-rilievo:0 20px 44px rgba(0,20,40,.42);
   --shadow:var(--shadow-card);
   --sk:#0A3557; --sk-glow:rgba(180,210,235,.16);
+  --home-fascia:rgba(0,19,31,.78); --home-strip:#0A3252; --home-barretta:#2C5C86; --home-nota:#C7D4DC; --home-meta:#8FA6B8; --home-dot:rgba(159,194,218,.25); --home-tratteggio:rgba(159,194,218,.3);
 }
 
 /* ================= base ================= */
@@ -934,7 +938,7 @@ html[data-senza-topbar] .topbar{display:none}
   /* si spegne prima del bordo arrotondato in basso, cosi il ritaglio (overflow:hidden)
      non taglia di netto la sfumatura. */
   position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(75% 65% at 85% 18%, rgba(143,192,63,.22), rgba(143,192,63,0) 55%);
+  background-image:radial-gradient(120% 110% at 85% 0%, rgba(143,192,63,.24), rgba(143,192,63,0) 62%);
   /* il bordo alto resta navy pieno (#00253F, lo stesso della barra di stato del telefono,
      vedi theme-color): la sfumatura entra solo più in basso, senza linea di stacco */
   -webkit-mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
@@ -967,7 +971,7 @@ html[data-senza-topbar] .topbar{display:none}
   text-transform:uppercase;color:#B9C9D4;
 }
 .figlio-hero-ruolo .bianco{color:#FFFFFF}
-.figlio-cards{position:relative;margin-top:-16px;padding:0 12px;display:grid;grid-template-columns:1fr 1fr;gap:11px;z-index:3}
+.figlio-cards{position:relative;margin-top:-16px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:11px;z-index:3}
 .figlio-card{
   position:relative;overflow:hidden;height:112px;box-sizing:border-box;
   border-radius:24px;padding:14px 15px;display:flex;flex-direction:column;
@@ -985,42 +989,81 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-cards.uno{grid-template-columns:1fr}
 .figlio-card.mia-area .figlio-card-freccia{color:currentColor;width:20px;height:20px}
 
-/* sezioni "La settimana" / "Comunicazioni" della Home genitori: lista piatta con
-   divisori sottili (non le card bianche generiche usate nel resto dell'app — qui si
-   segue il disegno originale, più minimale). */
-.figlio-sezioni{display:flex;flex-direction:column;gap:14px;padding:14px 0 0}
-.figlio-sezione{padding:0 14px}
-.figlio-sezione-testa{display:flex;align-items:center;gap:10px;margin-bottom:8px;min-height:30px}
-.figlio-sezione-testa span:first-child{
-  font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);
+/* sezioni "Settimana" / "Comunicazioni" della Home: disegno "31b titolo che resta in
+   vista" di Claude Design, misure e colori 1:1. Ogni sezione è un contenitore a sé, cosi
+   la fascia del titolo resta agganciata in alto solo finché si è dentro quella sezione. */
+.home-live{margin-top:14px;padding:0 4px}
+.home-sezioni{position:relative;z-index:1;padding:32px 4px 20px;display:flex;flex-direction:column;gap:28px}
+.home-sezione{display:flex;flex-direction:column;gap:9px}
+.home-sezione.com{gap:8px}
+.home-fascia{
+  position:sticky;top:env(safe-area-inset-top, 0px);z-index:4;margin:0 -20px;padding:9px 20px 8px;
+  background:var(--home-fascia);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
 }
-.figlio-riga{flex:1;height:1px;background:rgba(0,37,63,.16)}
-.figlio-conta{font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.figlio-conta.lime{color:var(--chart-1)}
+@media (min-width:960px){.home-fascia{margin:0 -26px;padding:9px 26px 8px}}
+.home-fascia-titolo{font-family:var(--font);font-size:calc(17px * var(--st));font-weight:700;letter-spacing:-.01em;color:var(--titolo)}
+.home-fascia-det{display:flex;align-items:center;gap:10px;font-family:var(--font);font-size:calc(13px * var(--st));font-weight:500;color:var(--ink-4)}
 /* i comandi di gestione (aggiungi/fissa/modifica/elimina) restano disponibili anche in
    questa Home, ma in formato ridotto: qui comanda la lettura, non la redazione. */
-.figlio-sezione-testa .btn.solo-piu{
-  align-self:center;width:30px;min-width:30px;height:30px;min-height:30px;border-radius:10px;
-}
-.figlio-sezione-testa .btn.solo-piu svg{width:16px;height:16px}
+.home-fascia .btn.solo-piu{align-self:center;width:30px;min-width:30px;height:30px;min-height:30px;border-radius:10px}
+.home-fascia .btn.solo-piu svg{width:16px;height:16px}
 .figlio-com-azioni{margin-top:8px;display:flex;gap:4px}
 .figlio-com-azioni .iconbtn{width:32px;min-width:32px;height:32px;min-height:32px;border-radius:10px}
 .figlio-com-azioni .iconbtn svg{width:15px;height:15px}
-.figlio-lista{display:flex;flex-direction:column;gap:8px}
-.figlio-riga-impegno{
-  display:flex;align-items:center;gap:13px;background:var(--surface);
-  border-radius:18px;padding:10px 12px;box-shadow:0 3px 9px rgba(11,27,38,.11);
+
+.home-sett{
+  display:flex;flex-direction:column;gap:10px;background:var(--surface);border-radius:26px;
+  padding:12px 12px 14px;overflow:hidden;box-shadow:0 2.8px 8.9px rgba(11,27,38,.112);
 }
-.figlio-riga-impegno.clickable{cursor:pointer}
-/* titoli dei banner della Home: Archivo ExtraBold maiuscolo, come i banner di Tornei ed Eventi */
-.figlio-riga-titolo{font-family:var(--font);font-size:calc(17px * var(--st));line-height:1.2;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
-.figlio-riga-sub{font-family:var(--font-data);font-size:calc(13.5px * var(--st));color:var(--ink-4)}
-.figlio-databadge{width:46px;flex:none;border-radius:14px;background:var(--surface-2);padding:7px 0 6px;text-align:center}
-.figlio-databadge .n{font-family:var(--font-display);font-size:calc(22px * var(--st));line-height:.86;font-weight:800;color:var(--ink)}
-.figlio-databadge .g{font-family:var(--font-mono);font-size:calc(9.5px * var(--st));letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4)}
-.figlio-databadge.evid{background:var(--navy-fixed)}
-.figlio-databadge.evid .n{color:#FFFFFF}
-.figlio-databadge.evid .g{color:var(--chart-1)}
+.home-strip{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--home-strip);border-radius:16px}
+.home-strip-pill{
+  position:absolute;top:0;left:0;bottom:0;width:calc(100% / 7);border-radius:16px;background:var(--navy-fixed);
+  transition:transform 260ms cubic-bezier(.23,1,.32,1);
+}
+.home-giorno{
+  position:relative;cursor:pointer;padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:transform 160ms ease-out;
+}
+.home-giorno:active{transform:scale(.95)}
+.home-giorno .gg{font-family:var(--font-mono);font-size:calc(9.5px * var(--st));letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);transition:color 200ms ease}
+.home-giorno .num{font-family:var(--font-display);font-size:calc(22px * var(--st));line-height:.86;font-weight:800;color:var(--titolo);transition:color 200ms ease}
+.home-giorno.on .gg{color:#8FC03F}
+.home-giorno.on .num{color:#FFFFFF}
+.home-giorno .punti{height:6px;display:flex;gap:3px}
+.home-giorno .punti span{width:6px;height:6px;border-radius:50%}
+.home-pager{
+  display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+  scrollbar-width:none;overscroll-behavior-x:contain;margin:0 -12px;
+}
+.home-pager::-webkit-scrollbar{display:none}
+.home-pagina{flex:none;width:100%;box-sizing:border-box;padding:4px 12px 10px;scroll-snap-align:start;display:flex;flex-direction:column;gap:7px}
+.home-pagina-titolo{font-family:var(--font-display);font-size:calc(34px * var(--st-g));line-height:.86;font-weight:800;text-transform:uppercase;color:var(--titolo)}
+.home-ev{
+  position:relative;overflow:hidden;box-sizing:border-box;min-height:72px;border-radius:22px;
+  padding:11px 122px 11px 14px;box-shadow:0 2.8px 8.9px rgba(11,27,38,.112);color:#FFFFFF;
+}
+.home-ev.clickable{cursor:pointer}
+.home-ev .t{font-family:var(--font-display);font-size:calc(23px * var(--st));line-height:.92;font-weight:800;text-transform:uppercase;color:#FFFFFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-ev .s{line-height:normal;font-family:var(--font-data);font-size:calc(13px * var(--st));color:#FFFFFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-ev .ora{position:absolute;right:12px;bottom:-12px;font-family:var(--font-display);font-size:calc(58px * var(--st-g));line-height:1;font-weight:800;color:#FFFFFF}
+.home-libera{
+  min-height:72px;box-sizing:border-box;border-radius:22px;border:1.5px dashed var(--home-tratteggio);
+  display:flex;align-items:center;padding:0 16px;
+  font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.14em;text-transform:uppercase;color:var(--home-meta);
+}
+.home-dots{display:flex;justify-content:center;gap:5px;margin-top:-4px}
+.home-dots span{
+  width:5px;height:5px;border-radius:3px;background:var(--home-dot);
+  transition:width 240ms cubic-bezier(.23,1,.32,1), background-color 200ms ease;
+}
+.home-dots span.on{width:18px;background:var(--titolo)}
+@media (prefers-reduced-motion: reduce){
+  .home-strip-pill,.home-dots span{transition-duration:0s}
+  .home-giorno:active{transform:none}
+}
+
 .figlio-avviso{
   display:flex;align-items:center;gap:11px;cursor:pointer;
   background:rgba(229,137,58,.16);border:1.5px solid rgba(229,137,58,.5);
@@ -1028,19 +1071,19 @@ html[data-senza-topbar] .topbar{display:none}
 }
 .figlio-avviso-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#E5893A}
 .figlio-avviso-txt{flex:1;min-width:0;font-family:var(--font-data);font-size:calc(14px * var(--st));line-height:1.3;color:var(--ink)}
-.figlio-avviso-chev{width:15px;height:15px;flex:none;color:var(--navy-light)}
+.figlio-avviso-chev{width:15px;height:15px;flex:none;color:var(--titolo)}
 .figlio-com{display:flex;align-items:center;gap:13px;padding:0 16px}
 .figlio-com .figlio-com-barra{align-self:stretch}
 .figlio-com.evidenza{
-  background:var(--surface);border-radius:22px;padding:13px 16px 14px;
+  align-items:stretch;background:var(--surface);border-radius:22px;padding:13px 16px 14px;
   box-shadow:0 6px 14px rgba(11,27,38,.08);
 }
-.figlio-com-barra{width:4px;flex:none;border-radius:999px;background:var(--surface-3)}
-.figlio-com-barra.lime{background:var(--chart-1)}
-.figlio-com-eyebrow{font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
-.figlio-com-titolo{margin-top:4px;font-family:var(--font);font-size:calc(17px * var(--st));line-height:1.2;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
-.figlio-com-corpo{margin-top:3px;font-family:var(--font-data);font-size:calc(13.5px * var(--st));color:var(--ink-4)}
-.figlio-com-corpo.piano{color:var(--ink-2)}
+.figlio-com-barra{width:4px;flex:none;border-radius:999px;background:var(--home-barretta)}
+.figlio-com-barra.lime{background:#8FC03F}
+.figlio-com-eyebrow{line-height:normal;font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.16em;text-transform:uppercase;color:var(--home-meta)}
+.figlio-com-titolo{margin-top:4px;font-family:var(--font-display);font-size:calc(26px * var(--st));line-height:.92;font-weight:800;text-transform:uppercase;color:var(--titolo)}
+.figlio-com-corpo{margin-top:3px;line-height:normal;font-family:var(--font-data);font-size:calc(13.5px * var(--st));color:var(--ink-4)}
+.figlio-com-nota{font-family:var(--font-data);font-size:calc(13.5px * var(--st));line-height:1.35;color:var(--home-nota)}
 
 /* scheda a comparsa: sale dal basso e torna giù da dove è venuta, resta ferma finché non la si
    apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). Sta sopra
@@ -1166,14 +1209,14 @@ html[data-senza-topbar] .topbar{display:none}
    rapido si vede. Va in fondo al file per vincere sulle transizioni dei singoli pezzi. */
 :root{--ease-out:cubic-bezier(.23,1,.32,1)}
 .btn,.iconbtn,.chip,.tile,.card.clickable,.nav button,.list-row.clickable,.altro-item,
-.role-pill,.cat-card,.hero-card.clickable,.figlio-card,.figlio-riga-impegno.clickable,
+.role-pill,.cat-card,.hero-card.clickable,.figlio-card,.home-ev.clickable,
 .figlio-avviso,.figlio-freccia{
   transition:transform .16s var(--ease-out),background-color .12s ease-out,color .12s ease-out,
     border-color .12s ease-out,filter .12s ease-out;
 }
 .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
 .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
-.hero-card.clickable:active,.figlio-card:active,.figlio-riga-impegno.clickable:active,
+.hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
 .figlio-avviso:active,.figlio-freccia:active{
   transform:scale(.97);transition-duration:.1s;
 }
@@ -1181,7 +1224,7 @@ html[data-senza-topbar] .topbar{display:none}
 @media (prefers-reduced-motion:reduce){
   .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
   .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
-  .hero-card.clickable:active,.figlio-card:active,.figlio-riga-impegno.clickable:active,
+  .hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
   .figlio-avviso:active,.figlio-freccia:active{transform:none;filter:brightness(.93)}
 }
 </style>
@@ -2373,7 +2416,7 @@ function vHome() {
 
     ${miaAreaHTML(a)}
 
-    ${banners.length ? `<div class="figlio-sezione" style="margin-top:14px">${banners.join("")}</div>` : ""}
+    ${banners.length ? `<div class="home-live">${banners.join("")}</div>` : ""}
 
     ${homeSezioniHTML("")}
   </div>`;
@@ -2420,11 +2463,69 @@ function homeTestataHTML(nomeGrande, riga1, riga2) {
     </div>`;
 }
 
-/* "La settimana" e "Comunicazioni": stesse due sezioni per tutti i livelli.
-   `avviso` è il banner arancio dei Genitori (vuoto per gli altri livelli), e chi
-   può gestire le comunicazioni trova i pulsanti di modifica dentro ogni card. */
+/* "Settimana" e "Comunicazioni": stesse due sezioni per tutti i livelli, disegno
+   "31b titolo che resta in vista" di Claude Design. Ogni titolo di sezione è una fascia
+   crema traslucida che resta agganciata in alto mentre il contenuto ci scorre sotto,
+   sfocato; ogni sezione sta nel suo contenitore, cosi la fascia della sezione dopo spinge
+   via quella prima. `avviso` è il banner arancio dei Genitori (vuoto per gli altri
+   livelli), e chi può gestire le comunicazioni trova i pulsanti dentro ogni card. */
+const MESI_LUNGHI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const GIORNI_LUNGHI = ["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"];
+let _settGiorno = null;   // giorno scelto nella striscia (0 = lunedì); null = oggi
+
+/* lunedì della settimana in corso */
+function lunediSettimana() {
+  const d = new Date(todayISO() + "T00:00:00");
+  d.setDate(d.getDate() - (d.getDay() + 6) % 7);
+  return d;
+}
+/* impegni della settimana, divisi per giorno: allenamenti (dagli orari), tornei e partite.
+   Genitori: le categorie dei due figli, col colore del figlio. Allenatori: le proprie
+   categorie. Tutti gli altri: tutte le categorie, ognuna col suo colore. */
+function impegniSettimana(lun) {
+  const giorni = [[], [], [], [], [], [], []];
+  const isoGiorno = i => { const d = new Date(lun); d.setDate(d.getDate() + i); return isoLocal(d); };
+  const settimana = [0, 1, 2, 3, 4, 5, 6].map(isoGiorno);
+  let fonti;
+  if (ruoloCorrente().livello === 5) {
+    fonti = Object.values(FIGLI_DEMO).map(f => {
+      const c = S.categorie.find(x => x.nome === f.cat);
+      return c && { c, colore: f.colore, prima: f.nome + " " + c.nome };
+    }).filter(Boolean);
+  } else {
+    const a = getCoach(S.settings.profiloAllenatore);
+    const cats = a && (a.categorie || []).length ? S.categorie.filter(c => a.categorie.includes(c.id)) : S.categorie;
+    fonti = cats.map(c => ({ c, colore: coloreCat(c, S.categorie.indexOf(c)), prima: c.nome }));
+  }
+  for (const { c, colore, prima } of fonti) {
+    const voce = (i, titolo, ora, luogo, vai) => giorni[i].push({
+      colore, titolo, ora: ora || "", sotto: [prima, luogo].filter(Boolean).join(" · "), vai
+    });
+    for (const o of c.orari) voce(o.giorno, "Allenamento", o.dalle, o.luogo);
+    const partite = S.partite.filter(p => p.categoria === c.id && p.stato !== "terminata" && settimana.includes(p.data));
+    for (const t of c.tornei) {
+      const i = settimana.indexOf(t.data);
+      if (i < 0 || partite.some(p => p.collegaTorneo === t.nome + "|" + t.data)) continue;
+      voce(i, t.nome, "09:00", t.luogo);
+    }
+    for (const p of partite)
+      voce(settimana.indexOf(p.data), "Partita " + p.avversario, p.ora, p.luogo, { name: "partita", id: p.id });
+  }
+  for (const g of giorni) g.sort((x, y) => x.ora < y.ora ? -1 : 1);
+  return giorni;
+}
+
 function homeSezioniHTML(avviso) {
-  const impegni = appuntamentiHome();
+  const lun = lunediSettimana();
+  const dom = new Date(lun); dom.setDate(dom.getDate() + 6);
+  const periodo = lun.getMonth() === dom.getMonth()
+    ? `${lun.getDate()} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`
+    : `${lun.getDate()} ${MESI_LUNGHI[lun.getMonth()]} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`;
+  const giorni = impegniSettimana(lun);
+  const oggiIdx = (new Date(todayISO() + "T00:00:00").getDay() + 6) % 7;
+  const sel = _settGiorno ?? oggiIdx;
+  const data = i => { const d = new Date(lun); d.setDate(d.getDate() + i); return d.getDate(); };
+
   const coms = [...S.comunicazioni].sort((a, b) =>
     (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1));
   const nuove = S.comunicazioni.filter(c => giorniFa(c.data) <= 7).length;
@@ -2435,53 +2536,106 @@ function homeSezioniHTML(avviso) {
       ${btnIcon("trash", "comDel", c.id, "danger", "Elimina")}
     </span>` : "";
 
-  return `<div class="figlio-sezioni">
-    <div class="figlio-sezione">
-      <div class="figlio-sezione-testa"><span>La settimana</span><span class="figlio-riga"></span><span class="figlio-conta">${impegni.length} impegni</span></div>
-      <div class="figlio-lista">
-        ${impegni.length ? impegni.map((ap, i) => `
-          <div class="figlio-riga-impegno ${ap.vai ? "clickable" : ""}"
-               ${ap.vai ? `data-act="go" data-arg="${esc(JSON.stringify(ap.vai))}" role="button" tabindex="0"` : ""}>
-            ${dataGrandeFiglio(ap.data, i === 0)}
-            <div class="grow" style="flex:1;min-width:0">
-              <div class="figlio-riga-titolo ${i === 0 ? "primo" : ""}">${esc(ap.titolo)}</div>
-              <div class="figlio-riga-sub">${esc(ap.sotto)}</div>
-            </div>
-          </div>`).join("") : `<div class="empty">Nessun appuntamento in programma.</div>`}
+  return `<div class="home-sezioni">
+    <div class="home-sezione">
+      <div class="home-fascia"><span class="home-fascia-titolo">Settimana</span><span class="home-fascia-det">${periodo}</span></div>
+      <div class="home-sett" id="homeSett">
+        <div class="home-strip">
+          <div class="home-strip-pill" style="transform:translateX(${sel * 100}%)"></div>
+          ${GIORNI3.map((g, i) => `
+            <div class="home-giorno ${i === sel ? "on" : ""}" data-act="settGiorno" data-arg="${i}" role="button" tabindex="0" aria-label="${GIORNI_LUNGHI[i]} ${data(i)}">
+              <div class="gg">${g}</div>
+              <div class="num">${String(data(i)).padStart(2, "0")}</div>
+              <div class="punti">${giorni[i].map(e => `<span style="background:${e.colore}"></span>`).join("")}</div>
+            </div>`).join("")}
+        </div>
+        <div class="home-pager" id="homePager">
+          ${giorni.map((ev, i) => `
+            <div class="home-pagina">
+              <div class="home-pagina-titolo">${GIORNI_LUNGHI[i]} ${data(i)}</div>
+              ${ev.length ? ev.map(e => `
+                <div class="home-ev ${e.vai ? "clickable" : ""}" style="background:${e.colore}"
+                     ${e.vai ? `data-act="go" data-arg="${esc(JSON.stringify(e.vai))}" role="button" tabindex="0"` : ""}>
+                  <div class="t">${esc(e.titolo)}</div>
+                  <div class="s">${esc(e.sotto)}</div>
+                  <div class="ora">${esc(e.ora)}</div>
+                </div>`).join("") : `<div class="home-libera">Giornata libera</div>`}
+            </div>`).join("")}
+        </div>
+        <div class="home-dots">${GIORNI3.map((g, i) => `<span class="${i === sel ? "on" : ""}"></span>`).join("")}</div>
       </div>
     </div>
 
-    <div class="figlio-sezione">
-      <div class="figlio-sezione-testa">
-        <span>Comunicazioni</span><span class="figlio-riga"></span>
-        <span class="figlio-conta lime">${nuove} nuove</span>
-        ${can("comunicazioni") ? btnAdd("Nuova", "comEdit", "") : ""}
+    <div class="home-sezione com">
+      <div class="home-fascia">
+        <span class="home-fascia-titolo">Comunicazioni</span>
+        <span class="home-fascia-det">${nuove} nuove${can("comunicazioni") ? btnAdd("Nuova", "comEdit", "") : ""}</span>
       </div>
-      <div class="figlio-lista" style="gap:8px">
-        ${avviso}
-        ${coms.length ? coms.slice(0, 3).map(c => c.fissata ? `
-          <div class="figlio-com evidenza">
-            <span class="figlio-com-barra lime"></span>
-            <div class="grow" style="flex:1;min-width:0">
-              <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
-              <div class="figlio-com-titolo">${esc(c.titolo)}</div>
-              <div class="figlio-com-corpo">${esc(c.corpo)}</div>
-              ${azioni(c)}
-            </div>
-          </div>` : `
-          <div class="figlio-com">
-            <span class="figlio-com-barra"></span>
-            <div class="grow" style="flex:1;min-width:0">
-              <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
-              <div class="figlio-com-corpo piano">${esc(c.titolo)} ${esc(c.corpo)}</div>
-              ${azioni(c)}
-            </div>
-          </div>`).join("") :
-          `<div class="empty">Nessuna comunicazione. ${can("comunicazioni") ? "Premi “+” per pubblicare la prima." : ""}</div>`}
-      </div>
+      ${avviso}
+      ${coms.length ? coms.slice(0, 3).map(c => c.fissata ? `
+        <div class="figlio-com evidenza">
+          <span class="figlio-com-barra lime"></span>
+          <div class="grow" style="flex:1;min-width:0">
+            <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
+            <div class="figlio-com-titolo">${esc(c.titolo)}</div>
+            <div class="figlio-com-corpo">${esc(c.corpo)}</div>
+            ${azioni(c)}
+          </div>
+        </div>` : `
+        <div class="figlio-com">
+          <span class="figlio-com-barra"></span>
+          <div class="grow" style="flex:1;min-width:0">
+            <div class="figlio-com-nota">${esc(c.autore || "Segreteria")}: ${esc(c.corpo || c.titolo)}</div>
+            ${azioni(c)}
+          </div>
+        </div>`).join("") :
+        `<div class="empty">Nessuna comunicazione. ${can("comunicazioni") ? "Premi “+” per pubblicare la prima." : ""}</div>`}
     </div>
   </div>`;
 }
+
+/* striscia dei giorni e pagine scorrevoli della "Settimana": la pagina segue il dito
+   (scroll-snap nativo), la pastiglia navy e i puntini seguono la pagina; l'altezza della
+   card si adatta alla pagina visibile, interpolando durante lo scorrimento. */
+function aggiornaSett(sett, i) {
+  _settGiorno = i;
+  sett.querySelector(".home-strip-pill").style.transform = `translateX(${i * 100}%)`;
+  sett.querySelectorAll(".home-giorno").forEach((g, k) => g.classList.toggle("on", k === i));
+  sett.querySelectorAll(".home-dots span").forEach((d, k) => d.classList.toggle("on", k === i));
+}
+function adattaPager(p) {
+  if (!p.clientWidth || !p.children.length) return;
+  const k = p.children, x = Math.max(0, Math.min(k.length - 1, p.scrollLeft / p.clientWidth));
+  const i = Math.floor(x), f = x - i, a = k[i].offsetHeight, b = (k[i + 1] || k[i]).offsetHeight;
+  p.style.height = Math.round(a + (b - a) * f) + "px";
+}
+function bindSettimana(root) {
+  const p = root.querySelector("#homePager");
+  if (!p) return;
+  const sett = p.closest(".home-sett");
+  p.scrollLeft = (_settGiorno ?? Number(sett.querySelector(".home-giorno.on")?.dataset.arg) ?? 0) * p.clientWidth;
+  adattaPager(p);
+  document.fonts?.ready.then(() => adattaPager(p));
+  p.addEventListener("scroll", () => {
+    adattaPager(p);
+    if (p._prog) return;
+    const i = Math.round(p.scrollLeft / p.clientWidth);
+    if (i >= 0 && i < 7 && i !== _settGiorno) aggiornaSett(sett, i);
+  }, { passive: true });
+}
+ACT.settGiorno = arg => {
+  const p = document.getElementById("homePager");
+  if (!p) return;
+  const i = Number(arg);
+  aggiornaSett(p.closest(".home-sett"), i);
+  p._prog = true;
+  clearTimeout(p._t);
+  const fine = () => { p._prog = false; p.removeEventListener("scrollend", fine); clearTimeout(p._t); };
+  p.addEventListener("scrollend", fine);
+  p._t = setTimeout(fine, 700);
+  const ridotto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  p.scrollTo({ left: i * p.clientWidth, behavior: ridotto ? "auto" : "smooth" });
+};
 
 /* =====================================================================
    HOME GENITORI (L5) — due card figlio, scheda a comparsa
@@ -2500,17 +2654,6 @@ function tempoRelativo(iso) {
   if (g < 14) return g + " giorni fa";
   return fmtDate(iso, false);
 }
-/* riquadro data della lista "La settimana": navy per il primo impegno (il più vicino),
-   crema per gli altri — stessa gerarchia del prototipo. */
-function dataGrandeFiglio(iso, evidenziata) {
-  const d = new Date(iso + "T00:00:00");
-  const idx = (d.getDay() + 6) % 7;
-  return `<div class="figlio-databadge ${evidenziata ? "evid" : ""}">
-    <div class="n">${d.getDate()}</div>
-    <div class="g">${GIORNI3[idx]}</div>
-  </div>`;
-}
-
 function vHomeGenitore() {
   const avviso = `<div class="figlio-avviso" data-act="figlioApri" data-arg="sofia" role="button" tabindex="0">
     <span class="figlio-avviso-dot"></span>
@@ -4245,6 +4388,7 @@ function render() {
   bindCharts(main);
   bindLongText(main);
   bindImgSk(main);
+  if (VIEW.name === "home") bindSettimana(main); else _settGiorno = null;
 
   const rs = document.getElementById("roleSwitch");
   if (rs) rs.addEventListener("change", () => { S.ruoloCorrente = rs.value; save(); render(); toast("Ora vedi l'app come: " + ruoloCorrente().nome); });
