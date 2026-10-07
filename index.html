@@ -1092,116 +1092,105 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-drawer{
   /* a schermo intero, anche sotto la barra di stato: è la testata navy a coprire quella
      fascia (col suo padding-top), cosi in alto non resta una striscia color crema. */
-  position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;overflow-y:auto;
+  position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;
   background:var(--bg);transform:translateY(100%);
   transition:transform .44s cubic-bezier(.32,.72,0,1);touch-action:none;
 }
 .figlio-drawer.aperta{transform:translateY(0)}
 .figlio-drawer.uscita{transform:translateY(100%)}
-.figlio-maniglia{
-  position:absolute;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
-  z-index:2;width:52px;height:14px;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-}
-.figlio-maniglia span{width:42px;height:4px;border-radius:999px;background:rgba(255,255,255,.5)}
 .figlio-drawer-inner{flex:1 0 auto;display:flex;flex-direction:column}
-/* testata, cerchio e contenuto non si comprimono mai: se lo schermo è basso la scheda
-   scorre. Prima, con più contenuto (Sofia con la partita in corso), il browser
-   schiacciava la testata e il cerchio finiva sopra il titolo. */
+/* le parti alte non si comprimono mai: se lo schermo è basso la scheda scorre */
 .figlio-drawer-inner>*{flex-shrink:0}
-.figlio-testata{
-  /* più alta del valore originale del prototipo (pensato per una tela fissa di 860px):
-     su un telefono vero, spesso più alto, la stessa misura in pixel sembrava tagliata
-     corta invece che una forma piena e intenzionale. */
-  position:relative;overflow:hidden;background:var(--navy-fixed);color:#FFFFFF;
-  padding:calc(14px + env(safe-area-inset-top)) 18px 90px;border-radius:0 0 260px 260px / 0 0 130px 130px;
-  display:flex;flex-direction:column;align-items:center;gap:10px;
+
+/* contenuto della scheda: "Prototipo Home 2" di Claude Design, misure 1:1. In alto la card
+   del figlio (larga quanto lo schermo meno 18px) e, staccata di 8px, la striscia dell'altro
+   figlio, che dal bordo destro spunta per 10px: l'invito a scorrere. */
+.fs-alto{display:flex;gap:8px;margin-right:-8px}
+.fs-card{
+  flex:none;width:calc(100% - 26px);height:calc(250px + env(safe-area-inset-top));box-sizing:border-box;
+  position:relative;overflow:hidden;border-radius:24px;
+  padding:calc(16px + env(safe-area-inset-top)) 20px 16px;
+  transition:background .3s cubic-bezier(.23,1,.32,1);
 }
-.figlio-testata-glow{
-  position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(130% 100% at 50% -20%, rgba(143,192,63,.26), rgba(143,192,63,0) 64%);
-  /* il bordo alto resta navy pieno (#00253F, lo stesso della barra di stato del telefono,
-     vedi theme-color): la sfumatura entra solo più in basso, senza linea di stacco */
-  -webkit-mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
-  mask-image:linear-gradient(to bottom, transparent calc(env(safe-area-inset-top) + 6px), #000 calc(env(safe-area-inset-top) + 90px));
+.fs-card-testa{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.fs-maniglia{width:52px;height:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.fs-maniglia span{width:42px;height:4px;border-radius:999px;background:rgba(0,37,63,.25)}
+.fs-cat{justify-self:end;font-family:var(--font-mono);font-size:calc(11px * var(--st));letter-spacing:.14em;color:#00253F}
+.fs-nome,.fs-iniziale{
+  position:absolute;top:calc(87px + env(safe-area-inset-top));
+  font-family:var(--font-display);font-size:190px;line-height:1.05;font-weight:800;
+  text-transform:uppercase;color:#FFFFFF;white-space:nowrap;
 }
-.figlio-testata-logo{position:relative;width:32px;height:auto;margin-top:22px}
-.figlio-testata-eyebrow{
-  position:relative;font-family:var(--font-mono);font-size:calc(12px * var(--st));letter-spacing:.26em;
-  text-transform:uppercase;color:var(--chart-1);
+.fs-nome{left:16px}
+.fs-iniziale{left:12px}
+.fs-lato{
+  flex:none;width:40px;height:calc(250px + env(safe-area-inset-top));border-radius:24px;
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:background .3s cubic-bezier(.23,1,.32,1);
 }
-.figlio-testata-titolo{
-  position:relative;font-family:var(--font-display);font-size:calc(56px * var(--st-g));line-height:.86;text-align:center;
-  font-weight:800;text-transform:uppercase;color:#FFFFFF;
+.entra-sx{animation:nomeEntraSx .34s cubic-bezier(.23,1,.32,1) both}
+.entra-dx{animation:nomeEntraDx .34s cubic-bezier(.23,1,.32,1) both}
+@keyframes nomeEntraDx{from{opacity:0;transform:translateX(46px)}to{opacity:1;transform:translateX(0)}}
+@keyframes nomeEntraSx{from{opacity:0;transform:translateX(-46px)}to{opacity:1;transform:translateX(0)}}
+@media (prefers-reduced-motion: reduce){
+  @keyframes nomeEntraDx{from{opacity:0}to{opacity:1}}
+  @keyframes nomeEntraSx{from{opacity:0}to{opacity:1}}
 }
-.figlio-selettore{position:relative;margin-top:-52px;display:flex;align-items:center;justify-content:center;gap:16px}
-.figlio-freccia{display:flex;width:32px;height:32px;align-items:center;justify-content:center;color:#B3AB96;cursor:pointer}
-.figlio-freccia svg{width:15px;height:15px}
-.figlio-avatar{
-  width:104px;height:104px;flex:none;border-radius:50%;border:6px solid var(--bg);
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
-  box-shadow:0 14px 30px rgba(11,27,38,.26);
+
+.fs-puntini{display:flex;align-items:center;justify-content:center;gap:10px;padding-top:12px}
+.fs-punti{display:flex;gap:5px}
+.fs-punti span{
+  width:5px;height:5px;border-radius:3px;background:var(--home-dot);
+  transition:width .28s cubic-bezier(.23,1,.32,1), background .28s ease;
 }
-.figlio-avatar-nome{
-  font-family:var(--font-display);font-size:calc(34px * var(--st-g));line-height:.86;font-weight:800;
-  text-transform:uppercase;color:#FFFFFF;
+.fs-punti span.on{width:18px}
+.fs-scorri{
+  display:flex;align-items:center;gap:4px;cursor:pointer;
+  font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);
 }
-.entra-sx{animation:figlioEntraSx .34s cubic-bezier(.23,1,.32,1) both}
-.entra-dx{animation:figlioEntraDx .34s cubic-bezier(.23,1,.32,1) both}
-@keyframes figlioEntraDx{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-@keyframes figlioEntraSx{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
-.figlio-puntini{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px}
-.figlio-punto{width:6px;height:5px;border-radius:999px;background:var(--surface-3);transition:width .28s cubic-bezier(.23,1,.32,1)}
-.figlio-punto.on{width:20px}
-.figlio-corpo{
-  flex:1;display:flex;flex-direction:column;gap:14px;
+.fs-scorri svg{width:11px;height:11px;stroke-width:2.6}
+
+.fs-corpo{
+  flex:1;display:flex;flex-direction:column;position:relative;
   /* lo spazio in fondo tiene conto della pastiglia del menu, che galleggia sopra la scheda */
-  padding:18px 16px calc(96px + env(safe-area-inset-bottom));
+  padding:16px 20px calc(96px + env(safe-area-inset-bottom));
 }
-@media (min-width:960px){.figlio-corpo{padding-bottom:60px}}
-.figlio-live{
-  background:#0B1B26;border-radius:34px;padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;
-  box-shadow:0 16px 34px rgba(11,27,38,.28);color:#FFFFFF;
+@media (min-width:960px){.fs-corpo{padding-bottom:60px}}
+.fs-testa{display:flex;align-items:baseline;gap:10px;padding-bottom:6px}
+.fs-testa span:first-child{font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4)}
+.fs-filo{flex:1;height:1px;background:var(--home-dot)}
+.fs-avvisi{margin-top:auto;padding-top:18px;padding-bottom:8px}
+.fs-tempo{position:relative;display:flex;flex-direction:column}
+/* linea del tempo: dal riquadro data di una riga a quello della riga dopo */
+.fs-riga{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;padding:8px 0}
+.fs-riga:not(:last-child)::before{
+  content:"";position:absolute;left:27px;top:24px;width:2px;height:calc(100% + 6px);background:rgba(0,37,63,.14);
 }
-.figlio-live-head{
-  display:flex;align-items:center;gap:9px;font-family:var(--font-mono);font-size:calc(12px * var(--st));
-  letter-spacing:.2em;text-transform:uppercase;color:var(--chart-1);
-}
-.figlio-live-dot{width:8px;height:8px;border-radius:50%;background:var(--chart-1);animation:blink 1.4s infinite}
-.figlio-live-vs{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.figlio-live-squadre{display:flex;flex-direction:column;gap:5px;min-width:0}
-.figlio-live-sq{font-family:var(--font-display);font-size:calc(27px * var(--st));line-height:.92;font-weight:800;text-transform:uppercase}
-.figlio-live-sq.avv{color:#B9C9D4;font-weight:700}
-.figlio-live-score{
-  display:flex;align-items:center;gap:8px;background:var(--chart-1);border-radius:999px;padding:8px 16px;
-  font-family:var(--font-display);font-weight:800;line-height:.8;
-}
-.figlio-live-score .noi{font-size:calc(46px * var(--st-g));color:#00253F}
-.figlio-live-score .sep{font-size:calc(24px * var(--st));color:#1C4A16}
-.figlio-live-score .loro{font-size:calc(46px * var(--st-g));color:#1C4A16}
-.figlio-prox{
-  background:var(--surface);border-radius:34px;padding:17px 20px 16px;display:flex;flex-direction:column;gap:14px;
-  box-shadow:0 8px 18px rgba(11,27,38,.10);
-}
-.figlio-prox-riga{display:flex;align-items:center;gap:14px}
-.figlio-prox-titolo{font-family:var(--font-display);font-size:calc(36px * var(--st-g));line-height:.88;font-weight:800;text-transform:uppercase;color:var(--ink)}
-.figlio-prox-data{
-  width:62px;height:62px;flex:none;border-radius:50%;background:var(--navy-fixed);
+.fs-data{
+  position:relative;z-index:1;width:44px;height:44px;margin:0 auto;box-sizing:border-box;border-radius:12px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
-.figlio-prox-data .n{font-family:var(--font-display);font-size:calc(27px * var(--st));line-height:.82;font-weight:800;color:#FFFFFF}
-.figlio-prox-data .m{font-family:var(--font-mono);font-size:calc(10px * var(--st));letter-spacing:.1em;text-transform:uppercase;color:var(--chart-1)}
-.figlio-settimana{border-top:1.5px solid var(--line);padding-top:13px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.figlio-giorno{
-  border-radius:999px;background:var(--surface-3);padding:6px 0;text-align:center;
-  font-family:var(--font-mono);font-size:calc(11px * var(--st));color:var(--ink-3);
+.fs-data .n{font-family:var(--font-display);font-size:calc(26px * var(--st));line-height:.85;font-weight:800;color:#00253F}
+.fs-data .g{font-family:var(--font-mono);font-size:calc(9.5px * var(--st));text-transform:uppercase;color:#00253F}
+.fs-data.grande{background:var(--navy-fixed)}
+.fs-data.grande .n{color:#FFFFFF}
+.fs-data.grande .g{color:#8FC03F}
+.fs-piccola{background:var(--surface);border-radius:20px;padding:11px 14px;box-shadow:0 6px 16px rgba(11,27,38,.07);min-width:0}
+.fs-piccola .p{font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.16em;text-transform:uppercase;color:var(--home-meta)}
+.fs-piccola .t{font-family:var(--font-display);font-size:calc(24px * var(--st));line-height:.92;font-weight:800;text-transform:uppercase;color:var(--titolo)}
+.fs-piccola .i{font-family:var(--font-data);font-size:calc(13px * var(--st));color:var(--ink-4)}
+.fs-grande{
+  position:relative;overflow:hidden;box-sizing:border-box;min-height:118px;border-radius:22px;padding:12px 14px;
+  box-shadow:0 10px 22px rgba(11,27,38,.12);min-width:0;
 }
-.figlio-giorno.oggi{background:var(--navy-fixed);color:var(--navy-fixed-ink)}
-.figlio-giorno.match{background:var(--chart-1);color:#1C4A16}
-.figlio-suggerimento{
-  margin-top:auto;padding-top:20px;text-align:center;font-family:var(--font-mono);
-  font-size:calc(11px * var(--st));letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
-}
+.fs-grande.clickable{cursor:pointer}
+.fs-grande .l{font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.16em;text-transform:uppercase;color:#00253F}
+.fs-grande .dove{margin-top:3px;font-family:var(--font-display);font-size:calc(26px * var(--st));line-height:.9;font-weight:800;text-transform:uppercase;color:#00253F}
+.fs-grande .i{font-family:var(--font-data);font-size:calc(13px * var(--st));color:#00253F;padding-right:96px}
+.fs-grande .ora{position:absolute;right:12px;bottom:-14px;font-family:var(--font-display);font-size:calc(64px * var(--st-g));line-height:1;font-weight:800;color:#FFFFFF}
+.fs-avviso{display:flex;align-items:center;gap:13px}
+.fs-avviso-barra{width:4px;align-self:stretch;flex:none;border-radius:999px}
+.fs-avviso-txt{flex:1;font-family:var(--font-data);font-size:calc(14px * var(--st));line-height:1.35;color:var(--ink)}
 
 /* ================= pressione ================= */
 /* tutto cio' che si tocca si stringe un poco sotto il dito: e' la conferma che il tocco
@@ -1210,14 +1199,14 @@ html[data-senza-topbar] .topbar{display:none}
 :root{--ease-out:cubic-bezier(.23,1,.32,1)}
 .btn,.iconbtn,.chip,.tile,.card.clickable,.nav button,.list-row.clickable,.altro-item,
 .role-pill,.cat-card,.hero-card.clickable,.figlio-card,.home-ev.clickable,
-.figlio-avviso,.figlio-freccia{
+.figlio-avviso,.fs-lato,.fs-grande.clickable{
   transition:transform .16s var(--ease-out),background-color .12s ease-out,color .12s ease-out,
     border-color .12s ease-out,filter .12s ease-out;
 }
 .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
 .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
 .hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
-.figlio-avviso:active,.figlio-freccia:active{
+.figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{
   transform:scale(.97);transition-duration:.1s;
 }
 /* "riduci movimento": niente rimpicciolimento, resta solo lo scurimento al tocco */
@@ -1225,7 +1214,7 @@ html[data-senza-topbar] .topbar{display:none}
   .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
   .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
   .hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
-  .figlio-avviso:active,.figlio-freccia:active{transform:none;filter:brightness(.93)}
+  .figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{transform:none;filter:brightness(.93)}
 }
 </style>
 <div id="app">
@@ -2252,8 +2241,8 @@ let _nuovoId = null;      // vedi render(): l'elemento appena creato entra con u
    (coerente con quanto disegnato in Claude Design), ma partita in campo/prossimo impegno
    arrivano dai dati veri della categoria del figlio. */
 const FIGLI_DEMO = {
-  leo:   { nome: "Leo",   cat: "U10", colore: "#F0C838" },
-  sofia: { nome: "Sofia", cat: "U12", colore: "#E5893A" }
+  leo:   { nome: "Leo",   cat: "U10", colore: "#F0C838", altro: "sofia", avviso: "Portare la seconda maglia per la trasferta." },
+  sofia: { nome: "Sofia", cat: "U12", colore: "#E5893A", altro: "leo",   avviso: "Torneo a Monza: ritrovo alle 08:00 al club." }
 };
 let _figlioAperto = null;   // id del figlio con la scheda aperta, o null se chiusa
 const NAV_PARENT = {
@@ -2677,83 +2666,112 @@ function vHomeGenitore() {
   </div>`;
 }
 
-/* contenuto della scheda a comparsa per il figlio `id`: testata + selettore + impegno vero
-   preso dalla categoria collegata (U10/U12) — partita in corso se c'è, altrimenti la prossima. */
-function figlioContenutoHTML(id) {
-  const f = FIGLI_DEMO[id];
+/* contenuto della scheda a comparsa per il figlio `id` (disegno "Prototipo Home 2" di
+   Claude Design): card grande col nome a tutta altezza e, di lato, uno spicchio dell'altro
+   figlio; sotto la settimana come linea del tempo e gli avvisi. Gli impegni sono quelli veri
+   della categoria collegata (U10/U12), da oggi a domenica. `da` è il figlio mostrato prima:
+   i colori partono da lì e sfumano verso quelli nuovi (vedi tingiFiglio). */
+function impegniFiglio(cat) {
+  if (!cat) return [];
+  const oggi = todayISO(), lun = lunediSettimana();
+  const giorno = i => { const d = new Date(lun); d.setDate(d.getDate() + i); return isoLocal(d); };
+  const voci = [];
+  for (const o of cat.orari) {
+    const iso = giorno(o.giorno);
+    if (iso >= oggi) voci.push({ iso, ora: o.dalle, titolo: "Allenamento", info: [o.dalle, o.luogo].filter(Boolean).join(" · ") });
+  }
+  const settimana = [0, 1, 2, 3, 4, 5, 6].map(giorno);
+  const partite = S.partite.filter(p => p.categoria === cat.id && p.stato !== "terminata" && settimana.includes(p.data) && p.data >= oggi);
+  for (const t of cat.tornei) {
+    if (!settimana.includes(t.data) || t.data < oggi || partite.some(p => p.collegaTorneo === t.nome + "|" + t.data)) continue;
+    voci.push({ iso: t.data, ora: "09:00", grande: true, titolo: "Torneo", luogo: t.luogo || t.nome, info: t.note || t.nome });
+  }
+  for (const p of partite) voci.push({
+    iso: p.data, ora: p.ora || "", grande: true, vai: { name: "partita", id: p.id },
+    titolo: p.tipo === "Torneo" ? "Torneo" : p.casa ? "Partita in casa" : "Partita in trasferta",
+    luogo: p.luogo || p.avversario, info: p.note || p.avversario
+  });
+  return voci.sort((a, b) => (a.iso + a.ora) < (b.iso + b.ora) ? -1 : 1);
+}
+function figlioContenutoHTML(id, da = id) {
+  const f = FIGLI_DEMO[id], prima = FIGLI_DEMO[da];
+  const altro = FIGLI_DEMO[f.altro], altroPrima = FIGLI_DEMO[prima.altro];
   const cat = S.categorie.find(c => c.nome === f.cat);
-  const oggi = todayISO();
-  const ordinaOra = (a, b) => (a.data + (a.ora || "")) < (b.data + (b.ora || "")) ? -1 : 1;
-  const partiteCat = cat ? S.partite.filter(p => p.categoria === cat.id) : [];
-  const live = partiteCat.find(p => p.stato === "in_corso");
-  const prossima = !live && partiteCat
-    .filter(p => p.stato === "programmata" && p.data >= oggi)
-    .sort(ordinaOra)[0];
-
-  const corpo = live ? `
-    <div class="figlio-live">
-      <div class="figlio-live-head"><span class="figlio-live-dot"></span>In campo ora</div>
-      <div class="figlio-live-vs">
-        <div class="figlio-live-squadre">
-          <div class="figlio-live-sq">${esc(S.settings.club)}</div>
-          <div class="figlio-live-sq avv">${esc(live.avversario)}</div>
-        </div>
-        <div class="figlio-live-score"><span class="noi">${live.puntiNoi ?? 0}</span><span class="sep">–</span><span class="loro">${live.puntiLoro ?? 0}</span></div>
-      </div>
-    </div>` : prossima ? `
-    <div class="figlio-prox">
-      <div class="figlio-prox-riga">
-        <div class="grow" style="flex:1;min-width:0">
-          <div class="eyebrow">Prossimo impegno</div>
-          <div class="figlio-prox-titolo">${esc(nomeCat(prossima.categoria))} ${esc(prossima.avversario)}</div>
-          <div class="muted">${esc(prossima.ora || " ")} · ${esc(prossima.luogo || " ")}</div>
-        </div>
-        <div class="figlio-prox-data"><div class="n">${new Date(prossima.data + "T00:00:00").getDate()}</div><div class="m">${MESI[new Date(prossima.data + "T00:00:00").getMonth()]}</div></div>
-      </div>
-      <div class="figlio-settimana">${settimanaFiglioHTML(prossima.data)}</div>
-    </div>` : `<div class="empty">Nessun impegno in programma per ${esc(f.nome)}.</div>`;
+  const voci = impegniFiglio(cat);
+  const lun = lunediSettimana();
+  const dom = new Date(lun); dom.setDate(dom.getDate() + 6);
+  const periodo = lun.getMonth() === dom.getMonth()
+    ? `${lun.getDate()} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`
+    : `${lun.getDate()} ${MESI_LUNGHI[lun.getMonth()]} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`;
+  // l'avviso: l'ultima comunicazione della categoria, poi un'informazione della prossima
+  // partita, altrimenti il testo di esempio del prototipo
+  const com = cat && (cat.comunicazioni || [])[0];
+  const info = S.partite.filter(p => cat && p.categoria === cat.id && p.stato === "programmata" && p.data >= todayISO())
+    .sort((a, b) => a.data < b.data ? -1 : 1).find(p => (p.info || []).length);
+  const avviso = com ? (com.testo || com.corpo || com.titolo) : info ? info.info[0].testo : f.avviso;
 
   return `
-    <div class="figlio-testata">
-      <div class="figlio-testata-glow"></div>
-      <img class="figlio-testata-logo" src="${S.settings.logo || LOGO_DEFAULT}" alt="">
-      <div class="figlio-testata-eyebrow">Bentornato Matteo</div>
-      <div class="figlio-testata-titolo">La settimana<br>di ${esc(f.nome)}</div>
-    </div>
-    <div class="figlio-selettore">
-      <span class="figlio-freccia" data-act="figlioCambia" role="button" tabindex="0" aria-label="Passa all'altro figlio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${IC.left}</svg>
-      </span>
-      <div class="figlio-avatar" style="background:${f.colore}">
-        <span class="figlio-avatar-nome ${id === "leo" ? "entra-sx" : "entra-dx"}">${esc(f.nome)}</span>
+    <div class="fs-alto">
+      <div class="fs-card" data-col="${f.colore}" style="background:${prima.colore}">
+        <div class="fs-card-testa">
+          <span></span>
+          <span class="fs-maniglia" data-act="figlioChiudi" role="button" tabindex="0" aria-label="Chiudi la scheda"><span></span></span>
+          <span class="fs-cat">${esc(f.cat)}</span>
+        </div>
+        <div class="fs-nome ${id === "leo" ? "entra-sx" : "entra-dx"}">${esc(f.nome)}</div>
       </div>
-      <span class="figlio-freccia" data-act="figlioCambia" role="button" tabindex="0" aria-label="Passa all'altro figlio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${IC.right}</svg>
-      </span>
+      <div class="fs-lato" data-act="figlioCambia" role="button" tabindex="0" aria-label="Passa a ${esc(altro.nome)}"
+           data-col="${altro.colore}" style="background:${altroPrima.colore}">
+        <div class="fs-iniziale">${esc(altro.nome.charAt(0))}</div>
+      </div>
     </div>
-    <div class="figlio-puntini">
-      ${Object.keys(FIGLI_DEMO).map(k => `<span class="figlio-punto ${k === id ? "on" : ""}" style="${k === id ? `background:${FIGLI_DEMO[k].colore}` : ""}"></span>`).join("")}
+    <div class="fs-puntini">
+      <div class="fs-punti">
+        ${Object.keys(FIGLI_DEMO).map(k => `<span data-on="${k === id ? FIGLI_DEMO[k].colore : ""}" class="${k === da ? "on" : ""}" style="${k === da ? `background:${FIGLI_DEMO[k].colore}` : ""}"></span>`).join("")}
+      </div>
+      <div class="fs-scorri" data-act="figlioCambia" role="button" tabindex="0">Scorri per ${esc(altro.nome)}${ic("right")}</div>
     </div>
-    <div class="figlio-corpo">
-      ${corpo}
-      <div class="figlio-suggerimento">Trascina verso il basso o tocca la maniglia per tornare alla Home</div>
+    <div class="fs-corpo">
+      <div class="fs-testa"><span>${periodo}</span><span class="fs-filo"></span></div>
+      ${voci.length ? `<div class="fs-tempo">
+        ${voci.map((v, i) => {
+          const d = new Date(v.iso + "T00:00:00");
+          return `<div class="fs-riga">
+            <div class="fs-data ${v.grande ? "grande" : ""}" style="${v.grande ? "" : `background:${f.colore}`}">
+              <div class="n">${String(d.getDate()).padStart(2, "0")}</div><div class="g">${GIORNI3[(d.getDay() + 6) % 7]}</div>
+            </div>
+            ${v.grande ? `
+            <div class="fs-grande ${v.vai ? "clickable" : ""}" style="background:${f.colore}"
+                 ${v.vai ? `data-act="go" data-arg="${esc(JSON.stringify(v.vai))}" role="button" tabindex="0"` : ""}>
+              <div class="l">${esc(v.titolo)}</div>
+              <div class="dove">${esc(v.luogo)}</div>
+              <div class="i">${esc(v.info)}</div>
+              <div class="ora">${esc(v.ora)}</div>
+            </div>` : `
+            <div class="fs-piccola">
+              ${i === 0 ? `<div class="p">Prossimo</div>` : ""}
+              <div class="t">${esc(v.titolo)}</div>
+              <div class="i">${esc(v.info)}</div>
+            </div>`}
+          </div>`;
+        }).join("")}
+      </div>` : `<div class="empty">Nessun impegno in programma questa settimana per ${esc(f.nome)}.</div>`}
+      <div class="fs-testa fs-avvisi"><span>Avvisi</span><span class="fs-filo"></span></div>
+      <div class="fs-avviso">
+        <span class="fs-avviso-barra" style="background:${f.colore}"></span>
+        <div class="fs-avviso-txt">${esc(avviso)}</div>
+      </div>
     </div>`;
 }
-/* striscia dei 7 giorni da oggi in poi, iniziali italiane (L M M G V S D):
-   oggi in navy, il giorno della prossima partita in verde, gli altri neutri. */
-function settimanaFiglioHTML(dataProssima) {
-  const GIORNI = ["L", "M", "M", "G", "V", "S", "D"]; // lun..dom
-  const oggi = todayISO();
-  let html = "";
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(oggi + "T00:00:00");
-    d.setDate(d.getDate() + i);
-    const iso = isoLocal(d);
-    const idx = (d.getDay() + 6) % 7;
-    const cls = iso === oggi ? "oggi" : (iso === dataProssima ? "match" : "");
-    html += `<div class="figlio-giorno ${cls}">${GIORNI[idx]}</div>`;
-  }
-  return html;
+/* dopo un cambio figlio i colori (card, spicchio, puntini) partono da quelli di prima:
+   qui si portano a quelli nuovi, cosi la transizione CSS li fa sfumare come nel prototipo */
+function tingiFiglio(root) {
+  void root.offsetWidth;
+  root.querySelectorAll("[data-col]").forEach(el => { el.style.background = el.dataset.col; });
+  root.querySelectorAll(".fs-punti span").forEach(el => {
+    el.classList.toggle("on", !!el.dataset.on);
+    el.style.background = el.dataset.on || "";
+  });
 }
 
 /* la scheda vive in #figlioRoot, fuori dal ciclo di render(), come i modali: cosi le sue
@@ -2767,7 +2785,6 @@ function apriFiglio(id) {
   document.getElementById("figlioSfondo")?.classList.add("risucchiato");
   const root = document.getElementById("figlioRoot");
   root.innerHTML = `<div class="figlio-drawer">
-    <div class="figlio-maniglia" data-act="figlioChiudi" role="button" tabindex="0" aria-label="Chiudi la scheda"><span></span></div>
     <div class="figlio-drawer-inner" id="figlioInner">${figlioContenutoHTML(id)}</div>
   </div>`;
   const el = root.querySelector(".figlio-drawer");
@@ -2789,10 +2806,12 @@ function chiudiFiglio() {
 }
 function cambiaFiglio() {
   if (!_figlioAperto) return;
-  _figlioAperto = _figlioAperto === "leo" ? "sofia" : "leo";
+  const da = _figlioAperto;
+  _figlioAperto = FIGLI_DEMO[da].altro;
   const inner = document.getElementById("figlioInner");
   if (!inner) return;
-  inner.innerHTML = figlioContenutoHTML(_figlioAperto);
+  inner.innerHTML = figlioContenutoHTML(_figlioAperto, da);
+  tingiFiglio(inner);
   bindFiglioGesti(inner.closest(".figlio-drawer"));
 }
 /* trascinare in verticale chiude (segue il dito, come "a tendina"); in orizzontale cambia
