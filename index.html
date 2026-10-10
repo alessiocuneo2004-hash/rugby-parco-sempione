@@ -173,6 +173,12 @@ html,body{margin:0;padding:0}
    scorrimento) resta navy come intestazione e barra, invece di lasciare una fascia chiara */
 html{background:var(--navy-fixed)}
 html{scroll-behavior:smooth}
+/* la pagina scorre solo in verticale: animazioni che entrano di lato (la schermata spinta da
+   destra, i nomi grandi) o blocchi a tutta larghezza non devono mai poterla trascinare di
+   lato. "clip" e non "hidden" sul body: hidden lo renderebbe un contenitore di scorrimento
+   e le fasce agganciate in alto (position:sticky) smetterebbero di agganciarsi. */
+html{overflow-x:hidden}
+body{overflow-x:clip;overscroll-behavior-x:none}
 /* corpo del testo: 17px / 1,55 come da tabella del design system */
 body{
   background:var(--bg);color:var(--ink-2);font-family:var(--font);
@@ -442,6 +448,8 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
    e' un'insegna, non una riga da leggere. Sul tema scuro passa all'azzurro chiaro,
    perche' su fondo scuro quel navy sparirebbe. */
 .page-title{font-size:calc(80px * var(--st-g));line-height:.88;color:var(--titolo)}
+/* titoli lunghi ("Impostazioni"): a 80px uscirebbero dallo schermo di un telefono */
+.page-title.lungo{font-size:calc(62px * var(--st-g))}
 .muted{color:var(--ink-3);font-size:calc(16px * var(--st));font-family:var(--font-data)}
 .small{font-size:calc(17px * var(--st));color:var(--ink-2)}
 .num{font-variant-numeric:tabular-nums}
@@ -936,6 +944,36 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:4px 0}
 @media (prefers-color-scheme:dark){
   :root:not([data-theme]) .sk-hero .sk{--sk:rgba(0,64,112,.12);--sk-glow:rgba(0,64,112,.07)}
 }
+
+/* titoloni: stesse altezze del testo vero (titolo pagina 80px, sezione 40px) */
+.sk-pagetitle{height:60px;border-radius:12px}
+.sk-sectitle{height:30px;border-radius:8px}
+/* blocchi pieni al posto delle card colorate (categorie, scorciatoia, card figli) */
+.sk-carta{background:color-mix(in srgb, var(--sk) 82%, var(--ink) 6%);box-shadow:0 14px 28px rgba(11,27,38,.10)}
+.sk-anello{width:140px;height:140px;border-radius:50%;flex:none;background:none;border:13px solid var(--sk);box-sizing:border-box}
+.sk-barre{display:flex;align-items:flex-end;gap:12px;height:120px;padding:0 6px;border-bottom:1px solid var(--line)}
+.sk-barre .sk{flex:1;border-radius:4px 4px 0 0}
+.sk-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.sk-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.sk-home-sezioni{display:flex;flex-direction:column;gap:28px;padding:32px 4px 20px}
+/* testata navy della Home e fascia colorata di "La mia area", a tutta larghezza */
+.sk-testa-home,.sk-testa-mia{
+  position:relative;overflow:hidden;box-sizing:border-box;margin:-20px -16px 0;border-radius:0 0 40px 40px;
+}
+@media (min-width:960px){.sk-testa-home,.sk-testa-mia{margin:-20px -22px 0}}
+.sk-testa-home{
+  background:var(--navy-fixed);min-height:calc(258px + env(safe-area-inset-top));
+  padding:calc(14px + env(safe-area-inset-top)) 20px 18px;
+}
+.sk-testa-home .sk{--sk:rgba(255,255,255,.14);--sk-glow:rgba(255,255,255,.10)}
+.sk-testa-mia{
+  background:color-mix(in srgb, var(--sk) 85%, var(--ink) 8%);
+  height:calc(275px + env(safe-area-inset-top));padding:calc(28px + env(safe-area-inset-top)) 20px 0;
+}
+.sk-testa-mia .sk{--sk:rgba(255,255,255,.5);--sk-glow:rgba(255,255,255,.4)}
+:root[data-theme="dark"] .sk-testa-mia .sk{--sk:rgba(255,255,255,.12);--sk-glow:rgba(255,255,255,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]) .sk-testa-mia .sk{--sk:rgba(255,255,255,.12);--sk-glow:rgba(255,255,255,.08)}}
+.sk-nome-mia{position:absolute;left:16px;bottom:24px;width:72%;height:96px;border-radius:14px}
 
 /* immagini: il riquadro grigio resta finché la foto non è arrivata */
 .imgsk{position:relative;background:var(--sk);overflow:hidden}
@@ -2109,203 +2147,309 @@ function bindCharts(rootEl) {
 }
 /* =====================================================================
    Scheletri di caricamento
-   Ogni schermata ha una versione "vuota" fatta di forme grigie, costruita
-   con le stesse classi di impaginazione della schermata vera: compare
-   mentre i dati arrivano, così la pagina non salta quando compaiono.
+   Ogni schermata ha una versione "vuota" fatta di forme grigie che ricalca
+   la schermata vera: stesse misure dei blocchi (titoloni, card, fasce,
+   pulsanti), così quando i dati arrivano la pagina non salta.
 
    Oggi i dati stanno sul dispositivo e sono pronti subito: gli scheletri si
-   vedono all'avvio (mentre il file si apre) e quando in Impostazioni si
+   vedono all'avvio (mentre il file si apre) e quando in "La mia area" si
    attiva la prova di caricamento. Quando i dati arriveranno da internet
    basterà far attendere caricaVista(): il resto è già collegato.
+
+   Misure prese dalla schermata vera su un telefono largo 390 px: se una
+   schermata cambia aspetto, va aggiornato anche il suo scheletro qui.
    ===================================================================== */
 
 /* ---------- mattoncini ---------- */
 const sk = (cls, style) => `<span class="sk ${cls || ""}"${style ? ` style="${style}"` : ""}></span>`;
 const skLine = (w, h) => sk("sk-line", `width:${w}${h ? `;height:${h}px` : ""}`);
-const skTitle = w => sk("sk-title", `width:${w}`);
 const skPara = n => ["100%", "96%", "89%", "58%"].slice(0, n || 3).map(w => skLine(w)).join("");
+/* quadrato tondeggiante (pulsanti con icona, il "+" verde, la matita) */
+const skQuad = (lato, r) => sk("", `width:${lato}px;height:${lato}px;border-radius:${r == null ? 14 : r}px;flex:none`);
+const skTondo = lato => sk("", `width:${lato}px;height:${lato}px;border-radius:50%;flex:none`);
+const skPill = (w, h) => sk("", `width:${w}px;height:${h || 26}px;border-radius:999px;flex:none`);
 
-/* titolo di pagina: eyebrow + titolone */
-const skPageTitle = w => `<div class="stack" style="gap:9px">${sk("sk-eyebrow")}${skTitle(w || "70%")}</div>`;
-
-/* intestazione di sezione: titolo (+ pulsante a destra) */
-const skSecHead = (w, conBtn) => `
-  <div class="sec-head">
-    ${skTitle(w || "44%")}<span class="grow"></span>${conBtn ? sk("sk-btn") : ""}
+/* titolone di pagina (Big Shoulders 80px): un blocco alto, con a destra il "+" o la matita */
+const skPageTitle = (w, conBtn) => `
+  <div class="row" style="align-items:center;min-height:70px">
+    ${sk("sk-pagetitle", `width:${w || "62%"}`)}
+    <span class="grow"></span>${conBtn ? skQuad(44) : ""}
   </div>`;
 
-/* elenco di righe dentro una card: etichetta a sinistra, due righe, azione */
-const skList = (n, conAvatar, conAzione) => `
-  <div class="card" style="padding:0">
-    <div class="list">
-      ${Array.from({ length: n }, () => `
-        <div class="sk-row">
-          ${conAvatar ? sk("sk-avatar") : sk("sk-chip", "width:54px")}
-          <span class="grow">${skLine("62%")}${skLine("38%", 10)}</span>
-          ${conAzione === false ? "" : sk("sk-icon")}
-        </div>`).join("")}
+/* titolo di sezione (40px): blocco + eventuale "+" o pulsante largo a destra */
+const skSecHead = (w, btn) => `
+  <div class="sec-head" style="min-height:36px">
+    ${sk("sk-sectitle", `width:${w || "48%"}`)}<span class="grow"></span>
+    ${btn === "largo" ? sk("", "width:150px;height:43px;border-radius:14px;flex:none") : btn ? skQuad(44) : ""}
+  </div>`;
+
+/* due righe di testo una sotto l'altra */
+const skDue = (w1, w2) => `<span class="grow stack" style="gap:8px;flex:1;min-width:0">${skLine(w1 || "62%", 14)}${skLine(w2 || "40%", 10)}</span>`;
+
+/* card bianca "vuota" (nessuna voce ancora): due righe centrate */
+const skVuota = h => `
+  <div class="sk-card" style="min-height:${h || 95}px;align-items:center;justify-content:center;gap:9px">
+    ${skLine("62%", 11)}${skLine("38%", 11)}
+  </div>`;
+
+/* anello delle presenze + tre coppie occhiello/numero */
+const skAnello = eyebrow => `
+  <div class="sk-card" style="gap:12px">
+    ${eyebrow ? skLine("44%", 11) : ""}
+    <div class="row" style="gap:22px;align-items:center;justify-content:center;min-height:194px">
+      ${sk("sk-anello")}
+      <span class="stack" style="gap:16px;width:110px">
+        ${["Fatte", "Assenze", "Contratto"].map(() => `<span class="stack" style="gap:8px">${skLine("70%", 10)}${skLine("34%", 22)}</span>`).join("")}
+      </span>
     </div>
   </div>`;
 
-/* i riquadri col numero grande */
-const skStats = n => `
-  <div class="statgrid">
-    ${Array.from({ length: n }, () => `
-      <div class="card stat" style="display:flex;flex-direction:column;gap:10px">${sk("sk-eyebrow", "width:70%")}${sk("sk-num")}</div>`).join("")}
-  </div>`;
-
-/* card comunicazione / voce di diario */
-const skCom = () => `
-  <div class="sk-card">
-    <div class="row" style="gap:8px">${sk("sk-chip")}${sk("sk-chip", "width:62px")}</div>
-    ${skTitle("72%")}
-    ${skPara(3)}
-    ${skLine("20%", 10)}
-  </div>`;
-
-/* blocco grafico: anello + legenda */
-const skChart = () => `
-  <div class="sk-card">
-    ${sk("sk-eyebrow")}
-    <div class="row" style="gap:18px;align-items:center;margin-top:4px">
-      ${sk("sk-ring")}
-      <span class="grow stack" style="gap:9px">${skLine("72%")}${skLine("54%")}${skLine("64%")}</span>
+/* grafico a barre mensile: dieci colonne di altezze diverse sull'asse */
+const skBarre = eyebrow => `
+  <div class="sk-card" style="gap:12px">
+    ${eyebrow ? skLine("40%", 11) : ""}
+    <div class="sk-barre">
+      ${[62, 86, 74, 58, 86, 74, 96, 86, 86, 86].map(h => sk("", `height:${h}%`)).join("")}
     </div>
+    <div class="row" style="gap:14px">${skLine("80px", 12)}${skLine("74px", 12)}</div>
   </div>`;
-
-const skBack = () => sk("sk-btn", "width:92px;height:28px");
 
 /* ---------- schermate ---------- */
 const SK = {
-  home: () => `
-    ${skPageTitle("74%")}
-    <div class="sk-hero">
-      ${sk("sk-eyebrow")}
-      <div style="margin-top:10px">${skTitle("66%")}</div>
-      ${sk("sk-score")}
-      <div style="margin-top:10px">${skLine("48%", 10)}</div>
+  /* Home: testata navy, scorciatoia (o card dei figli), "Settimana" e "Comunicazioni" */
+  home: () => {
+    const genitore = ruoloCorrente().livello === 5;
+    return `
+    <div class="figlio-sfondo">
+      <div class="sk-testa-home">
+        <div class="row" style="gap:12px;align-items:center">
+          ${sk("", "width:34px;height:42px;border-radius:8px;flex:none")}
+          ${sk("", "width:62%;height:24px;border-radius:8px")}<span class="grow"></span>${skPill(31, 23)}
+        </div>
+        <div style="margin-top:22px">${skLine("90px", 11)}</div>
+        <div class="stack" style="gap:10px;margin-top:14px">
+          ${sk("", "width:62%;height:44px;border-radius:10px")}${sk("", "width:46%;height:44px;border-radius:10px")}
+        </div>
+      </div>
+      <div class="figlio-cards${genitore ? "" : " uno"}">
+        ${(genitore ? [1, 2] : [1]).map(() => sk("sk-carta", "height:112px;border-radius:24px")).join("")}
+      </div>
+      <div class="sk-home-sezioni">
+        <div class="stack" style="gap:12px">
+          <div class="row" style="justify-content:space-between">${skLine("96px", 16)}${skLine("72px", 12)}</div>
+          <div class="sk-card" style="border-radius:26px;gap:14px;padding:14px">
+            <div class="sk-strip">${Array.from({ length: 7 }, () => sk("", "height:44px;border-radius:12px")).join("")}</div>
+            ${sk("", "width:52%;height:26px;border-radius:8px")}
+            ${sk("", "height:72px;border-radius:16px")}
+            <div class="row" style="justify-content:center;gap:6px">${Array.from({ length: 7 }, () => skTondo(5)).join("")}</div>
+          </div>
+        </div>
+        <div class="stack" style="gap:12px">
+          <div class="row" style="justify-content:space-between">${skLine("132px", 16)}${skLine("60px", 12)}</div>
+          <div class="sk-card" style="border-radius:22px;gap:12px;padding:18px">
+            ${skLine("34%", 10)}${sk("", "width:70%;height:24px;border-radius:8px")}${skPara(3)}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  /* La mia area: fascia colorata a tutta larghezza, presenze, grafico, impegni */
+  mio: () => `
+    <div class="sk-testa-mia">
+      <div class="row" style="gap:8px;align-items:center">
+        ${skTondo(38)}
+        <span class="stack" style="gap:7px;flex:1;min-width:0">${sk("", "width:72%;height:20px;border-radius:6px")}${sk("", "width:60%;height:10px;border-radius:4px")}</span>
+        ${skPill(128, 34)}
+      </div>
+      ${sk("sk-nome-mia")}
     </div>
-    ${skStats(4)}
-    <div>
-      ${skSecHead("46%", true)}
-      <div class="stack">${skCom()}${skCom()}</div>
+    <div class="stack-lg mia-corpo">
+      ${skAnello()}
+      <div>${skSecHead("74%")}${skBarre()}</div>
+      <div>
+        ${skSecHead("76%")}
+        <div class="row" style="justify-content:flex-end;margin:0 0 8px">${sk("", "width:172px;height:43px;border-radius:14px")}</div>
+        <div class="sk-card" style="gap:0;padding:6px 16px">
+          ${Array.from({ length: 4 }, (_, i) => `
+            <div class="row" style="gap:11px;align-items:center;padding:14px 0;${i ? "border-top:1px solid var(--line)" : ""}">
+              ${skPill(86, 26)}${skDue("70%", "86%")}${skQuad(44, 12)}
+            </div>`).join("")}
+        </div>
+      </div>
     </div>`,
 
-  mio: () => `
-    ${skPageTitle("56%")}
-    ${skStats(4)}
-    ${skChart()}
-    <div>${skSecHead("42%")}${skList(4)}</div>`,
-
+  /* Categorie: titolone + una striscia colorata per categoria */
   categorie: () => `
-    ${skPageTitle("42%")}
-    ${skList(5, true)}`,
+    ${skPageTitle("74%")}
+    <div class="stack" style="gap:8px">
+      ${Array.from({ length: 5 }, () => sk("sk-carta", "height:88px;border-radius:14px")).join("")}
+    </div>`,
 
+  /* scheda di una categoria: titolo + matita, comunicazioni, diario a riquadri */
   categoria: () => `
-    ${skBack()}
-    ${skPageTitle("58%")}
-    <div class="row" style="gap:8px">${sk("sk-chip")}${sk("sk-chip", "width:70px")}</div>
-    <div>${skSecHead("38%", true)}${skCom()}</div>
-    <div>${skSecHead("34%")}${skList(3, true, false)}</div>
+    ${skPageTitle("54%", true)}
+    <div>${skSecHead("70%", true)}<div style="margin-top:8px">${skVuota()}</div></div>
     <div>
-      ${skSecHead("30%")}
-      <div class="grid-cards">
-        ${Array.from({ length: 6 }, () => `<div class="sk-card" style="gap:10px">${sk("sk-icon")}${skLine("74%")}${skLine("38%", 10)}</div>`).join("")}
+      ${skSecHead("34%")}
+      <div class="sk-tiles">
+        ${Array.from({ length: 6 }, () => `
+          <div class="sk-card" style="height:130px;border-radius:14px;align-items:center;justify-content:center;gap:9px">
+            ${skQuad(16, 4)}${skLine("70%", 13)}${skLine("38%", 10)}
+          </div>`).join("")}
       </div>
     </div>`,
 
   diario: () => `
-    ${skBack()}
-    ${skPageTitle("52%")}
-    <div class="stack">${skCom()}${skCom()}${skCom()}</div>`,
+    ${skPageTitle("58%", true)}
+    <div class="stack">
+      ${Array.from({ length: 3 }, () => `
+        <div class="sk-card">
+          <div class="row" style="gap:8px">${skPill(84, 24)}${skPill(62, 24)}</div>
+          ${sk("", "width:72%;height:22px;border-radius:8px")}${skPara(3)}${skLine("20%", 10)}
+        </div>`).join("")}
+    </div>`,
 
+  /* Allenatori: titolo + "+", una card per allenatore con barra delle presenze */
   allenatori: () => `
-    ${skPageTitle("44%")}
-    <div class="card" style="padding:0">
-      <div class="list">
-        ${Array.from({ length: 5 }, () => `
-          <div class="sk-row">
-            ${sk("sk-avatar")}
-            <span class="grow">${skLine("54%")}${skLine("34%", 10)}${sk("sk-line", "width:100%;height:8px")}</span>
-          </div>`).join("")}
-      </div>
+    ${skPageTitle("78%", true)}
+    <div class="grid-cards">
+      ${Array.from({ length: 5 }, () => `
+        <div class="sk-card" style="height:154px;gap:12px">
+          <div class="row" style="gap:12px;align-items:center">${skQuad(38, 14)}${skDue("54%", "66%")}${skQuad(14, 4)}</div>
+          ${skPill(54, 26)}
+          <div class="row" style="gap:12px;align-items:center">${sk("", "flex:1;height:8px;border-radius:99px")}${skLine("42px", 14)}</div>
+        </div>`).join("")}
     </div>`,
 
+  /* scheda allenatore: card profilo, quattro riquadri, anello, grafico */
   allenatore: () => `
-    ${skBack()}
-    <div class="row" style="gap:14px">
-      ${sk("sk-avatar", "width:72px;height:72px")}
-      <span class="grow stack" style="gap:9px">${skTitle("58%")}${skLine("42%", 10)}</span>
+    <div class="sk-card" style="min-height:224px;gap:14px">
+      <div class="row" style="gap:12px;align-items:center">${skQuad(44, 14)}${skDue("60%", "50%")}${skQuad(36, 12)}${skQuad(36, 12)}</div>
+      <div class="row" style="gap:8px">${skPill(48, 26)}${skPill(140, 26)}</div>
+      <span class="stack" style="gap:12px">${skLine("52%", 12)}${skLine("70%", 12)}</span>
     </div>
-    ${skStats(4)}
-    ${skChart()}
-    ${skList(4)}`,
+    <div class="statgrid">
+      ${Array.from({ length: 4 }, () => `<div class="sk-card" style="height:73px;padding:11px 9px;gap:8px">${skLine("80%", 9)}${skLine("50%", 20)}</div>`).join("")}
+    </div>
+    ${skAnello(true)}
+    ${skBarre(true)}`,
 
+  /* Tornei: titolo + "+", filtri a pastiglia, card coi tornei */
   partite: () => `
-    ${skPageTitle("40%")}
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      ${Array.from({ length: 5 }, () => sk("sk-chip", "width:74px")).join("")}
+    ${skPageTitle("56%", true)}
+    <div class="row" style="gap:8px;overflow:hidden">
+      ${[82, 135, 53, 53, 64].map(w => skPill(w, 41)).join("")}
     </div>
-    <div>${skSecHead("36%")}${skList(3)}</div>
-    <div>${skSecHead("32%")}${skList(3)}</div>`,
-
-  partita: () => `
-    ${skBack()}
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      ${sk("sk-chip", "width:58px")}${sk("sk-chip", "width:88px")}${sk("sk-chip", "width:72px")}
-    </div>
-    ${skTitle("68%")}
-    <div class="sk-hero">
-      <div class="row" style="justify-content:space-between;align-items:center;gap:16px">
-        <span class="stack" style="gap:10px;flex:1">${skLine("84%")}${sk("sk-num", "width:100%;height:40px")}</span>
-        ${sk("", "width:12px;height:22px")}
-        <span class="stack" style="gap:10px;flex:1">${skLine("84%")}${sk("sk-num", "width:100%;height:40px")}</span>
-      </div>
-      <div class="row" style="gap:10px;margin-top:16px">${sk("sk-btn")}${sk("sk-btn")}</div>
-    </div>
-    <div>${skSecHead("38%", true)}${skList(2, false, false)}</div>
-    <div>${skSecHead("34%", true)}${skList(4, true)}</div>`,
-
-  eventi: () => `
-    ${skPageTitle("38%")}
-    <div class="card" style="padding:0">
-      <div class="list">
+    <div>
+      ${skSecHead("76%")}
+      <div class="stack" style="gap:10px;margin-top:8px">
         ${Array.from({ length: 4 }, () => `
-          <div class="sk-row">
-            ${sk("sk-thumb")}
-            <span class="grow">${skLine("58%")}${skLine("40%", 10)}</span>
-            ${sk("sk-icon")}
+          <div class="sk-card" style="flex-direction:row;align-items:center;gap:12px;min-height:90px;padding:12px 14px">
+            ${sk("", "width:54px;height:62px;border-radius:14px;flex:none")}${skDue("64%", "42%")}${skPill(40, 24)}
           </div>`).join("")}
       </div>
     </div>`,
 
-  evento: () => `
-    ${skBack()}
-    ${sk("sk-poster")}
-    ${skPageTitle("64%")}
-    <div class="row" style="gap:8px">${sk("sk-chip")}${sk("sk-chip", "width:96px")}</div>
-    <div class="sk-card">${skPara(4)}</div>`,
-
-  contatti: () => `
-    ${skPageTitle("36%")}
-    <div>${skSecHead("34%", true)}${skList(3, true)}</div>
-    <div>${skSecHead("30%")}${skList(4, true)}</div>`,
-
-  impostazioni: () => `
-    ${skPageTitle("54%")}
-    <div class="sk-card">${sk("sk-eyebrow")}${skLine("72%")}${sk("sk-btn", "width:100%;height:38px")}</div>
-    <div>${skSecHead("30%")}${skList(5, false, false)}</div>
+  /* scheda partita: titolo + matita, pastiglie, tabellone navy, informazioni */
+  partita: () => `
+    <div class="stack" style="gap:16px">
+      ${skPageTitle("60%", true)}
+      <div class="row" style="gap:6px">${skPill(48, 32)}${skPill(126, 32)}${skPill(115, 32)}</div>
+    </div>
+    <div class="sk-hero" style="min-height:257px;display:flex;flex-direction:column;align-items:center;gap:14px">
+      ${skLine("70%", 11)}
+      ${sk("", "width:120px;height:62px;border-radius:12px")}
+      <div class="row" style="gap:12px;width:100%">${sk("", "flex:1;height:26px;border-radius:8px")}${sk("", "flex:1;height:26px;border-radius:8px")}</div>
+      <div class="row" style="gap:8px;justify-content:center;width:100%">${sk("", "width:115px;height:43px;border-radius:14px")}${sk("", "width:164px;height:43px;border-radius:14px")}</div>
+      ${skLine("62%", 11)}
+    </div>
+    <div>${skSecHead("70%", true)}<div style="margin-top:8px">${skVuota(121)}</div></div>
     <div>
-      ${skSecHead("36%")}
-      <div class="sk-card" style="gap:14px">
-        ${Array.from({ length: 5 }, () => `<div class="row" style="gap:12px">${skLine("38%")}<span class="grow"></span>${sk("sk-chip", "width:118px")}</div>`).join("")}
+      ${skSecHead("56%", true)}
+      <div class="sk-card" style="margin-top:8px;gap:20px">
+        ${Array.from({ length: 4 }, () => `<div class="row" style="gap:12px;align-items:center">${skQuad(24, 7)}${skLine("58%", 13)}</div>`).join("")}
       </div>
+    </div>`,
+
+  /* Eventi: titolo + "+", in programma / già passati */
+  eventi: () => {
+    const card = () => `
+      <div class="sk-card" style="flex-direction:row;align-items:center;gap:12px;min-height:166px">
+        ${skQuad(44, 12)}
+        <span class="grow stack" style="gap:9px">
+          ${skLine("88%", 14)}${skLine("64%", 14)}${skLine("44%", 10)}
+          <span class="row" style="gap:6px;margin-top:4px">${skPill(70, 26)}${skPill(84, 26)}</span>
+        </span>
+        ${skQuad(14, 4)}
+      </div>`;
+    return `
+    ${skPageTitle("50%", true)}
+    <div>${skSecHead("66%")}<div style="margin-top:8px">${card()}</div></div>
+    <div>${skSecHead("56%")}<div style="margin-top:8px">${card()}</div></div>`;
+  },
+
+  /* scheda evento: matita, pulsante locandina, card con data/ora/luogo/costo, descrizione */
+  evento: () => `
+    <div class="row" style="justify-content:flex-end">${skQuad(44, 12)}</div>
+    ${sk("", "width:233px;height:43px;border-radius:14px")}
+    <div class="sk-card" style="gap:0;padding:6px 16px">
+      ${Array.from({ length: 4 }, (_, i) => `
+        <div class="row" style="gap:14px;align-items:center;padding:18px 0;${i ? "border-top:1px solid var(--line)" : ""}">
+          ${skQuad(18, 5)}${skDue("26%", "58%")}
+        </div>`).join("")}
+    </div>
+    <div class="sk-card">${skLine("30%", 11)}${skPara(4)}</div>`,
+
+  /* Contatti: titolo + "+", sezioni con le schede contatto */
+  contatti: () => {
+    const lista = n => `
+      <div class="sk-card" style="gap:0;padding:6px 16px;margin-top:8px">
+        ${Array.from({ length: n }, (_, i) => `
+          <div class="row" style="gap:12px;align-items:center;padding:20px 0;${i ? "border-top:1px solid var(--line)" : ""}">
+            ${skTondo(38)}
+            <span class="grow stack" style="gap:9px">${skLine("58%", 14)}${skLine("80%", 10)}${skLine("66%", 12)}</span>
+            ${skQuad(36, 12)}${skQuad(36, 12)}
+          </div>`).join("")}
+      </div>`;
+    return `
+    ${skPageTitle("70%", true)}
+    <div>${skSecHead("36%")}${lista(3)}</div>
+    <div>${skSecHead("44%")}${lista(3)}</div>`;
+  },
+
+  /* Impostazioni: Aspetto, i 5 ruoli, poi la tabella dei permessi */
+  impostazioni: () => `
+    ${skPageTitle("74%")}
+    <div>
+      ${skSecHead("38%")}
+      <div class="sk-card" style="margin-top:8px;gap:12px">
+        ${Array.from({ length: 2 }, () => `<span class="stack" style="gap:8px">${skLine("26%", 10)}${sk("", "height:44px;border-radius:14px")}</span>`).join("")}
+        ${skLine("94%", 12)}${skLine("60%", 12)}
+        <span class="stack" style="gap:8px;margin-top:6px">${skLine("40%", 10)}${sk("", "height:44px;border-radius:14px")}</span>
+      </div>
+    </div>
+    <div>
+      ${skSecHead("34%")}
+      <div class="sk-card" style="gap:0;padding:6px 16px;margin-top:8px">
+        ${Array.from({ length: 5 }, (_, i) => `
+          <div class="row" style="gap:12px;align-items:center;padding:14px 0;${i ? "border-top:1px solid var(--line)" : ""}">
+            ${skTondo(34)}${skDue("52%", "38%")}${skQuad(44, 12)}
+          </div>`).join("")}
+      </div>
+    </div>
+    <div>
+      ${skSecHead("40%")}
+      <div class="stack" style="gap:8px;margin:8px 0 12px">${skLine("94%", 12)}${skLine("70%", 12)}</div>
+      ${sk("", "height:300px;border-radius:14px")}
     </div>`
 };
 
-/* scheletro della schermata richiesta (con ricaduta su un elenco generico) */
+/* scheletro della schermata richiesta (con ricaduta su titolo + elenco generico).
+   Home e La mia area hanno una testata a tutta larghezza fuori dalla colonna. */
 function skeletonHTML(name) {
-  const f = SK[name] || (() => `${skPageTitle("48%")}${skList(4)}`);
+  const f = SK[name] || (() => `${skPageTitle("56%")}<div class="sk-card">${skPara(4)}</div>`);
+  if (name === "home" || name === "mio") return `<div aria-hidden="true">${f()}</div>`;
   return `<div class="stack-lg" aria-hidden="true">${f()}</div>`;
 }
 
@@ -3090,8 +3234,8 @@ function bannerRuoloMio(a) {
     </div>
   </div>`;
 }
-/* card "Aspetto" (tema, stile menu, prova di caricamento): prima stava in Ruoli/Impostazioni,
-   spostata qui perché sono preferenze personali del dispositivo, non impostazioni del club. */
+/* card "Aspetto" (tema, stile menu, prova di caricamento): sta in Impostazioni, sopra
+   ruoli e permessi (su richiesta di Alessio, prima era in "La mia area"). */
 function cardAspetto() {
   return `
   <div>
@@ -3146,7 +3290,6 @@ function vMio() {
           </button>`).join("")}
       </div>
     </div>
-    ${cardAspetto()}
   </div>`;
 
   const st = statPresenze(a);
@@ -3184,7 +3327,6 @@ function vMio() {
       <p class="small" style="margin-top:10px">Il pulsante accanto a ogni impegno lo aggiunge a Google Calendar. Con “Scarica calendario” ottieni invece un file da importare una volta sola nel calendario del telefono (Google, iPhone o Outlook): contiene gli allenamenti settimanali fino a fine stagione, i tornei e le partite.</p>
     </div>
 
-    ${cardAspetto()}
   </div>`;
 }
 ACT.mioScegli = id => {
@@ -4271,8 +4413,10 @@ function vImpostazioni() {
   const canRoles = can("ruoli");
   return `<div class="stack-lg">
     <div>
-      <h1 class="page-title">Ruoli</h1>
+      <h1 class="page-title lungo">Impostazioni</h1>
     </div>
+
+    ${cardAspetto()}
 
     <div>
       <div class="sec-head"><h2>I 5 ruoli</h2></div>
