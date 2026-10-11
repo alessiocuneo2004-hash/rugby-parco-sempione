@@ -1226,6 +1226,60 @@ div.mia-testa-io{cursor:default}
   text-transform:uppercase;color:#FFFFFF;white-space:nowrap;letter-spacing:0;
 }
 .mia-corpo{margin-top:32px}
+/* "Prossimi impegni" (disegno 35d): linea del tempo con casella data + scheda */
+.imp-testa{margin-bottom:12px}
+.imp-tempo{position:relative;display:flex;flex-direction:column}
+.imp-linea{position:absolute;left:27px;top:24px;bottom:40px;width:2px;background:color-mix(in srgb, var(--titolo) 14%, transparent)}
+.imp-riga{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;padding:8px 0;align-items:center}
+.imp-data{
+  width:44px;height:44px;margin:0 auto;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;color:#00253F;
+}
+.imp-data .n{font-family:var(--font-display);font-weight:800;font-size:24px;line-height:20px;padding-top:2px}
+.imp-data .g{
+  font-family:var(--font-mono);font-size:9.5px;line-height:10px;text-transform:uppercase;
+  letter-spacing:.06em;text-indent:.06em;margin-top:2px;
+}
+.imp-data.scura{color:#FFFFFF}
+.imp-data.grande{background:#00253F}
+.imp-data.grande .n{color:#FFFFFF}
+.imp-data.grande .g{color:#8FC03F}
+.imp-scheda{
+  background:var(--surface);border-radius:20px;padding:10px 10px 10px 14px;
+  box-shadow:0 6px 16px rgba(11,27,38,.07);display:flex;align-items:center;gap:10px;min-width:0;
+}
+.imp-testo{flex:1;min-width:0}
+.imp-testo .p{font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.16em;text-transform:uppercase;color:var(--home-meta)}
+.imp-testo .t{font-family:var(--font-display);font-weight:800;font-size:calc(24px * var(--st-g));line-height:.92;text-transform:uppercase;color:var(--titolo)}
+.imp-testo .i{font-family:var(--font-data);font-size:calc(13px * var(--st));color:var(--ink-4);margin-top:3px}
+.imp-grande{
+  position:relative;overflow:hidden;height:118px;box-sizing:border-box;border-radius:22px;
+  padding:12px 118px 12px 14px;box-shadow:0 10px 22px rgba(11,27,38,.12);color:#00253F;min-width:0;
+}
+.imp-grande .l{font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.16em;text-transform:uppercase}
+.imp-grande .dove{
+  font-family:var(--font-display);font-weight:800;font-size:calc(26px * var(--st-g));line-height:.9;
+  text-transform:uppercase;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.imp-grande .i{
+  font-family:var(--font-data);font-size:calc(13px * var(--st));margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.imp-grande .ora{
+  position:absolute;right:12px;bottom:-14px;font-family:var(--font-display);font-weight:800;
+  font-size:64px;line-height:1;color:#FFFFFF;pointer-events:none;
+}
+.imp-grande.scura{color:#FFFFFF}
+.imp-grande .imp-cal{position:absolute;top:10px;right:10px}
+.imp-cal{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+  border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--titolo);
+  transition:transform 160ms cubic-bezier(.23,1,.32,1);
+}
+.imp-cal svg{width:18px;height:18px}
+.imp-cal.su-colore{border-color:rgba(0,37,63,.25);background:rgba(255,255,255,.35);color:#00253F}
+.imp-grande.scura .imp-cal.su-colore{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#FFFFFF}
+.imp-cal:active{transform:scale(.95)}
 
 /* scheda a comparsa: sale dal basso e torna giù da dove è venuta, resta ferma finché non la si
    apre/chiude (vive fuori da #main, vedi #figlioRoot in 03-body.html). Sta sopra
@@ -1738,20 +1792,22 @@ function impegniAllenatore(a) {
   const cats = a.categorie.map(getCat).filter(Boolean);
   for (const c of cats) {
     for (const t of c.tornei) if (t.data >= oggi)
-      out.push({ tipo: "Torneo", data: t.data, ora: "09:00", fine: "17:00", titolo: t.nome + " " + c.nome, luogo: t.luogo || "" });
+      out.push({ tipo: "Torneo", cat: c.id, data: t.data, ora: "09:00", fine: "17:00", titolo: t.nome + " " + c.nome, luogo: t.luogo || "",
+                 dove: t.luogo || t.nome, nome: t.nome + " " + c.nome });
     for (const o of c.orari) {
       for (let i = 0; i < 14; i++) {
         const d = new Date(); d.setDate(d.getDate() + i);
         if ((d.getDay() + 6) % 7 !== o.giorno) continue;   // 0 = lunedì
         const iso = isoLocal(d);
         if (iso < oggi) continue;
-        out.push({ tipo: "Allenamento", data: iso, ora: o.dalle, fine: o.alle, titolo: "Allenamento " + c.nome, luogo: o.luogo || "" });
+        out.push({ tipo: "Allenamento", cat: c.id, data: iso, ora: o.dalle, fine: o.alle, titolo: "Allenamento " + c.nome, luogo: o.luogo || "" });
       }
     }
   }
   for (const p of S.partite)
     if (a.categorie.includes(p.categoria) && p.stato !== "terminata" && p.data >= oggi)
-      out.push({ tipo: "Partita", data: p.data, ora: p.ora || "10:00", fine: addMin(p.ora || "10:00", 120), titolo: nomeCat(p.categoria) + " " + p.avversario, luogo: p.luogo || "" });
+      out.push({ tipo: "Partita", cat: p.categoria, data: p.data, ora: p.ora || "10:00", fine: addMin(p.ora || "10:00", 120), titolo: nomeCat(p.categoria) + " " + p.avversario, luogo: p.luogo || "",
+                 dove: p.luogo || p.avversario, nome: nomeCat(p.categoria) + (p.avversario ? " · contro " + p.avversario : "") });
   return out.sort((x, y) => (x.data + x.ora) < (y.data + y.ora) ? -1 : 1);
 }
 /* Link "aggiungi a Google Calendar" per un impegno */
@@ -2279,11 +2335,13 @@ const SK = {
       <div>${skSecHead("74%")}${skBarre()}</div>
       <div>
         ${skSecHead("76%")}
-        <div class="row" style="justify-content:flex-end;margin:0 0 8px">${sk("", "width:172px;height:43px;border-radius:14px")}</div>
-        <div class="sk-card" style="gap:0;padding:6px 16px">
-          ${Array.from({ length: 4 }, (_, i) => `
-            <div class="row" style="gap:11px;align-items:center;padding:14px 0;${i ? "border-top:1px solid var(--line)" : ""}">
-              ${skPill(86, 26)}${skDue("70%", "86%")}${skQuad(44, 12)}
+        <div class="row" style="justify-content:flex-end;margin:0 0 12px">${sk("", "width:172px;height:43px;border-radius:14px")}</div>
+        <div class="imp-tempo">
+          ${[0, 1, 0, 0, 0].map(g => `
+            <div class="imp-riga">
+              ${sk("", "width:44px;height:44px;border-radius:12px;margin:0 auto")}
+              ${g ? sk("", "height:118px;border-radius:22px")
+                  : `<div class="sk-card" style="flex-direction:row;align-items:center;gap:10px;padding:10px 10px 10px 14px">${skDue("54%", "78%")}${skQuad(44, 12)}</div>`}
             </div>`).join("")}
         </div>
       </div>
@@ -3322,6 +3380,54 @@ function cardAspetto() {
     </div>
   </div>`;
 }
+/* "Prossimi impegni" di La mia area (disegno 35d di Claude Design): linea del tempo come
+   nella scheda del figlio. A sinistra la casella della data, a destra la scheda: bianca
+   per gli allenamenti, piena del colore della categoria con l'ora gigante per tornei e
+   partite. Il colore è quello della categoria dell'impegno, cosi chi allena più categorie
+   le distingue a colpo d'occhio. Ogni impegno ha il suo pulsante per Google Calendar. */
+function impegniMiaHTML(voci, a) {
+  if (!voci.length) return `<div class="empty">Nessun impegno in vista per le tue categorie.</div>`;
+  const piuCat = (a.categorie || []).length > 1;
+  const cal = (ev, suColore) => `<a class="imp-cal${suColore ? " su-colore" : ""}" href="${gcalLink(ev)}" target="_blank" rel="noopener"
+       aria-label="Aggiungi a Google Calendar" title="Aggiungi a Google Calendar">${ic("calplus")}</a>`;
+  return `<div class="imp-tempo">
+    <span class="imp-linea" aria-hidden="true"></span>
+    ${voci.map((ev, i) => {
+      const c = getCat(ev.cat);
+      const tinta = c ? coloreCat(c, S.categorie.indexOf(c)) : "#8FC03F";
+      const scura = tintaScura(tinta) ? " scura" : "";
+      const d = new Date(ev.data + "T00:00:00");
+      const grande = ev.tipo !== "Allenamento";
+      const casella = `
+        <div class="imp-data${grande ? " grande" : scura}" style="${grande ? "" : `background:${tinta}`}">
+          <span class="n">${String(d.getDate()).padStart(2, "0")}</span><span class="g">${GIORNI3[(d.getDay() + 6) % 7]}</span>
+        </div>`;
+      if (grande) return `
+        <div class="imp-riga">
+          ${casella}
+          <div class="imp-grande${scura}" style="background:${tinta}">
+            <div class="l">${esc(ev.tipo)}${piuCat && c ? " · " + esc(siglaCat(c)) : ""}</div>
+            <div class="dove">${esc(ev.dove || ev.luogo || ev.titolo)}</div>
+            <div class="i">${esc(ev.nome || ev.titolo)}</div>
+            <div class="ora">${esc(ev.ora)}</div>
+            ${cal(ev, true)}
+          </div>
+        </div>`;
+      return `
+        <div class="imp-riga">
+          ${casella}
+          <div class="imp-scheda">
+            <div class="imp-testo">
+              ${i === 0 ? `<div class="p">Prossimo</div>` : ""}
+              <div class="t">${esc(piuCat && c ? "Allenamento " + siglaCat(c) : "Allenamento")}</div>
+              <div class="i">${esc([ev.ora + (ev.fine ? "–" + ev.fine : ""), ev.luogo].filter(Boolean).join(" · "))}</div>
+            </div>
+            ${cal(ev, false)}
+          </div>
+        </div>`;
+    }).join("")}
+  </div>`;
+}
 function vMio() {
   const a = getCoach(S.settings.profiloAllenatore);
   // i Genitori (L5) non hanno una "mia area" vera (niente presenze/impegni da allenatore):
@@ -3345,7 +3451,6 @@ function vMio() {
   const st = statPresenze(a);
   const mesi = presenzePerMese(a);
   const imp = impegniAllenatore(a);
-  const COLORI_TIPO = { Allenamento: "blue", Torneo: "green", Partita: "warn" };
   return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
 
     ${/* i numeri stanno gia nell'anello: qui basta la card presenze (come nel mockup) */""}
@@ -3359,21 +3464,11 @@ function vMio() {
     </div>
 
     <div>
-      <div class="sec-head">
+      <div class="sec-head imp-testa">
         <h2>Prossimi impegni</h2>
         <button class="btn small" data-act="mioIcs" data-arg="${a.id}">${ic("calplus")}Calendario</button>
       </div>
-      <div class="card list">
-        ${imp.slice(0, 12).map(ev => `
-          <div class="list-row">
-            <span class="pill ${COLORI_TIPO[ev.tipo] || ""}" style="flex:none;min-width:86px;justify-content:center">${esc(ev.tipo)}</span>
-            <div class="grow">
-              <div class="title">${esc(ev.titolo)}</div>
-              <div class="muted num">${fmtDate(ev.data, false)} · ${esc(ev.ora)}${ev.fine ? "–" + esc(ev.fine) : ""} · ${esc(ev.luogo)}</div>
-            </div>
-            <a class="iconbtn" href="${gcalLink(ev)}" target="_blank" rel="noopener" aria-label="Aggiungi a Google Calendar" title="Aggiungi a Google Calendar">${ic("calplus")}</a>
-          </div>`).join("") || `<div class="empty">Nessun impegno in vista per le tue categorie.</div>`}
-      </div>
+      ${impegniMiaHTML(imp.slice(0, 12), a)}
       <p class="small" style="margin-top:10px">Il pulsante accanto a ogni impegno lo aggiunge a Google Calendar. Con “Scarica calendario” ottieni invece un file da importare una volta sola nel calendario del telefono (Google, iPhone o Outlook): contiene gli allenamenti settimanali fino a fine stagione, i tornei e le partite.</p>
     </div>
 
