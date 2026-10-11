@@ -2480,8 +2480,27 @@ let _nuovoId = null;      // vedi render(): l'elemento appena creato entra con u
    (coerente con quanto disegnato in Claude Design), ma partita in campo/prossimo impegno
    arrivano dai dati veri della categoria del figlio. */
 const FIGLI_DEMO = {
-  leo:   { nome: "Leo",   cat: "U10", colore: "#F0C838", altro: "sofia", avviso: "Portare la seconda maglia per la trasferta." },
-  sofia: { nome: "Sofia", cat: "U12", colore: "#E5893A", altro: "leo",   avviso: "Torneo a Monza: ritrovo alle 08:00 al club." }
+  leo:   { nome: "Leo",   cat: "U10", colore: "#F0C838", altro: "sofia", avviso: "Portare la seconda maglia per la trasferta.",
+    // impegni d'esempio (giorni a partire da oggi), per vedere la scheda piena
+    esempi: [
+      { tra: 1, ora: "17:30", titolo: "Allenamento", info: "17:30 · Campo Parco Sempione" },
+      { tra: 2, ora: "18:15", titolo: "Visita medica sportiva", info: "Centro medico Sempione · portare il libretto" },
+      { tra: 3, ora: "17:30", titolo: "Allenamento", info: "17:30 · Campo Parco Sempione" },
+      { tra: 4, ora: "18:30", titolo: "Foto di squadra", info: "Prima dell'allenamento · divisa ufficiale" },
+      { tra: 6, ora: "10:30", grande: true, titolo: "Partita in trasferta", luogo: "Monza", info: "Ritrovo 08:30 al club" },
+      { tra: 8, ora: "17:30", titolo: "Allenamento", info: "17:30 · Campo Parco Sempione" },
+      { tra: 13, ora: "09:00", grande: true, titolo: "Torneo", luogo: "Segrate", info: "Raggruppamento FIR n.2" }
+    ] },
+  sofia: { nome: "Sofia", cat: "U12", colore: "#E5893A", altro: "leo",   avviso: "Torneo a Monza: ritrovo alle 08:00 al club.",
+    esempi: [
+      { tra: 1, ora: "18:30", titolo: "Allenamento", info: "18:30 · Campo Parco Sempione" },
+      { tra: 3, ora: "18:30", titolo: "Allenamento", info: "18:30 · Campo Parco Sempione" },
+      { tra: 4, ora: "19:00", titolo: "Riunione genitori", info: "Club house · presentazione della stagione" },
+      { tra: 6, ora: "09:00", grande: true, titolo: "Torneo", luogo: "Monza", info: "Torneo della Brianza · ritrovo 08:00" },
+      { tra: 8, ora: "18:30", titolo: "Allenamento", info: "18:30 · Campo Parco Sempione" },
+      { tra: 9, ora: "17:00", titolo: "Ritiro kit stagione", info: "Segreteria · felpa e borsa" },
+      { tra: 13, ora: "11:00", grande: true, titolo: "Partita in casa", luogo: "Campo Parco Sempione", info: "contro Rugby Lainate" }
+    ] }
 };
 let _figlioAperto = null;   // id del figlio con la scheda aperta, o null se chiusa
 const NAV_PARENT = {
@@ -2937,8 +2956,16 @@ function figlioContenutoHTML(id, da = id) {
   const altro = FIGLI_DEMO[f.altro], altroPrima = FIGLI_DEMO[prima.altro];
   const cat = S.categorie.find(c => c.nome === f.cat);
   const voci = impegniFiglio(cat);
-  const lun = lunediSettimana();
-  const dom = new Date(lun); dom.setDate(dom.getDate() + 6);
+  const oggi = new Date(todayISO() + "T00:00:00");
+  for (const e of f.esempi || []) {
+    const d = new Date(oggi); d.setDate(d.getDate() + e.tra);
+    const iso = isoLocal(d);
+    if (!voci.some(x => x.iso === iso && x.titolo === e.titolo)) voci.push({ ...e, iso });
+  }
+  voci.sort((a, b) => (a.iso + a.ora) < (b.iso + b.ora) ? -1 : 1);
+  // il periodo va dal primo all'ultimo impegno mostrato (senza impegni: la settimana in corso)
+  const lun = voci.length ? new Date(voci[0].iso + "T00:00:00") : lunediSettimana();
+  const dom = voci.length ? new Date(voci[voci.length - 1].iso + "T00:00:00") : new Date(lun.getTime() + 6 * 864e5);
   const periodo = lun.getMonth() === dom.getMonth()
     ? `${lun.getDate()} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`
     : `${lun.getDate()} ${MESI_LUNGHI[lun.getMonth()]} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`;
