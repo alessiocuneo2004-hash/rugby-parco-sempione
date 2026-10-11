@@ -1228,6 +1228,9 @@ div.mia-testa-io{cursor:default}
 .mia-corpo{margin-top:32px}
 /* "Prossimi impegni" (disegno 35d): linea del tempo con casella data + scheda */
 .imp-testa{margin-bottom:12px}
+/* il pulsante "Calendario" va sempre a capo, sotto il titolo e allineato a sinistra */
+.imp-testa h2{flex-basis:100%}
+.sec-head.imp-testa>.btn{margin-left:0}
 .imp-tempo{position:relative;display:flex;flex-direction:column}
 .imp-linea{position:absolute;left:27px;top:24px;bottom:40px;width:2px;background:color-mix(in srgb, var(--titolo) 14%, transparent)}
 .imp-riga{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;padding:8px 0;align-items:center}
@@ -2335,7 +2338,7 @@ const SK = {
       <div>${skSecHead("74%")}${skBarre()}</div>
       <div>
         ${skSecHead("76%")}
-        <div class="row" style="justify-content:flex-end;margin:0 0 12px">${sk("", "width:172px;height:43px;border-radius:14px")}</div>
+        <div class="row" style="margin:0 0 12px">${sk("", "width:172px;height:43px;border-radius:14px")}</div>
         <div class="imp-tempo">
           ${[0, 1, 0, 0, 0].map(g => `
             <div class="imp-riga">
