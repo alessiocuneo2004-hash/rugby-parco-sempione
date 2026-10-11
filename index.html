@@ -1080,11 +1080,22 @@ html[data-senza-topbar] .topbar{display:none}
   position:sticky;top:env(safe-area-inset-top, 0px);z-index:4;margin:0 -20px;padding:9px 20px 8px;
   background:var(--home-fascia);
   -webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);
-  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  display:flex;align-items:center;gap:10px;min-height:30px;
 }
 @media (min-width:960px){.home-fascia{margin:0 -26px;padding:9px 26px 8px}}
-.home-fascia-titolo{font-family:var(--font);font-size:calc(17px * var(--st));font-weight:700;letter-spacing:-.01em;color:var(--titolo)}
-.home-fascia-det{display:flex;align-items:center;gap:10px;font-family:var(--font);font-size:calc(13px * var(--st));font-weight:500;color:var(--ink-4)}
+/* titoli di sezione come prima del disegno 31b: occhiello a macchina, filetto sottile che
+   riempie lo spazio, contatore (verde per le comunicazioni nuove). Resta la fascia
+   traslucida agganciata in alto mentre si scorre. */
+.home-fascia-titolo{
+  flex:none;font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-4);
+}
+.home-fascia-filo{flex:1;min-width:12px;height:1px;background:var(--home-tratteggio)}
+.home-fascia-det{
+  flex:none;display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:calc(11.5px * var(--st));
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+}
+.home-fascia-det .lime{color:var(--chart-1)}
 /* i comandi di gestione (aggiungi/fissa/modifica/elimina) restano disponibili anche in
    questa Home, ma in formato ridotto: qui comanda la lettura, non la redazione. */
 .home-fascia .btn.solo-piu{align-self:center;width:30px;min-width:30px;height:30px;min-height:30px;border-radius:10px}
@@ -2769,6 +2780,7 @@ function homeSezioniHTML(avviso) {
     ? `${lun.getDate()} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`
     : `${lun.getDate()} ${MESI_LUNGHI[lun.getMonth()]} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`;
   const giorni = impegniSettimana(lun);
+  const nImpegni = giorni.reduce((n, g) => n + (Array.isArray(g) ? g.length : 1), 0);
   const oggiIdx = (new Date(todayISO() + "T00:00:00").getDay() + 6) % 7;
   const sel = _settGiorno ?? oggiIdx;
   const data = i => { const d = new Date(lun); d.setDate(d.getDate() + i); return d.getDate(); };
@@ -2785,7 +2797,7 @@ function homeSezioniHTML(avviso) {
 
   return `<div class="home-sezioni">
     <div class="home-sezione">
-      <div class="home-fascia"><span class="home-fascia-titolo">Settimana</span><span class="home-fascia-det">${periodo}</span></div>
+      <div class="home-fascia" title="${periodo}"><span class="home-fascia-titolo">La settimana</span><span class="home-fascia-filo"></span><span class="home-fascia-det">${nImpegni} ${nImpegni === 1 ? "impegno" : "impegni"}</span></div>
       <div class="home-sett" id="homeSett">
         <div class="home-strip">
           <div class="home-strip-pill" style="transform:translateX(${sel * 100}%)"></div>
@@ -2815,8 +2827,8 @@ function homeSezioniHTML(avviso) {
 
     <div class="home-sezione com">
       <div class="home-fascia">
-        <span class="home-fascia-titolo">Comunicazioni</span>
-        <span class="home-fascia-det">${nuove} nuove${can("comunicazioni") ? btnAdd("Nuova", "comEdit", "") : ""}</span>
+        <span class="home-fascia-titolo">Comunicazioni</span><span class="home-fascia-filo"></span>
+        <span class="home-fascia-det"><span class="lime">${nuove} ${nuove === 1 ? "nuova" : "nuove"}</span>${can("comunicazioni") ? btnAdd("Nuova", "comEdit", "") : ""}</span>
       </div>
       ${avviso}
       ${coms.length ? coms.slice(0, 3).map(c => c.fissata ? `
