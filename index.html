@@ -843,12 +843,12 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
   font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.05em;padding:2px 7px;gap:4px;
 }
 .pill.dest svg{width:12px;height:12px}
-/* riga in cima alla comunicazione: data in alto a destra (niente più autore), a sinistra
+/* riga in cima alla comunicazione: data in alto a sinistra (niente più autore), accanto
    l'eventuale "Solo L1 · L2" */
 .figlio-com-testa{display:flex;align-items:center;gap:8px;min-height:16px}
 .figlio-com-testa .pill.dest{margin:0}
 .figlio-com-data{
-  margin-left:auto;flex:none;font-family:var(--font-mono);font-size:calc(10.5px * var(--st));
+  order:-1;flex:none;font-family:var(--font-mono);font-size:calc(10.5px * var(--st));
   letter-spacing:.16em;text-transform:uppercase;color:var(--home-meta);line-height:normal;
 }
 .figlio-com-nota{margin-top:2px}
