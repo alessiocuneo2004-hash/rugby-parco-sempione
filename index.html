@@ -1073,7 +1073,9 @@ html[data-senza-topbar] .topbar{display:none}
    vista" di Claude Design, misure e colori 1:1. Ogni sezione è un contenitore a sé, cosi
    la fascia del titolo resta agganciata in alto solo finché si è dentro quella sezione. */
 .home-live{margin-top:14px;padding:0 4px}
-.home-sezioni{position:relative;z-index:1;padding:32px 4px 20px;display:flex;flex-direction:column;gap:28px}
+/* 43px sopra: dalla fine delle card (figli / La mia area) alle lettere di "La settimana"
+   ci sono 50px (43 + 7 dentro la riga del titolo alta 30) */
+.home-sezioni{position:relative;z-index:1;padding:43px 4px 20px;display:flex;flex-direction:column;gap:28px}
 /* 2px fra la riga del titolo (alta 30, testo centrato) e la card: dal fondo delle lettere
    alla card restano 10px, uguali nelle due sezioni */
 .home-sezione{display:flex;flex-direction:column;gap:2px}
