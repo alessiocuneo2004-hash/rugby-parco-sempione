@@ -1195,6 +1195,14 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-avviso-txt{flex:1;min-width:0;font-family:var(--font-data);font-size:calc(14px * var(--st));line-height:1.3;color:var(--ink)}
 .figlio-avviso-chev{width:15px;height:15px;flex:none;color:var(--titolo)}
 .figlio-com{display:flex;align-items:center;gap:13px;padding:0 16px}
+/* elenco delle comunicazioni nella Home: 14px fra una e l'altra (prima erano 2px) */
+.home-com-lista{display:flex;flex-direction:column;gap:14px}
+.home-sezione.com>.figlio-avviso{margin-bottom:12px}
+/* testo tagliato: 3 righe nella comunicazione in evidenza, 2 nelle note; il resto si legge
+   toccando la card (foglio dal basso) */
+.figlio-com.clickable{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.figlio-com-corpo{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.figlio-com-nota{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .figlio-com .figlio-com-barra{align-self:stretch}
 .figlio-com.evidenza{
   align-items:stretch;background:var(--surface);border-radius:22px;padding:13px 16px 14px;
@@ -1440,12 +1448,59 @@ div.mia-testa-io{cursor:default}
 .figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{
   transform:scale(.97);transition-duration:.1s;
 }
+.figlio-com.clickable{transition:transform .16s var(--ease-out)}
+.figlio-com.clickable:active{transform:scale(.98);transition-duration:.1s}
+@media (prefers-reduced-motion:reduce){.figlio-com.clickable:active{transform:none;filter:brightness(.96)}}
 /* "riduci movimento": niente rimpicciolimento, resta solo lo scurimento al tocco */
 @media (prefers-reduced-motion:reduce){
   .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
   .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
   .hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
   .figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{transform:none;filter:brightness(.93)}
+}
+
+/* =====================================================================
+   Foglio della comunicazione intera (sale dal basso, circa mezza schermata)
+   Curva da cassetto iOS, 380ms in entrata e 260ms in uscita (chiudere è più rapido di
+   aprire). Solo transform e opacity. Con "riduci movimento": solo dissolvenza.
+   ===================================================================== */
+#comRoot{position:relative;z-index:60}
+html.foglio-aperto{overflow:hidden}
+.com-velo{
+  position:fixed;inset:0;z-index:60;background:rgba(0,19,31,.45);opacity:0;
+  transition:opacity 300ms cubic-bezier(.23,1,.32,1);
+}
+#comRoot.aperto .com-velo{opacity:1}
+#comRoot.uscita .com-velo{opacity:0;transition-duration:240ms;pointer-events:none}
+.com-foglio{
+  position:fixed;left:0;right:0;bottom:0;z-index:61;margin:0 auto;max-width:560px;
+  min-height:46vh;max-height:min(64vh, 620px);display:flex;flex-direction:column;
+  background:var(--surface);border-radius:28px 28px 0 0;box-shadow:0 -12px 34px rgba(11,27,38,.2);
+  padding-bottom:env(safe-area-inset-bottom);
+  transform:translateY(100%);transition:transform 380ms cubic-bezier(.32,.72,0,1);
+}
+#comRoot.aperto .com-foglio{transform:none}
+#comRoot.uscita .com-foglio{transform:translateY(100%);transition-duration:260ms;pointer-events:none}
+.com-foglio-testa{position:relative;flex:none;height:44px;touch-action:none;cursor:grab}
+.com-maniglia{position:absolute;left:50%;top:10px;width:44px;height:5px;margin-left:-22px;border-radius:99px;background:var(--line-2)}
+.com-chiudi{position:absolute;right:12px;top:10px;width:36px;height:36px;min-height:36px;border-radius:12px}
+.com-chiudi svg{width:16px;height:16px}
+.com-foglio-corpo{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 22px 24px}
+.com-foglio-corpo .pill.dest{margin-top:8px}
+.com-foglio-titolo{
+  margin:10px 0 0;font-family:var(--font-display);font-weight:800;font-size:calc(34px * var(--st-g));
+  line-height:.92;text-transform:uppercase;color:var(--titolo);
+}
+.com-foglio-testo{
+  margin-top:12px;white-space:pre-wrap;font-family:var(--font-data);font-size:calc(16px * var(--st));
+  line-height:1.55;color:var(--ink-2);text-wrap:pretty;
+}
+.com-foglio-azioni{display:flex;gap:6px;margin-top:20px}
+@media (prefers-reduced-motion:reduce){
+  .com-foglio,#comRoot.aperto .com-foglio,#comRoot.uscita .com-foglio{transform:none;transition:opacity 200ms ease}
+  .com-foglio{opacity:0}
+  #comRoot.aperto .com-foglio{opacity:1}
+  #comRoot.uscita .com-foglio{opacity:0}
 }
 </style>
 <div id="app">
@@ -2948,8 +3003,9 @@ function homeSezioniHTML(avviso) {
         <span class="home-fascia-det"><span class="lime">${nuove} ${nuove === 1 ? "nuova" : "nuove"}</span>${can("comunicazioni") ? btnAdd("Nuova", "comEdit", "") : ""}</span>
       </div>
       ${avviso}
+      <div class="home-com-lista">
       ${coms.length ? coms.slice(0, 3).map(c => c.fissata ? `
-        <div class="figlio-com evidenza">
+        <div class="figlio-com evidenza clickable" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
           <span class="figlio-com-barra lime"></span>
           <div class="grow" style="flex:1;min-width:0">
             <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
@@ -2959,7 +3015,7 @@ function homeSezioniHTML(avviso) {
             ${azioni(c)}
           </div>
         </div>` : `
-        <div class="figlio-com">
+        <div class="figlio-com clickable" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
           <span class="figlio-com-barra"></span>
           <div class="grow" style="flex:1;min-width:0">
             <div class="figlio-com-nota">${esc(c.autore || "Segreteria")}: ${esc(c.corpo || c.titolo)}</div>
@@ -2968,9 +3024,95 @@ function homeSezioniHTML(avviso) {
           </div>
         </div>`).join("") :
         `<div class="empty">Nessuna comunicazione. ${can("comunicazioni") ? "Premi “+” per pubblicare la prima." : ""}</div>`}
+      </div>
     </div>
   </div>`;
 }
+
+/* =====================================================================
+   Comunicazione intera: "mezza schermata" che sale dal basso
+   Nella Home le comunicazioni sono tagliate a 2-3 righe; un tocco apre il testo intero
+   in un foglio che sale da sotto (come i fogli di iPhone). Vive in #comRoot, fuori da
+   render(). Si chiude toccando il velo, con Esc, con la X o trascinando giù la parte alta.
+   Animazioni con transizioni (non keyframes): se si chiude a metà ingresso, il foglio
+   torna indietro da dove si trova invece di ripartire da zero.
+   ===================================================================== */
+let _comTimer = null;
+function apriCom(id) {
+  const c = S.comunicazioni.find(x => x.id === id);
+  if (!c || !vedeCom(c)) return;
+  clearTimeout(_comTimer);
+  let root = document.getElementById("comRoot");
+  if (!root) { root = document.createElement("div"); root.id = "comRoot"; document.body.appendChild(root); }
+  const azioni = can("comunicazioni") ? `
+    <div class="com-foglio-azioni">
+      ${btnIcon("pin", "comPin", c.id, "", c.fissata ? "Togli dall'evidenza" : "Fissa in evidenza")}
+      ${btnIcon("edit", "comEdit", c.id, "", "Modifica")}
+      ${btnIcon("trash", "comDel", c.id, "danger", "Elimina")}
+    </div>` : "";
+  root.innerHTML = `
+    <div class="com-velo" data-act="comChiudi"></div>
+    <div class="com-foglio" role="dialog" aria-modal="true" aria-label="${esc(c.titolo)}">
+      <div class="com-foglio-testa">
+        <span class="com-maniglia" aria-hidden="true"></span>
+        <button class="iconbtn com-chiudi" data-act="comChiudi" aria-label="Chiudi">${ic("x")}</button>
+      </div>
+      <div class="com-foglio-corpo">
+        <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${fmtDate(c.data)}${c.fissata ? " · in evidenza" : ""}</div>
+        ${etichettaDestinatari(c)}
+        <h2 class="com-foglio-titolo">${esc(c.titolo)}</h2>
+        <div class="com-foglio-testo">${esc(c.corpo || "")}</div>
+        ${azioni}
+      </div>
+    </div>`;
+  const el = root.querySelector(".com-foglio");
+  void el.offsetWidth;            // parte dalla posizione chiusa, poi la transizione la porta su
+  root.classList.remove("uscita");
+  root.classList.add("aperto");
+  document.documentElement.classList.add("foglio-aperto");
+  root.querySelector(".com-chiudi").focus({ preventScroll: true });
+  bindComGesti(el);
+}
+function chiudiCom() {
+  const root = document.getElementById("comRoot");
+  if (!root || !root.classList.contains("aperto")) return;
+  root.classList.remove("aperto");
+  root.classList.add("uscita");
+  document.documentElement.classList.remove("foglio-aperto");
+  clearTimeout(_comTimer);
+  const via = () => { root.innerHTML = ""; root.classList.remove("uscita"); };
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { _comTimer = setTimeout(via, 200); return; }
+  _comTimer = setTimeout(via, 280);
+}
+/* trascinare giù la parte alta (maniglia) chiude: il foglio segue il dito; al rilascio si
+   chiude se è sceso più di 90px o se il gesto è veloce, altrimenti torna su */
+function bindComGesti(el) {
+  const testa = el.querySelector(".com-foglio-testa");
+  let d = null;
+  testa.onpointerdown = e => {
+    if (e.target.closest("button")) return;
+    d = { y0: e.clientY, t0: performance.now(), dy: 0 };
+    testa.setPointerCapture?.(e.pointerId);
+    el.style.transition = "none";
+  };
+  testa.onpointermove = e => {
+    if (!d) return;
+    d.dy = Math.max(0, e.clientY - d.y0);
+    el.style.transform = `translateY(${d.dy}px)`;
+  };
+  const fine = () => {
+    if (!d) return;
+    const v = d.dy / Math.max(1, performance.now() - d.t0);
+    const chiudi = d.dy > 90 || (d.dy > 20 && v > .5);
+    d = null;
+    el.style.transition = ""; el.style.transform = "";
+    if (chiudi) chiudiCom();
+  };
+  testa.onpointerup = fine;
+  testa.onpointercancel = fine;
+}
+ACT.comApri = id => apriCom(id);
+ACT.comChiudi = () => chiudiCom();
 
 /* striscia dei giorni e pagine scorrevoli della "Settimana": la pagina segue il dito
    (scroll-snap nativo), la pastiglia navy e i puntini seguono la pagina; l'altezza della
@@ -3310,7 +3452,8 @@ function etichettaDestinatari(m) {
   if (!can("comunicazioni") || !Array.isArray(m.livelli) || m.livelli.length >= 5) return "";
   return `<span class="pill dest" title="Visibile solo a questi livelli">${ic("users")} Solo ${m.livelli.map(l => "L" + l).join(" · ")}</span>`;
 }
-ACT.comEdit = id => {
+ACT.comEdit = id => { chiudiCom(); return _comEdit(id); };
+const _comEdit = id => {
   const c = S.comunicazioni.find(x => x.id === id);
   openModal({
     title: c ? "Modifica comunicazione" : "Nuova comunicazione",
@@ -3329,11 +3472,13 @@ ACT.comEdit = id => {
     }
   });
 };
-ACT.comPin = id => {
+ACT.comPin = id => { chiudiCom(); return _comPin(id); };
+const _comPin = id => {
   const c = S.comunicazioni.find(x => x.id === id);
   c.fissata = !c.fissata; save(); render();
 };
-ACT.comDel = id => confirmModal("Eliminare questa comunicazione?", () => {
+ACT.comDel = id => { chiudiCom(); return _comDel(id); };
+const _comDel = id => confirmModal("Eliminare questa comunicazione?", () => {
   S.comunicazioni = S.comunicazioni.filter(x => x.id !== id);
   save(); render(); toast("Eliminata");
 });
@@ -4905,6 +5050,7 @@ function render() {
   clearTimeout(_attesa);            // se stavamo aspettando, il contenuto vero ha la precedenza
   renderChrome();
   closeAltro();   // una navigazione chiude sempre il menu "Altro", se era aperto
+  chiudiCom();    // ...e il foglio della comunicazione
   // una navigazione vera (tasto Indietro, voce di menu...) chiude sempre la scheda del figlio,
   // se era aperta: #main sta per essere ricostruito da zero, non avrebbe più senso lasciarla lì.
   clearTimeout(_figlioTimer);
@@ -5152,7 +5298,7 @@ document.getElementById("nav").addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  if (MODAL) closeModal();
+  if (MODAL) closeModal(); else chiudiCom();
   closeAltro();
   chiudiTendina();
 });
