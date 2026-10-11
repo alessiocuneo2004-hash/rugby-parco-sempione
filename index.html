@@ -828,6 +828,19 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 /* i pulsanti d'azione restano sempre insieme e a destra: se non c'e spazio vanno a capo in blocco */
 .row-actions{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
 .com-card h3{font-size:calc(20px * var(--st));line-height:1.25}
+/* Tornei (pagina e sezione della categoria): stessi caratteri delle comunicazioni.
+   Titolo come il titolo di una comunicazione (Archivo 700 20px maiuscolo stretto),
+   luogo e data come la data (Chivo 16px), etichette come "In evidenza" (Archivo 700 11px). */
+.font-com .card .title,.font-com.card .title{
+  font-family:var(--font);font-weight:700;font-size:calc(20px * var(--st));line-height:1.25;
+  text-transform:uppercase;letter-spacing:-.05em;color:var(--ink);
+  /* una parola lunga ("Raggruppamento") non deve finire sotto i pulsanti accanto */
+  overflow-wrap:break-word;hyphens:auto;min-width:0;
+}
+.font-com .card .pill,.font-com.card .pill{
+  font-family:var(--font);font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.05em;
+  padding:3px 7px;text-transform:uppercase;
+}
 .com-card .body{white-space:pre-wrap;font-size:calc(17px * var(--st));line-height:1.55;color:var(--ink-2);text-wrap:pretty}
 
 /* card del punteggio: navy con rilievo, tinta piatta, niente gradienti */
@@ -3599,7 +3612,7 @@ function vCategoria(id) {
       <div class="sec-head"><h2>Tornei</h2>
         ${can("categorie") ? btnAdd("Torneo", "torneoEdit", JSON.stringify({ cat: c.id })) : ""}
       </div>
-      <div class="card list">
+      <div class="card list font-com">
         ${tornei.map(t => `
           <div class="list-row">
             ${dataGrande(t.data)}
@@ -4075,7 +4088,7 @@ function vPartite() {
       </div>
       <div class="row" style="margin-top:10px">
         <div class="grow">
-          <div class="title maiusc" style="font-size:calc(16.5px * var(--st))">${esc(S.settings.club.replace("Rugby ", ""))} ${esc(p.avversario)}</div>
+          <div class="title maiusc">${esc(S.settings.club.replace("Rugby ", ""))} ${esc(p.avversario)}</div>
           <div class="muted">${ic("place", "icon-inline")}${esc(p.luogo)}</div>
         </div>
         ${(isLive || done) ? `
@@ -4114,7 +4127,7 @@ function vPartite() {
 
   const tornei = torneiInArrivo().filter(t => filtro === "all" || t.cats.some(c => c.id === filtro));
 
-  return `<div class="stack-lg">
+  return `<div class="stack-lg font-com">
     <div class="row">
       <div class="grow">
         <h1 class="page-title">Tornei</h1>
