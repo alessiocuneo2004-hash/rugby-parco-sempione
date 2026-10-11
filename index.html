@@ -843,7 +843,15 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
   font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.05em;padding:2px 7px;gap:4px;
 }
 .pill.dest svg{width:12px;height:12px}
-.figlio-com .pill.dest{align-self:flex-start;margin:4px 0 2px}
+/* riga in cima alla comunicazione: data in alto a destra (niente più autore), a sinistra
+   l'eventuale "Solo L1 · L2" */
+.figlio-com-testa{display:flex;align-items:center;gap:8px;min-height:16px}
+.figlio-com-testa .pill.dest{margin:0}
+.figlio-com-data{
+  margin-left:auto;flex:none;font-family:var(--font-mono);font-size:calc(10.5px * var(--st));
+  letter-spacing:.16em;text-transform:uppercase;color:var(--home-meta);line-height:normal;
+}
+.figlio-com-nota{margin-top:2px}
 /* opzione bloccata in un elenco di spunte (es. L1 tra i destinatari) */
 .checkrow.fisso{opacity:.7}
 /* Tornei (pagina e sezione della categoria) ed Eventi: stessi caratteri delle comunicazioni.
@@ -1486,7 +1494,7 @@ html.foglio-aperto{overflow:hidden}
 .com-chiudi{position:absolute;right:12px;top:10px;width:36px;height:36px;min-height:36px;border-radius:12px}
 .com-chiudi svg{width:16px;height:16px}
 .com-foglio-corpo{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 22px 24px}
-.com-foglio-corpo .pill.dest{margin-top:8px}
+.com-foglio-corpo .figlio-com-testa{margin-top:2px}
 .com-foglio-titolo{
   margin:10px 0 0;font-family:var(--font-display);font-weight:800;font-size:calc(34px * var(--st-g));
   line-height:.92;text-transform:uppercase;color:var(--titolo);
@@ -3008,8 +3016,7 @@ function homeSezioniHTML(avviso) {
         <div class="figlio-com evidenza clickable" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
           <span class="figlio-com-barra lime"></span>
           <div class="grow" style="flex:1;min-width:0">
-            <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
-            ${etichettaDestinatari(c)}
+            <div class="figlio-com-testa">${etichettaDestinatari(c)}<span class="figlio-com-data">${tempoRelativo(c.data)}</span></div>
             <div class="figlio-com-titolo">${esc(c.titolo)}</div>
             <div class="figlio-com-corpo">${esc(c.corpo)}</div>
             ${azioni(c)}
@@ -3018,8 +3025,8 @@ function homeSezioniHTML(avviso) {
         <div class="figlio-com clickable" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
           <span class="figlio-com-barra"></span>
           <div class="grow" style="flex:1;min-width:0">
-            <div class="figlio-com-nota">${esc(c.autore || "Segreteria")}: ${esc(c.corpo || c.titolo)}</div>
-            ${etichettaDestinatari(c)}
+            <div class="figlio-com-testa">${etichettaDestinatari(c)}<span class="figlio-com-data">${tempoRelativo(c.data)}</span></div>
+            <div class="figlio-com-nota">${esc(c.corpo || c.titolo)}</div>
             ${azioni(c)}
           </div>
         </div>`).join("") :
@@ -3058,8 +3065,7 @@ function apriCom(id) {
         <button class="iconbtn com-chiudi" data-act="comChiudi" aria-label="Chiudi">${ic("x")}</button>
       </div>
       <div class="com-foglio-corpo">
-        <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${fmtDate(c.data)}${c.fissata ? " · in evidenza" : ""}</div>
-        ${etichettaDestinatari(c)}
+        <div class="figlio-com-testa">${etichettaDestinatari(c)}<span class="figlio-com-data">${fmtDate(c.data)}</span></div>
         <h2 class="com-foglio-titolo">${esc(c.titolo)}</h2>
         <div class="com-foglio-testo">${esc(c.corpo || "")}</div>
         ${azioni}
