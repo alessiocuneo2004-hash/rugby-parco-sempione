@@ -533,6 +533,15 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* card torneo dell'elenco "Prossimi tornei": padding proprio e pastiglie categoria
    ancorate a destra (era inline in 06-views.js) */
 .torneo-card{padding:12px 14px}
+/* separatore del mese nell'elenco dei tornei: nome del mese a macchina + filetto sottile,
+   come i titoli delle sezioni della Home. Più aria sopra che sotto: chiude il mese prima. */
+.mese-sep{display:flex;align-items:center;gap:10px;margin:14px 2px 2px}
+.stack>.mese-sep:first-child{margin-top:0}
+.mese-sep span{
+  flex:none;font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-4);
+}
+.mese-sep i{flex:1;height:1px;background:var(--home-tratteggio)}
 .torneo-card .cats{flex:none;flex-wrap:wrap;gap:5px;justify-content:flex-end;max-width:40%}
 /* blocco data della riga appuntamento: giorno grande, mese sotto */
 .data-grande{display:flex;flex-direction:column;align-items:center;width:52px;flex:none}
@@ -843,8 +852,9 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 .font-com .card .title,.font-com.card .title{
   font-family:var(--font);font-weight:700;font-size:calc(20px * var(--st));line-height:1.25;
   text-transform:uppercase;letter-spacing:-.05em;color:var(--ink);
-  /* una parola lunga ("Raggruppamento") non deve finire sotto i pulsanti accanto */
-  overflow-wrap:break-word;hyphens:auto;min-width:0;
+  /* una parola lunga ("Raggruppamento") non si spezza: adattaTitoli() rimpicciolisce il
+     titolo finché ci sta intera */
+  min-width:0;
 }
 .font-com .card .pill,.font-com.card .pill{
   font-family:var(--font);font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.05em;
@@ -1753,7 +1763,31 @@ function load() {
       if (d && d.version === 1) return migrate(d);
     }
   } catch (e) { /* dati corrotti: si riparte dalla demo */ }
-  return defaultData();
+  return aggiungiTorneiEsempio(defaultData());
+}
+/* tornei d'esempio (ottobre-gennaio), per vedere l'elenco raggruppato per mese.
+   Stesso nome e stessa data in più categorie = un torneo solo con più etichette. */
+function aggiungiTorneiEsempio(d) {
+  if (d.settings.torneiEsempio) return d;
+  // dentro la funzione: i dati si caricano (load) prima che il resto del file sia letto
+  const TORNEI_ESEMPIO = [
+    { cats: ["Prime Mete"],              nome: "Mini festival d'autunno",     data: "2026-10-25", luogo: "Cesano Boscone",       note: "Festa non competitiva, merenda offerta." },
+    { cats: ["U8"],                      nome: "Trofeo Topolino (tappa 2)",   data: "2026-11-08", luogo: "Lainate",              note: "" },
+    { cats: ["U10"],                     nome: "Torneo di San Martino",      data: "2026-11-15", luogo: "Cernusco sul Naviglio", note: "Ritrovo ore 8:30 al campo." },
+    { cats: ["U12"],                     nome: "Torneo Città di Pavia",      data: "2026-11-22", luogo: "Pavia",                note: "Pullman dal club alle 7:15." },
+    { cats: ["U10", "U12"],              nome: "Raggruppamento FIR n.2",     data: "2026-11-29", luogo: "Segrate",              note: "" },
+    { cats: ["Prime Mete", "U6", "U8"],  nome: "Festa di Natale del minirugby", data: "2026-12-13", luogo: "Campo Parco Sempione", note: "Con le famiglie." },
+    { cats: ["U12"],                     nome: "Torneo di Natale",           data: "2026-12-20", luogo: "Monza",                note: "" },
+    { cats: ["U10", "U12"],              nome: "Torneo della Befana",        data: "2027-01-06", luogo: "Milano Giuriati",      note: "" },
+    { cats: ["U8"],                      nome: "Raggruppamento FIR n.3",     data: "2027-01-24", luogo: "Rho",                  note: "" }
+  ];
+  for (const t of TORNEI_ESEMPIO) for (const nome of t.cats) {
+    const c = d.categorie.find(x => x.nome === nome);
+    if (c && !c.tornei.some(x => x.nome === t.nome && x.data === t.data))
+      c.tornei.push({ id: uid(), nome: t.nome, data: t.data, luogo: t.luogo, note: t.note });
+  }
+  d.settings.torneiEsempio = true;
+  return d;
 }
 function migrate(d) {
   // aggiornamenti leggeri per dati salvati con versioni precedenti dell'app
@@ -1769,7 +1803,7 @@ function migrate(d) {
   d.settings.profiloAllenatore = d.settings.profiloAllenatore ?? "";
   d.settings.menu = d.settings.menu ?? "classico";
   d.settings.provaCaricamento = Number(d.settings.provaCaricamento) || 0;
-  return d;
+  return aggiungiTorneiEsempio(d);
 }
 function save() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
@@ -2437,6 +2471,7 @@ const SK = {
     <div>
       ${skSecHead("76%")}
       <div class="stack" style="gap:10px;margin-top:8px">
+        <div class="row" style="gap:10px">${skLine("74px", 10)}${sk("", "flex:1;height:1px")}</div>
         ${Array.from({ length: 4 }, () => `
           <div class="sk-card" style="flex-direction:row;align-items:center;gap:12px;min-height:90px;padding:12px 14px">
             ${sk("", "width:54px;height:62px;border-radius:14px;flex:none")}${skDue("64%", "42%")}${skPill(40, 24)}
@@ -3365,6 +3400,14 @@ function adattaTitoli(root) {
     let fs = parseFloat(getComputedStyle(t).fontSize);
     while (t.scrollWidth > t.clientWidth + 1 && fs > 40) { fs -= 2; t.style.fontSize = fs + "px"; }
   });
+  // titoli dei tornei (20px): una parola più larga della colonna scende fino a 14px
+  const fitPiccoli = () => root.querySelectorAll(".font-com .title").forEach(t => {
+    t.style.fontSize = "";
+    let fs = parseFloat(getComputedStyle(t).fontSize);
+    while (t.scrollWidth > t.clientWidth + 1 && fs > 14) { fs -= 1; t.style.fontSize = fs + "px"; }
+  });
+  fitPiccoli();
+  document.fonts?.ready.then(fitPiccoli);
   fit();
   document.fonts?.ready.then(fit);
 }
@@ -4100,6 +4143,22 @@ function impegniInArrivo(tornei, partite) {
   return voci.sort((a, b) => a.data < b.data ? -1 : 1);
 }
 
+/* elenco raggruppato per mese: prima del primo elemento di ogni mese una riga col nome
+   del mese e un filetto sottile (l'anno solo se non è quello in corso) */
+function conMesi(voci, card) {
+  const annoOggi = todayISO().slice(0, 4);
+  let prima = "";
+  return voci.map(x => {
+    const ym = x.data.slice(0, 7);
+    let testa = "";
+    if (ym !== prima) {
+      prima = ym;
+      const [a, m] = ym.split("-");
+      testa = `<div class="mese-sep"><span>${MESI_LUNGHI[+m - 1]}${a !== annoOggi ? " " + a : ""}</span><i></i></div>`;
+    }
+    return testa + card(x);
+  }).join("");
+}
 function vPartite() {
   const filtro = VIEW.cat || "all";
   const oggi = todayISO();
@@ -4189,7 +4248,7 @@ function vPartite() {
     <div>
       <div class="sec-head"><h2>Prossimi tornei</h2></div>
       <div class="stack">
-        ${impegniInArrivo(tornei, prossime).map(impegnoCard).join("")
+        ${conMesi(impegniInArrivo(tornei, prossime), impegnoCard)
           || `<div class="empty">Nessun impegno in programma${filtro !== "all" ? " per questa categoria" : ""}.</div>`}
       </div>
     </div>
@@ -4723,7 +4782,7 @@ ACT.exportData = () => {
 };
 ACT.importPick = () => document.getElementById("importFile").click();
 ACT.resetData = () => confirmModal("Sostituire TUTTI i dati attuali con quelli demo iniziali? L'operazione non è reversibile (scarica prima un backup se vuoi conservarli).", () => {
-  S = defaultData(); save(); go({ name: "home" }); toast("Dati demo ripristinati");
+  S = aggiungiTorneiEsempio(defaultData()); save(); go({ name: "home" }); toast("Dati demo ripristinati");
 });
 
 /* =====================================================================
