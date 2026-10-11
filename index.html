@@ -3208,6 +3208,18 @@ function tintaScura(hex) {
   });
   return .2126 * ch[0] + .7152 * ch[1] + .0722 * ch[2] < .2;
 }
+/* titoloni di pagina (80px): un nome lungo ("Sedute di allenamento", il titolo di un
+   evento) o una parola più larga dello schermo uscirebbe di lato, o finirebbe sotto il "+"
+   accanto. Lo rimpicciolisce a passi finché nessuna parola sborda (minimo 40px). */
+function adattaTitoli(root) {
+  const fit = () => root.querySelectorAll(".page-title").forEach(t => {
+    t.style.fontSize = "";
+    let fs = parseFloat(getComputedStyle(t).fontSize);
+    while (t.scrollWidth > t.clientWidth + 1 && fs > 40) { fs -= 2; t.style.fontSize = fs + "px"; }
+  });
+  fit();
+  document.fonts?.ready.then(fit);
+}
 function adattaNomeMia(root) {
   const n = root.querySelector(".mia-nome");
   if (!n) return;
@@ -4691,6 +4703,7 @@ function render() {
   bindImgSk(main);
   if (VIEW.name === "home") bindSettimana(main); else _settGiorno = null;
   if (VIEW.name === "mio") adattaNomeMia(main);
+  adattaTitoli(main);
 
   const rs = document.getElementById("roleSwitch");
   if (rs) rs.addEventListener("change", () => { S.ruoloCorrente = rs.value; save(); render(); toast("Ora vedi l'app come: " + ruoloCorrente().nome); });
