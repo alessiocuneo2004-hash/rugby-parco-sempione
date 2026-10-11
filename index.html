@@ -828,6 +828,15 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 /* i pulsanti d'azione restano sempre insieme e a destra: se non c'e spazio vanno a capo in blocco */
 .row-actions{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
 .com-card h3{font-size:calc(20px * var(--st));line-height:1.25}
+/* "Solo L1 · L2": la comunicazione non è per tutti (la vede solo chi può scrivere) */
+.pill.dest{
+  background:none;border:1px solid var(--tag-line);color:var(--ink-3);font-family:var(--font);
+  font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.05em;padding:2px 7px;gap:4px;
+}
+.pill.dest svg{width:12px;height:12px}
+.figlio-com .pill.dest{align-self:flex-start;margin:4px 0 2px}
+/* opzione bloccata in un elenco di spunte (es. L1 tra i destinatari) */
+.checkrow.fisso{opacity:.7}
 /* Tornei (pagina e sezione della categoria): stessi caratteri delle comunicazioni.
    Titolo come il titolo di una comunicazione (Archivo 700 20px maiuscolo stretto),
    luogo e data come la data (Chivo 16px), etichette come "In evidenza" (Archivo 700 11px). */
@@ -2061,7 +2070,7 @@ function fieldHTML(f) {
     return `<label class="checkrow"><input type="checkbox" name="${f.key}" ${v ? "checked" : ""}> ${esc(f.label)}</label>`;
   if (f.type === "checkgroup")
     return `<div class="field"><label>${esc(f.label)}</label>${(f.options || []).map(o =>
-      `<label class="checkrow"><input type="checkbox" data-cg="${f.key}" value="${esc(o.v)}" ${f.value && f.value.includes(o.v) ? "checked" : ""}> ${esc(o.t)}</label>`).join("")}</div>`;
+      `<label class="checkrow${o.fisso ? " fisso" : ""}"><input type="checkbox" data-cg="${f.key}" value="${esc(o.v)}" ${o.fisso || (f.value && f.value.includes(o.v)) ? "checked" : ""} ${o.fisso ? "disabled" : ""}> ${esc(o.t)}</label>`).join("")}${f.nota ? `<p class="small" style="margin:2px 0 0">${f.nota}</p>` : ""}</div>`;
   return `<div class="field"><label>${esc(f.label)}${f.required ? " *" : ""}</label><input name="${f.key}" type="${f.type || "text"}" value="${esc(v)}" placeholder="${esc(f.placeholder || "")}" ${f.min != null ? `min="${f.min}"` : ""} ${f.step ? `step="${f.step}"` : ""}></div>`;
 }
 function confirmModal(msg, fn) {
@@ -2858,9 +2867,9 @@ function homeSezioniHTML(avviso) {
   const sel = _settGiorno ?? oggiIdx;
   const data = i => { const d = new Date(lun); d.setDate(d.getDate() + i); return d.getDate(); };
 
-  const coms = [...S.comunicazioni].sort((a, b) =>
+  const coms = S.comunicazioni.filter(vedeCom).sort((a, b) =>
     (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1));
-  const nuove = S.comunicazioni.filter(c => giorniFa(c.data) <= 7).length;
+  const nuove = coms.filter(c => giorniFa(c.data) <= 7).length;
   const azioni = c => can("comunicazioni") ? `
     <span class="row-actions figlio-com-azioni">
       ${btnIcon("pin", "comPin", c.id, "", "Fissa in evidenza")}
@@ -2909,6 +2918,7 @@ function homeSezioniHTML(avviso) {
           <span class="figlio-com-barra lime"></span>
           <div class="grow" style="flex:1;min-width:0">
             <div class="figlio-com-eyebrow">${esc(c.autore || "Segreteria")} · ${tempoRelativo(c.data)}</div>
+            ${etichettaDestinatari(c)}
             <div class="figlio-com-titolo">${esc(c.titolo)}</div>
             <div class="figlio-com-corpo">${esc(c.corpo)}</div>
             ${azioni(c)}
@@ -2918,6 +2928,7 @@ function homeSezioniHTML(avviso) {
           <span class="figlio-com-barra"></span>
           <div class="grow" style="flex:1;min-width:0">
             <div class="figlio-com-nota">${esc(c.autore || "Segreteria")}: ${esc(c.corpo || c.titolo)}</div>
+            ${etichettaDestinatari(c)}
             ${azioni(c)}
           </div>
         </div>`).join("") :
@@ -3056,7 +3067,7 @@ function figlioContenutoHTML(id, da = id) {
     : `${lun.getDate()} ${MESI_LUNGHI[lun.getMonth()]} – ${dom.getDate()} ${MESI_LUNGHI[dom.getMonth()]}`;
   // l'avviso: l'ultima comunicazione della categoria, poi un'informazione della prossima
   // partita, altrimenti il testo di esempio del prototipo
-  const com = cat && (cat.comunicazioni || [])[0];
+  const com = cat && (cat.comunicazioni || []).filter(vedeCom)[0];
   const info = S.partite.filter(p => cat && p.categoria === cat.id && p.stato === "programmata" && p.data >= todayISO())
     .sort((a, b) => a.data < b.data ? -1 : 1).find(p => (p.info || []).length);
   const avviso = com ? (com.testo || com.corpo || com.titolo) : info ? info.info[0].testo : f.avviso;
@@ -3241,6 +3252,29 @@ function appuntamentiHome() {
   // giorno e mese li formatta dataGrande() al momento del disegno
   return voci.sort((a, b) => a.data < b.data ? -1 : 1).slice(0, 4);
 }
+/* destinatari di una comunicazione (Home o categoria): chi la scrive sceglie a quali
+   livelli farla vedere. Senza scelta (messaggi vecchi) la vedono tutti. La Direzione (L1)
+   le vede sempre tutte: modifica tutto, quindi deve poterle anche rileggere e correggere. */
+const TUTTI_LIVELLI = [1, 2, 3, 4, 5];
+function vedeCom(m) {
+  const l = ruoloCorrente().livello;
+  return l === 1 || !Array.isArray(m.livelli) || m.livelli.includes(l);
+}
+function campoDestinatari(m) {
+  return {
+    key: "livelli", label: "Chi la vede", type: "checkgroup",
+    value: (Array.isArray(m?.livelli) ? m.livelli : TUTTI_LIVELLI).map(String),
+    options: [...S.ruoli].sort((a, b) => a.livello - b.livello).map(r => ({ v: String(r.livello), t: `L${r.livello} · ${r.nome}`, fisso: r.livello === 1 })),
+    nota: "La Direzione le vede sempre tutte."
+  };
+}
+/* dai valori del modulo a un elenco di livelli (L1 sempre incluso) */
+const livelliDa = v => [...new Set([1, ...(v.livelli || []).map(Number)])].sort();
+/* etichetta "Solo L1 · L2" sulle card, per chi può scrivere: messaggi non per tutti */
+function etichettaDestinatari(m) {
+  if (!can("comunicazioni") || !Array.isArray(m.livelli) || m.livelli.length >= 5) return "";
+  return `<span class="pill dest" title="Visibile solo a questi livelli">${ic("users")} Solo ${m.livelli.map(l => "L" + l).join(" · ")}</span>`;
+}
 ACT.comEdit = id => {
   const c = S.comunicazioni.find(x => x.id === id);
   openModal({
@@ -3249,9 +3283,11 @@ ACT.comEdit = id => {
       { key: "titolo", label: "Titolo", value: c?.titolo, required: true },
       { key: "corpo", label: "Testo", type: "textarea", value: c?.corpo },
       { key: "data", label: "Data", type: "date", value: c?.data || todayISO() },
-      { key: "fissata", label: "Fissa in evidenza", type: "checkbox", value: c?.fissata }
+      { key: "fissata", label: "Fissa in evidenza", type: "checkbox", value: c?.fissata },
+      campoDestinatari(c)
     ],
     onSave: v => {
+      v.livelli = livelliDa(v);
       if (c) Object.assign(c, v);
       else S.comunicazioni.unshift({ id: uid(), ...v, autore: ruoloCorrente().nome });
       save(); render(); toast("Comunicazione salvata");
@@ -3579,10 +3615,11 @@ function vCategoria(id) {
         ${can("comunicazioni") ? btnAdd("Nuova", "catComEdit", JSON.stringify({ cat: c.id })) : ""}
       </div>
       <div class="stack">
-        ${[...c.comunicazioni].sort((a, b) => (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1)).map(m => `
+        ${c.comunicazioni.filter(vedeCom).sort((a, b) => (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1)).map(m => `
           <div class="card com-card ${m.fissata ? "pinned" : ""} ${m.id === _nuovoId ? "entra" : ""}">
             <div class="row">
               ${m.fissata ? `<span class="pill tag">${ic("pin")} In evidenza</span>` : ""}
+              ${etichettaDestinatari(m)}
               <span class="muted num">${fmtDate(m.data)}</span>
               ${can("comunicazioni") ? `<span class="row-actions">
                 ${btnIcon("edit", "catComEdit", JSON.stringify({ cat: c.id, id: m.id }), "", "Modifica")}
@@ -3684,9 +3721,11 @@ ACT.catComEdit = arg => {
       { key: "titolo", label: "Titolo", value: m?.titolo, required: true },
       { key: "corpo", label: "Testo", type: "textarea", value: m?.corpo },
       { key: "data", label: "Data", type: "date", value: m?.data || todayISO() },
-      { key: "fissata", label: "Fissa in evidenza", type: "checkbox", value: m?.fissata }
+      { key: "fissata", label: "Fissa in evidenza", type: "checkbox", value: m?.fissata },
+      campoDestinatari(m)
     ],
     onSave: v => {
+      v.livelli = livelliDa(v);
       if (m) Object.assign(m, v);
       else {
         const nuova = { id: uid(), ...v, autore: ruoloCorrente().nome };
