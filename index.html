@@ -846,7 +846,7 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 .figlio-com .pill.dest{align-self:flex-start;margin:4px 0 2px}
 /* opzione bloccata in un elenco di spunte (es. L1 tra i destinatari) */
 .checkrow.fisso{opacity:.7}
-/* Tornei (pagina e sezione della categoria): stessi caratteri delle comunicazioni.
+/* Tornei (pagina e sezione della categoria) ed Eventi: stessi caratteri delle comunicazioni.
    Titolo come il titolo di una comunicazione (Archivo 700 20px maiuscolo stretto),
    luogo e data come la data (Chivo 16px), etichette come "In evidenza" (Archivo 700 11px). */
 .font-com .card .title,.font-com.card .title{
@@ -4497,7 +4497,7 @@ function vEventi() {
   const oggi = todayISO();
   const prossimi = S.eventi.filter(e => e.data >= oggi).sort((a, b) => a.data < b.data ? -1 : 1);
   const passati = S.eventi.filter(e => e.data < oggi).sort((a, b) => a.data < b.data ? 1 : -1);
-  return `<div class="stack-lg">
+  return `<div class="stack-lg font-com">
     <div class="row">
       <div class="grow">
         <h1 class="page-title">Eventi</h1>
