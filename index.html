@@ -1076,16 +1076,11 @@ html[data-senza-topbar] .topbar{display:none}
 .home-sezioni{position:relative;z-index:1;padding:32px 4px 20px;display:flex;flex-direction:column;gap:28px}
 .home-sezione{display:flex;flex-direction:column;gap:9px}
 .home-sezione.com{gap:8px}
-.home-fascia{
-  position:sticky;top:env(safe-area-inset-top, 0px);z-index:4;margin:0 -20px;padding:9px 20px 8px;
-  background:var(--home-fascia);
-  -webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);
-  display:flex;align-items:center;gap:10px;min-height:30px;
-}
-@media (min-width:960px){.home-fascia{margin:0 -26px;padding:9px 26px 8px}}
+/* titolo di sezione: niente più fascia crema dietro e non resta agganciato in alto
+   (senza fondo, scorrendo si sovrapporrebbe al contenuto) */
+.home-fascia{display:flex;align-items:center;gap:10px;min-height:30px}
 /* titoli di sezione come prima del disegno 31b: occhiello a macchina, filetto sottile che
-   riempie lo spazio, contatore (verde per le comunicazioni nuove). Resta la fascia
-   traslucida agganciata in alto mentre si scorre. */
+   riempie lo spazio, contatore (verde per le comunicazioni nuove). */
 .home-fascia-titolo{
   flex:none;font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-4);
