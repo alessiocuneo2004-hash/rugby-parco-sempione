@@ -533,6 +533,38 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* card torneo dell'elenco "Prossimi tornei": padding proprio e pastiglie categoria
    ancorate a destra (era inline in 06-views.js) */
 .torneo-card{padding:12px 14px}
+/* ===== "Presenze stagione" 45d (La mia area): valori dal documento di Claude Design.
+   Nel tema scuro gli stessi ruoli passano ai colori della superficie scura. ===== */
+.ps-card{
+  --ps-fondo:#FFFFFF;--ps-bordo:#DCD9D1;--ps-traccia:#EAE6DB;--ps-num:#00253F;--ps-sec:#6B6656;--ps-box:#F4EEDC;
+  background:var(--ps-fondo);border:1px solid var(--ps-bordo);border-radius:20px;padding:16px 16px 14px;
+  box-shadow:0 4px 12px rgba(11,27,38,.10);display:flex;flex-direction:column;gap:6px;
+}
+:root[data-theme="dark"] .ps-card{
+  --ps-fondo:var(--surface);--ps-bordo:var(--line);--ps-traccia:var(--surface-3);--ps-num:var(--ink);--ps-sec:var(--ink-3);--ps-box:var(--surface-2);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .ps-card{
+    --ps-fondo:var(--surface);--ps-bordo:var(--line);--ps-traccia:var(--surface-3);--ps-num:var(--ink);--ps-sec:var(--ink-3);--ps-box:var(--surface-2);
+  }
+}
+.ps-titolo,.ps-l{font-family:var(--font-mono);font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--ps-sec)}
+.ps-titolo{font-size:calc(11px * var(--st));text-align:center}
+.ps-arco{position:relative;width:100%;max-width:260px;align-self:center}
+.ps-arco svg{display:block;width:100%;height:auto}
+.ps-traccia{stroke:var(--ps-traccia)}
+.ps-arc{stroke:#8FC03F;transition:stroke-dashoffset 220ms cubic-bezier(.23,1,.32,1) 60ms}
+.ps-arc.oltre{stroke:var(--warn)}
+.ps-centro{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ps-num,.ps-v{font-family:var(--font-display);font-weight:800;color:var(--ps-num);font-variant-numeric:tabular-nums}
+.ps-num{font-size:calc(64px * var(--st-g));line-height:.8}
+.ps-sotto{font-family:var(--font-data);font-size:calc(14px * var(--st));color:var(--ps-sec)}
+.ps-caselle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.ps-box{background:var(--ps-box);border-radius:14px;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.ps-v{font-size:calc(28px * var(--st-g));line-height:1}
+.ps-l{font-size:calc(10.5px * var(--st));text-align:center;letter-spacing:.1em}
+@media (prefers-reduced-motion:reduce){.ps-arc{transition-duration:1ms !important;transition-delay:0ms !important}}
+
 /* Impostazioni > Calendario: due scelte a tutta riga, alte almeno 56px */
 .cal-scelte{gap:8px}
 .cal-opz{
@@ -2482,6 +2514,41 @@ function donutHTML(fatte, contratto) {
   </div>`;
 }
 
+/* "Presenze stagione" (disegno 45d di Claude Design) per La mia area: semicerchio che si
+   riempie di verde quanto fatte/contratto, numero grande al centro, sotto tre caselle.
+   L'arco parte vuoto (dashoffset 100) e riempiArchi() lo porta al valore dopo il disegno. */
+function presenzeStagioneHTML(fatte, contratto) {
+  const perc = contratto > 0 ? fatte / contratto : 0;
+  const pct = Math.round(perc * 100);
+  const assenze = Math.max(contratto - fatte, 0);
+  const arco = "M16 100 A84 84 0 0 1 184 100";
+  const casella = (v, l) => `<div class="ps-box"><span class="ps-v">${v}</span><span class="ps-l">${l}</span></div>`;
+  return `
+  <div class="ps-card" role="group" aria-label="Presenze stagione: ${fatte} su ${contratto}, ${pct}%, ${assenze} assenze">
+    <span class="ps-titolo">Presenze stagione</span>
+    <div class="ps-arco">
+      <svg viewBox="0 0 200 112" aria-hidden="true">
+        <path d="${arco}" fill="none" class="ps-traccia" stroke-width="18" stroke-linecap="round" pathLength="100"/>
+        <path d="${arco}" fill="none" class="ps-arc${perc > 1 ? " oltre" : ""}" stroke-width="18" stroke-linecap="round" pathLength="100"
+              stroke-dasharray="100" stroke-dashoffset="100" data-off="${(100 - Math.min(perc, 1) * 100).toFixed(2)}"/>
+      </svg>
+      <div class="ps-centro">
+        <span class="ps-num">${fatte}</span>
+        <span class="ps-sotto">presenze su ${contratto} · ${pct}%</span>
+      </div>
+    </div>
+    <div class="ps-caselle">
+      ${casella(pct + "%", "Sul contratto")}${casella(assenze, "Assenze")}${casella(contratto, "Contratto")}
+    </div>
+  </div>`;
+}
+/* dopo il disegno della pagina: gli archi si riempiono da 0 al valore (~80ms dopo) */
+function riempiArchi(root) {
+  const archi = root.querySelectorAll(".ps-arc[data-off]");
+  if (!archi.length) return;
+  setTimeout(() => archi.forEach(a => a.style.strokeDashoffset = a.dataset.off), 80);
+}
+
 /* Barre mensili impilate: presenze e assenze */
 function barChartHTML(mesi) {
   if (!mesi.length) return `<div class="empty">Nessuna presenza registrata: aggiungile dal registro qui sotto.</div>`;
@@ -3972,9 +4039,7 @@ function vMio() {
   return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
 
     ${/* i numeri stanno gia nell'anello: qui basta la card presenze (come nel mockup) */""}
-    <div class="card">
-      ${donutHTML(st.fatte, a.contratto)}
-    </div>
+    ${presenzeStagioneHTML(st.fatte, a.contratto)}
 
     <div>
       <div class="sec-head"><h2>Presenze per mese</h2></div>
@@ -5568,7 +5633,7 @@ function render() {
   bindLongText(main);
   bindImgSk(main);
   if (VIEW.name === "home") bindSettimana(main); else _settGiorno = null;
-  if (VIEW.name === "mio") adattaNomeMia(main);
+  if (VIEW.name === "mio") { adattaNomeMia(main); riempiArchi(main); }
   adattaTitoli(main);
 
   const rs = document.getElementById("roleSwitch");
