@@ -533,6 +533,24 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* card torneo dell'elenco "Prossimi tornei": padding proprio e pastiglie categoria
    ancorate a destra (era inline in 06-views.js) */
 .torneo-card{padding:12px 14px}
+/* Impostazioni > Calendario: due scelte a tutta riga, alte almeno 56px */
+.cal-scelte{gap:8px}
+.cal-opz{
+  display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 14px;border-radius:14px;cursor:pointer;
+  background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);
+  transition:transform 160ms cubic-bezier(.23,1,.32,1),box-shadow 160ms ease,background-color 160ms ease;
+}
+.cal-opz:active{transform:scale(.98)}
+.cal-opz input{position:absolute;opacity:0;pointer-events:none}
+.cal-opz .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cal-opz .title{font-weight:700}
+.cal-opz .muted{font-size:calc(13px * var(--st))}
+.cal-opz i{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);transition:box-shadow 160ms ease}
+.cal-opz.on{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal-opz.on i{box-shadow:inset 0 0 0 7px var(--accent)}
+.cal-opz:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.cal-opz,.cal-opz i{transition-duration:1ms}}
+
 /* ===== card torneo "44d" (Prossimi tornei): valori dal documento di Claude Design ===== */
 .tc-lista{gap:20px}
 .tc{
@@ -2127,6 +2145,52 @@ function gcalLink(ev) {
     "&dates=" + ini + "/" + fin +
     "&location=" + encodeURIComponent(ev.luogo) +
     "&details=" + encodeURIComponent(S.settings.club);
+}
+/* Calendario su cui salvare gli impegni: "google" (link a Google Calendar) o "apple"
+   (file .ics, che l'iPhone apre direttamente nell'app Calendario). Si sceglie in
+   Impostazioni ed è salvato per livello, cosi ogni ruolo tiene la sua scelta. */
+const calScelto = () => ((S.settings.calendari || {})[S.ruoloCorrente] === "apple" ? "apple" : "google");
+const suIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+/* un impegno solo in formato .ics; ev.tutto = evento di tutta la giornata (i tornei) */
+function icsEvento(ev) {
+  const e = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const d = ev.data.replace(/-/g, "");
+  let ini, fin;
+  if (ev.tutto) {
+    const dopo = new Date(ev.data + "T00:00:00"); dopo.setDate(dopo.getDate() + 1);
+    ini = "DTSTART;VALUE=DATE:" + d; fin = "DTEND;VALUE=DATE:" + isoLocal(dopo).replace(/-/g, "");
+  } else {
+    ini = "DTSTART:" + d + "T" + ev.ora.replace(":", "") + "00";
+    fin = "DTEND:" + d + "T" + (ev.fine || addMin(ev.ora, 90)).replace(":", "") + "00";
+  }
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Rugby Parco Sempione//IT", "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT", "UID:rps-" + d + "-" + Math.random().toString(36).slice(2, 10) + "@rugbyparcosempione",
+    "DTSTAMP:" + stamp, ini, fin, "SUMMARY:" + e(ev.titolo),
+    ...(ev.luogo ? ["LOCATION:" + e(ev.luogo)] : []), "DESCRIPTION:" + e(S.settings.club),
+    "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+}
+/* apre un file .ics: sull'iPhone Safari mostra subito "Aggiungi al calendario";
+   altrove lo scarica, e aprendolo si importa nel calendario del dispositivo */
+function apriIcs(testo, nomeFile) {
+  if (suIOS()) { location.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(testo); return; }
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(new Blob([testo], { type: "text/calendar" }));
+  link.download = nomeFile;
+  document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+}
+/* attributi del link "salva in calendario" di un impegno, secondo la scelta del livello */
+function calAttr(ev) {
+  if (calScelto() === "apple") return `href="#" data-act="calIcs" data-arg="${esc(JSON.stringify(ev))}"`;
+  return `href="${esc(ev.tutto ? gcalTuttoGiorno(ev) : gcalLink(ev))}" target="_blank" rel="noopener"`;
+}
+const calNome = () => calScelto() === "apple" ? "Calendario di iPhone" : "Google Calendar";
+function gcalTuttoGiorno(ev) {
+  const dopo = new Date(ev.data + "T00:00:00"); dopo.setDate(dopo.getDate() + 1);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(ev.titolo) +
+    "&dates=" + ev.data.replace(/-/g, "") + "/" + isoLocal(dopo).replace(/-/g, "") +
+    "&location=" + encodeURIComponent(ev.luogo || "") + "&details=" + encodeURIComponent(S.settings.club);
 }
 /* File calendario .ics: allenamenti ricorrenti (fino a fine stagione), tornei e partite */
 function icsAllenatore(a) {
@@ -3840,8 +3904,8 @@ function cardAspetto() {
 function impegniMiaHTML(voci, a) {
   if (!voci.length) return `<div class="empty">Nessun impegno in vista per le tue categorie.</div>`;
   const piuCat = (a.categorie || []).length > 1;
-  const cal = (ev, suColore) => `<a class="imp-cal${suColore ? " su-colore" : ""}" href="${gcalLink(ev)}" target="_blank" rel="noopener"
-       aria-label="Aggiungi a Google Calendar" title="Aggiungi a Google Calendar">${ic("calplus")}</a>`;
+  const cal = (ev, suColore) => `<a class="imp-cal${suColore ? " su-colore" : ""}" ${calAttr({ data: ev.data, ora: ev.ora, fine: ev.fine, titolo: ev.titolo, luogo: ev.luogo })}
+       aria-label="Aggiungi a ${calNome()}" title="Aggiungi a ${calNome()}">${ic("calplus")}</a>`;
   return `<div class="imp-tempo">
     <span class="imp-linea" aria-hidden="true"></span>
     ${voci.map((ev, i) => {
@@ -3885,7 +3949,9 @@ function vMio() {
   // i Genitori (L5) non hanno una "mia area" vera (niente presenze/impegni da allenatore):
   // qui arrivano solo dal pallino del livello nell'intestazione, per poter tornare a un
   // altro ruolo — quindi solo foto e banner del ruolo, nient'altro sotto.
-  if (ruoloCorrente().livello === 5) return miaTestataHTML(a);
+  if (ruoloCorrente().livello === 5) return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
+    <button class="altro-item card" data-act="go" data-arg='{"name":"impostazioni"}'>${ic("ingranaggio")}<span>Impostazioni<span class="d">Calendario su cui salvare gli impegni</span></span></button>
+  </div>`;
   if (!a) return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
     <div class="card">
       <h3 style="font-size:calc(17px * var(--st));margin-bottom:6px">Chi sei?</h3>
@@ -3921,7 +3987,7 @@ function vMio() {
         <button class="btn small" data-act="mioIcs" data-arg="${a.id}">${ic("calplus")}Calendario</button>
       </div>
       ${impegniMiaHTML(imp.slice(0, 12), a)}
-      <p class="small" style="margin-top:10px">Il pulsante accanto a ogni impegno lo aggiunge a Google Calendar. Con “Scarica calendario” ottieni invece un file da importare una volta sola nel calendario del telefono (Google, iPhone o Outlook): contiene gli allenamenti settimanali fino a fine stagione, i tornei e le partite.</p>
+      <p class="small" style="margin-top:10px">Il pulsante accanto a ogni impegno lo aggiunge a ${calNome()} (puoi cambiarlo in Impostazioni). Con “Calendario” ottieni invece un file da importare una volta sola nel calendario del telefono (Google, iPhone o Outlook): contiene gli allenamenti settimanali fino a fine stagione, i tornei e le partite.</p>
     </div>
 
   </div>`;
@@ -3933,13 +3999,15 @@ ACT.mioScegli = id => {
 };
 ACT.mioIcs = id => {
   const a = getCoach(id);
-  const blob = new Blob([icsAllenatore(a)], { type: "text/calendar" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "calendario-rugby-" + a.nome.toLowerCase().replace(/\s+/g, "-") + ".ics";
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 5000);
-  toast("Calendario scaricato: aprilo per importarlo");
+  apriIcs(icsAllenatore(a), "calendario-rugby-" + a.nome.toLowerCase().replace(/\s+/g, "-") + ".ics");
+  if (!suIOS()) toast("Calendario scaricato: aprilo per importarlo");
+};
+/* "salva in calendario" quando il livello ha scelto il calendario di iPhone */
+ACT.calIcs = (arg, el, e) => {
+  e?.preventDefault();
+  const ev = JSON.parse(arg);
+  apriIcs(icsEvento(ev), (ev.titolo || "impegno").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".ics");
+  if (!suIOS()) toast("File del calendario scaricato: aprilo per aggiungere l'impegno");
 };
 
 /* =====================================================================
@@ -4625,13 +4693,9 @@ function torneoCard44(x) {
   const colori = cats.map(c => coloreCat(c, S.categorie.indexOf(c)));
   const n = colori.length || 1;
   const fasce = (colori.length ? colori : ["#0B1B26"]).map((c, i) => `${c} ${(i * 100 / n).toFixed(3)}% ${((i + 1) * 100 / n).toFixed(3)}%`).join(", ");
-  const ymd = x.data.replace(/-/g, "");
-  const dopo = new Date(d); dopo.setDate(dopo.getDate() + 1);
-  const ymd2 = isoLocal(dopo).replace(/-/g, "");
-  const cal = p
-    ? gcalLink({ data: p.data, ora: p.ora || "10:00", fine: addMin(p.ora || "10:00", 120), titolo: nome + (p.collegaTorneo ? " · " + p.avversario : ""), luogo })
-    : "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(nome) +
-      "&dates=" + ymd + "/" + ymd2 + "&location=" + encodeURIComponent(luogo) + "&details=" + encodeURIComponent(S.settings.club);
+  const cal = calAttr(p
+    ? { data: p.data, ora: p.ora || "10:00", fine: addMin(p.ora || "10:00", 120), titolo: nome + (p.collegaTorneo ? " · " + p.avversario : ""), luogo }
+    : { data: x.data, tutto: true, titolo: nome, luogo });
   const mappa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(luogo || nome);
   return `
   <div class="tc">
@@ -4656,7 +4720,7 @@ function torneoCard44(x) {
       </div>
       <div class="tc-r tc-r3">
         ${p ? `<button class="tc-btn scuro" data-act="go" data-arg="${esc(JSON.stringify({ name: "partita", id: p.id }))}">Partita</button>` : ""}
-        <a class="tc-btn${p ? "" : " scuro"}" href="${cal}" target="_blank" rel="noopener">Calendario</a>
+        <a class="tc-btn${p ? "" : " scuro"}" ${cal}>Calendario</a>
         <a class="tc-btn" href="${mappa}" target="_blank" rel="noopener">Mappa</a>
       </div>
     </div>
@@ -5187,14 +5251,50 @@ ACT.contattoDel = id => confirmModal("Eliminare questo contatto?", () => {
 /* =====================================================================
    IMPOSTAZIONI / RUOLI
    ===================================================================== */
+/* card "Calendario": dove salvano gli impegni i pulsanti calendario dell'app
+   (La mia area, card dei tornei). Una scelta per livello. */
+function cardCalendario() {
+  const r = ruoloCorrente(), v = calScelto();
+  const opz = (k, t, d) => `
+        <label class="cal-opz${v === k ? " on" : ""}">
+          <input type="radio" name="calScelta" value="${k}" ${v === k ? "checked" : ""} data-act="calScegli" data-arg="${k}">
+          <span class="grow"><span class="title">${t}</span><span class="muted">${d}</span></span>
+          <i aria-hidden="true"></i>
+        </label>`;
+  return `
+  <div>
+    <div class="sec-head"><h2>Calendario</h2></div>
+    <div class="card stack">
+      <div class="small">Quando premi un pulsante <b>Calendario</b>, salva l'impegno su:</div>
+      <div class="stack cal-scelte" role="radiogroup" aria-label="Calendario su cui salvare gli impegni">
+        ${opz("google", "Google Calendar", "Si apre Google Calendar con l'impegno già compilato")}
+        ${opz("apple", "Calendario di iPhone", "L'iPhone chiede subito se aggiungerlo al suo Calendario")}
+      </div>
+      <p class="small">Vale per il livello che stai usando ora: L${r.livello} · ${esc(r.nome)}.</p>
+    </div>
+  </div>`;
+}
+ACT.calScegli = k => {
+  S.settings.calendari = { ...(S.settings.calendari || {}), [S.ruoloCorrente]: k === "apple" ? "apple" : "google" };
+  save();
+  document.querySelectorAll(".cal-opz").forEach(l => l.classList.toggle("on", l.querySelector("input").value === k));
+  toast("Gli impegni andranno su " + calNome());
+};
 function vImpostazioni() {
   const canRoles = can("ruoli");
+  // i Genitori vedono solo la scelta del calendario
+  if (ruoloCorrente().livello === 5) return `<div class="stack-lg">
+    <div><h1 class="page-title lungo">Impostazioni</h1></div>
+    ${cardCalendario()}
+  </div>`;
   return `<div class="stack-lg">
     <div>
       <h1 class="page-title lungo">Impostazioni</h1>
     </div>
 
     ${cardAspetto()}
+
+    ${cardCalendario()}
 
     <div>
       <div class="sec-head"><h2>I 5 ruoli</h2></div>
@@ -5390,7 +5490,7 @@ function renderChrome() {
   // raggiungibile anche per loro (in versione ridotta, vedi vMio) perché è l'unica via per
   // tornare a un altro livello: senza questa eccezione, una volta scelto L5 dal pallino
   // dell'intestazione non si poteva più uscirne.
-  if (VIEW.name !== "mio" && !canSee(NAV_PARENT[VIEW.name] || "home")) VIEW = { name: "home" };
+  if (VIEW.name !== "mio" && VIEW.name !== "impostazioni" && !canSee(NAV_PARENT[VIEW.name] || "home")) VIEW = { name: "home" };
   if (VIEW.name === "diario" && !vedeDiario()) VIEW = { name: "categoria", id: VIEW.cat };
   const r = ruoloCorrente();
   document.getElementById("topbarMain").innerHTML = headerMainHTML(r);
