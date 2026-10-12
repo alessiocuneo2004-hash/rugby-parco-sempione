@@ -533,6 +533,49 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* card torneo dell'elenco "Prossimi tornei": padding proprio e pastiglie categoria
    ancorate a destra (era inline in 06-views.js) */
 .torneo-card{padding:12px 14px}
+/* Risultati: card di un torneo giocato, con un blocco per categoria */
+.ris-torneo{padding:12px 14px 6px;display:flex;flex-direction:column}
+.ris-testa{display:flex;align-items:center;gap:11px;padding-bottom:10px}
+.ris-testa .data-grande{width:54px;padding:8px 0 7px;border-radius:14px;background:var(--surface-2)}
+.ris-testa .data-grande .giorno-n{font-size:calc(30px * var(--st-g))}
+.ris-testa .data-grande .muted{font-size:calc(12px * var(--st));line-height:1.2}
+.ris-cat{border-top:1px solid var(--line);padding:10px 0 8px}
+.ris-cat-testa{display:flex;align-items:center;gap:8px;min-height:36px}
+.ris-bilancio{font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.08em;color:var(--ink-3)}
+/* posizione finale: numero grande in navy, "su 8" piccolo */
+.ris-pos{display:flex;align-items:baseline;gap:5px;flex:none;border-radius:12px;padding:2px 6px}
+.ris-pos.clickable{cursor:pointer}
+.ris-pos .l{font-family:var(--font-mono);font-size:calc(10.5px * var(--st));letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.ris-pos .n{font-family:var(--font-display);font-weight:800;font-size:calc(30px * var(--st-g));line-height:.9;color:var(--titolo)}
+.ris-pos .su{font-family:var(--font-data);font-size:calc(13px * var(--st));color:var(--ink-3)}
+.ris-cat-testa .grow{flex:1;min-width:0}
+.btn.small.ris-pos-btn{min-height:34px;padding:5px 10px;font-size:calc(12px * var(--st));gap:5px;border-radius:12px}
+.ris-pos-btn svg{width:14px;height:14px}
+.ris-partite{display:flex;flex-direction:column;margin-top:4px}
+.ris-partita{
+  display:grid;grid-template-columns:44px minmax(0,1fr) auto 26px;align-items:center;gap:8px;
+  padding:7px 4px;border-radius:10px;cursor:pointer;
+}
+.ris-partita+.ris-partita{border-top:1px dashed var(--line)}
+.ris-partita .ora{font-family:var(--font-mono);font-size:calc(11.5px * var(--st));color:var(--ink-3)}
+.ris-partita .avv{font-family:var(--font-data);font-size:calc(16px * var(--st));color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ris-partita .pts{font-family:var(--font-display);font-weight:800;font-size:calc(22px * var(--st-g));line-height:1;color:var(--ink);white-space:nowrap}
+.ris-partita .pts i{font-style:normal;color:var(--ink-3);margin:0 3px}
+.ris-partita .senza{grid-column:3 / 5;font-size:calc(13px * var(--st))}
+.esito{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--font);font-weight:700;font-size:calc(11px * var(--st))}
+.esito.good{background:var(--good-soft);color:var(--good)}
+.esito.bad{background:var(--bad-soft);color:var(--bad)}
+.esito.warn{background:var(--warn-soft);color:var(--warn)}
+.ris-vuoto{padding:6px 4px;font-size:calc(14px * var(--st))}
+.ris-aggiungi{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-top:4px;min-height:36px;
+  border:0;background:none;padding:6px 4px;cursor:pointer;color:var(--accent-soft-ink);
+  font-family:var(--font);font-weight:700;font-size:calc(13px * var(--st));letter-spacing:.06em;text-transform:uppercase;
+}
+.ris-aggiungi svg{width:15px;height:15px}
+.ris-altri{width:100%;gap:10px}
+.ris-altri .muted{font-size:calc(13px * var(--st));text-transform:none;letter-spacing:0}
 /* separatore del mese nell'elenco dei tornei: nome del mese a macchina + filetto sottile,
    come i titoli delle sezioni della Home. Più aria sopra che sotto: chiude il mese prima. */
 .mese-sep{display:flex;align-items:center;gap:10px;margin:14px 2px 2px}
@@ -1456,6 +1499,10 @@ div.mia-testa-io{cursor:default}
 .figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{
   transform:scale(.97);transition-duration:.1s;
 }
+.ris-partita,.ris-pos.clickable{transition:transform .16s var(--ease-out),background-color .12s ease-out}
+.ris-partita:active,.ris-pos.clickable:active{transform:scale(.98);background:var(--surface-2);transition-duration:.1s}
+@media (hover:hover) and (pointer:fine){.ris-partita:hover{background:var(--surface-2)}}
+@media (prefers-reduced-motion:reduce){.ris-partita:active,.ris-pos.clickable:active{transform:none}}
 .figlio-com.clickable{transition:transform .16s var(--ease-out)}
 .figlio-com.clickable:active{transform:scale(.98);transition-duration:.1s}
 @media (prefers-reduced-motion:reduce){.figlio-com.clickable:active{transform:none;filter:brightness(.96)}}
@@ -1826,7 +1873,7 @@ function load() {
       if (d && d.version === 1) return migrate(d);
     }
   } catch (e) { /* dati corrotti: si riparte dalla demo */ }
-  return aggiungiTorneiEsempio(defaultData());
+  return aggiungiRisultatiEsempio(aggiungiTorneiEsempio(defaultData()));
 }
 /* tornei d'esempio (ottobre-gennaio), per vedere l'elenco raggruppato per mese.
    Stesso nome e stessa data in più categorie = un torneo solo con più etichette. */
@@ -1852,6 +1899,44 @@ function aggiungiTorneiEsempio(d) {
   d.settings.torneiEsempio = true;
   return d;
 }
+/* risultati d'esempio: i tornei già giocati hanno più partite per categoria e, dove ha
+   senso, la posizione finale (scelta da chi gestisce i tornei; facoltativa). Le partite
+   sono collegate al torneo con collegaTorneo = "nome|data". Una volta sola per dispositivo. */
+function aggiungiRisultatiEsempio(d) {
+  if (d.settings.risultatiEsempio) return d;
+  const cat = n => d.categorie.find(c => c.nome === n);
+  const torneo = (n, nome, data) => cat(n)?.tornei.find(t => t.nome === nome && t.data === data);
+  const partita = (n, nome, data, ora, avv, noi, loro, luogo) => {
+    const c = cat(n), t = torneo(n, nome, data);
+    if (!c || !t) return;
+    const k = nome + "|" + data;
+    if (d.partite.some(x => x.collegaTorneo === k && x.categoria === c.id && x.avversario === avv)) return;
+    d.partite.push({ id: uid(), data, ora, categoria: c.id, avversario: avv, luogo: luogo || t.luogo || "", casa: false,
+      tipo: "Torneo", stato: "terminata", puntiNoi: noi, puntiLoro: loro, convocati: [], note: "", info: [], collegaTorneo: k });
+  };
+  // la vecchia "partita" contro il torneo della Madonnina era solo un segnaposto: diventa
+  // le tre partite vere del torneo
+  d.partite = d.partite.filter(x => !(x.avversario === "Torneo della Madonnina" && x.data === "2026-09-20"));
+  partita("U10", "Torneo della Madonnina", "2026-09-20", "09:30", "Rugby Milano", 3, 2);
+  partita("U10", "Torneo della Madonnina", "2026-09-20", "10:30", "CUS Milano", 1, 4);
+  partita("U10", "Torneo della Madonnina", "2026-09-20", "11:30", "Rugby Lainate", 5, 0);
+  const m = torneo("U10", "Torneo della Madonnina", "2026-09-20"); if (m) { m.posizione = 2; m.squadre = 6; }
+  // Monza: la partita già in calendario contro Rugby Monza diventa la finale
+  const mz = d.partite.find(x => x.collegaTorneo === "Torneo Città di Monza|2026-10-04" && x.avversario === "Rugby Monza");
+  if (mz) Object.assign(mz, { stato: "terminata", puntiNoi: 4, puntiLoro: 3, ora: "15:00", note: "Finale" });
+  partita("U12", "Torneo Città di Monza", "2026-10-04", "10:00", "Rugby Seregno", 2, 2);
+  partita("U12", "Torneo Città di Monza", "2026-10-04", "11:30", "Amatori Union", 6, 1);
+  const mo = torneo("U12", "Torneo Città di Monza", "2026-10-04"); if (mo) { mo.posizione = 1; mo.squadre = 6; }
+  // Raggruppamento FIR n.1: stesso torneo per U6 (Giuriati) e U10 (Segrate)
+  partita("U10", "Raggruppamento FIR n.1", "2026-10-11", "09:30", "Rugby Segrate", 3, 3);
+  partita("U10", "Raggruppamento FIR n.1", "2026-10-11", "10:45", "Rugby Cernusco", 5, 2);
+  partita("U10", "Raggruppamento FIR n.1", "2026-10-11", "12:00", "ASR Milano", 2, 4);
+  const r1 = torneo("U10", "Raggruppamento FIR n.1", "2026-10-11"); if (r1) { r1.posizione = 3; r1.squadre = 8; }
+  partita("U6", "Raggruppamento FIR n.1", "2026-10-11", "10:00", "Rugby Milano", 2, 1);
+  partita("U6", "Raggruppamento FIR n.1", "2026-10-11", "11:00", "Amatori Union", 1, 1);
+  d.settings.risultatiEsempio = true;
+  return d;
+}
 function migrate(d) {
   // aggiornamenti leggeri per dati salvati con versioni precedenti dell'app
   const r5 = d.ruoli && d.ruoli.find(r => r.livello === 5);
@@ -1866,7 +1951,7 @@ function migrate(d) {
   d.settings.profiloAllenatore = d.settings.profiloAllenatore ?? "";
   d.settings.menu = d.settings.menu ?? "classico";
   d.settings.provaCaricamento = Number(d.settings.provaCaricamento) || 0;
-  return aggiungiTorneiEsempio(d);
+  return aggiungiRisultatiEsempio(aggiungiTorneiEsempio(d));
 }
 function save() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
@@ -1997,6 +2082,23 @@ function torneiInArrivo() {
     map.get(k).cats.push(c);
   }
   return [...map.values()].sort((a, b) => a.data < b.data ? -1 : 1);
+}
+
+/* tornei già giocati, dal più recente: un torneo (nome+data) può avere più categorie, ognuna
+   con il suo luogo, la sua posizione finale e le sue partite */
+function torneiPassati() {
+  const oggi = todayISO();
+  const map = new Map();
+  for (const c of S.categorie) for (const t of c.tornei) {
+    if (t.data >= oggi) continue;
+    const k = t.nome + "|" + t.data;
+    if (!map.has(k)) map.set(k, { k, nome: t.nome, data: t.data, luogo: t.luogo, cats: [] });
+    const partite = S.partite.filter(p => p.categoria === c.id &&
+      (p.collegaTorneo === k || (!p.collegaTorneo && p.data === t.data && p.avversario === t.nome)))
+      .sort((a, b) => (a.ora || "") < (b.ora || "") ? -1 : 1);
+    map.get(k).cats.push({ c, t, partite });
+  }
+  return [...map.values()].sort((a, b) => a.data < b.data ? 1 : -1);
 }
 
 /* ---------- scorciatoie dati ---------- */
@@ -4310,6 +4412,98 @@ function conMesi(voci, card) {
     return testa + card(x);
   }).join("");
 }
+/* card di un torneo già giocato, nei Risultati: in testa data, nome e luogo; sotto un
+   blocco per ogni categoria che c'era, con la posizione finale (se indicata) e l'elenco
+   di tutte le partite giocate. Ogni partita porta alla sua scheda. */
+const ordinale = n => n + "°";
+function torneoRisultatoHTML(t, extra) {
+  const edit = can("partite");
+  const luoghi = [...new Set(t.cats.map(x => x.t.luogo).filter(Boolean))];
+  return `
+  <div class="card ris-torneo${extra || ""}">
+    <div class="ris-testa">
+      ${dataGrande(t.data)}
+      <div class="grow">
+        <div class="title maiusc">${esc(t.nome)}</div>
+        <div class="muted">${ic("place", "icon-inline")}${esc(luoghi.length === 1 ? luoghi[0] : luoghi.length ? luoghi.join(" · ") : "Luogo non indicato")}</div>
+      </div>
+    </div>
+    ${t.cats.map(({ c, t: tc, partite }) => {
+      const arg = esc(JSON.stringify({ cat: c.id, id: tc.id }));
+      const v = partite.filter(p => p.stato === "terminata" && p.puntiNoi > p.puntiLoro).length;
+      const pa = partite.filter(p => p.stato === "terminata" && p.puntiNoi === p.puntiLoro).length;
+      const sc = partite.filter(p => p.stato === "terminata" && p.puntiNoi < p.puntiLoro).length;
+      return `
+      <div class="ris-cat">
+        <div class="ris-cat-testa">
+          ${pillCat(c.id, true, true)}
+          ${partite.length ? `<span class="ris-bilancio num">${v}V · ${pa}P · ${sc}S</span>` : ""}
+          <span class="grow"></span>
+          ${tc.posizione ? `
+          <span class="ris-pos${edit ? " clickable" : ""}" ${edit ? `data-act="torneoPos" data-arg="${arg}" role="button" tabindex="0" title="Modifica posizione"` : ""}>
+            <span class="l">Posizione</span><span class="n">${ordinale(tc.posizione)}</span>${tc.squadre ? `<span class="su">su ${tc.squadre}</span>` : ""}
+          </span>` : edit ? `<button class="btn small ris-pos-btn" data-act="torneoPos" data-arg="${arg}">${ic("plus")}Posizione</button>` : ""}
+        </div>
+        <div class="ris-partite">
+          ${partite.map(p => {
+            const done = p.stato === "terminata";
+            const esito = done ? (p.puntiNoi > p.puntiLoro ? "good" : p.puntiNoi < p.puntiLoro ? "bad" : "warn") : "";
+            return `
+            <div class="ris-partita clickable" data-act="go" data-arg="${esc(JSON.stringify({ name: "partita", id: p.id }))}" role="button" tabindex="0">
+              <span class="ora num">${esc(p.ora || "")}</span>
+              <span class="avv">${esc(p.avversario)}</span>
+              ${done ? `<span class="pts num">${p.puntiNoi ?? 0}<i>–</i>${p.puntiLoro ?? 0}</span><span class="esito ${esito}" title="${esito === "good" ? "Vittoria" : esito === "bad" ? "Sconfitta" : "Pareggio"}">${esito === "good" ? "V" : esito === "bad" ? "S" : "P"}</span>`
+                     : `<span class="muted senza">senza risultato</span>`}
+            </div>`;
+          }).join("") || `<div class="ris-vuoto muted">Nessuna partita registrata.</div>`}
+          ${edit ? `<button class="ris-aggiungi" data-act="torneoPartita" data-arg="${arg}">${ic("plus")}Aggiungi partita</button>` : ""}
+        </div>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+ACT.risAltri = () => { VIEW.risPrima = VIEW.risN || 4; VIEW.risN = (VIEW.risN || 4) + 4; render(); VIEW.risPrima = null; };
+/* posizione finale di una categoria in un torneo: facoltativa, la decide chi gestisce i tornei */
+ACT.torneoPos = arg => {
+  const { cat, id } = JSON.parse(arg);
+  const c = getCat(cat), t = c?.tornei.find(x => x.id === id);
+  if (!t) return;
+  openModal({
+    title: "Posizione finale " + siglaCat(c),
+    info: esc(t.nome) + " · " + fmtDate(t.data) + ". Lascia vuoto se il torneo non ha una classifica.",
+    fields: [
+      { key: "posizione", label: "Posizione", type: "number", value: t.posizione ?? "", min: 1, step: 1, placeholder: "es. 2" },
+      { key: "squadre", label: "Squadre partecipanti (facoltativo)", type: "number", value: t.squadre ?? "", min: 1, step: 1, placeholder: "es. 8" }
+    ],
+    onSave: v => {
+      t.posizione = v.posizione > 0 ? Math.round(v.posizione) : null;
+      t.squadre = v.squadre > 0 ? Math.round(v.squadre) : null;
+      save(); render(); toast(t.posizione ? "Posizione salvata" : "Posizione tolta");
+    }
+  });
+};
+/* risultato di una partita del torneo, inserito direttamente: nasce già terminata */
+ACT.torneoPartita = arg => {
+  const { cat, id } = JSON.parse(arg);
+  const c = getCat(cat), t = c?.tornei.find(x => x.id === id);
+  if (!t) return;
+  openModal({
+    title: "Partita del torneo " + siglaCat(c),
+    info: esc(t.nome) + " · " + fmtDate(t.data),
+    fields: [
+      { key: "avversario", label: "Avversario", required: true },
+      { key: "ora", label: "Ora", type: "time", value: "10:00" },
+      { key: "puntiNoi", label: "Mete " + S.settings.club.replace("Rugby ", ""), type: "number", min: 0, step: 1, value: 0 },
+      { key: "puntiLoro", label: "Mete avversario", type: "number", min: 0, step: 1, value: 0 }
+    ],
+    onSave: v => {
+      S.partite.push({ id: uid(), data: t.data, ora: v.ora, categoria: c.id, avversario: v.avversario, luogo: t.luogo || "",
+        casa: false, tipo: "Torneo", stato: "terminata", puntiNoi: v.puntiNoi ?? 0, puntiLoro: v.puntiLoro ?? 0,
+        convocati: [], note: "", info: [], collegaTorneo: t.nome + "|" + t.data });
+      save(); render(); toast("Partita aggiunta");
+    }
+  });
+};
 function vPartite() {
   const filtro = VIEW.cat || "all";
   const oggi = todayISO();
@@ -4321,8 +4515,17 @@ function vPartite() {
       (a.stato === "in_corso" ? 0 : 1) - (b.stato === "in_corso" ? 0 : 1) ||
       ((a.ora || "") < (b.ora || "") ? -1 : 1));
   const inCampoIds = new Set(inCampo.map(p => p.id));
-  const prossime = match.filter(p => p.stato === "programmata" && !inCampoIds.has(p.id)).sort((a, b) => a.data < b.data ? -1 : 1);
-  const finite = match.filter(p => p.stato === "terminata" && !inCampoIds.has(p.id)).sort((a, b) => a.data < b.data ? 1 : -1);
+  const prossime = match.filter(p => p.stato === "programmata" && p.data >= oggi && !inCampoIds.has(p.id)).sort((a, b) => a.data < b.data ? -1 : 1);
+  // risultati: i tornei già giocati (con tutte le loro partite) e le partite singole finite
+  const passati = torneiPassati()
+    .map(t => ({ ...t, cats: t.cats.filter(x => filtro === "all" || x.c.id === filtro) }))
+    .filter(t => t.cats.length);
+  const nelTorneo = new Set(passati.flatMap(t => t.cats.flatMap(x => x.partite.map(p => p.id))));
+  const finite = match.filter(p => p.stato === "terminata" && !inCampoIds.has(p.id) && !nelTorneo.has(p.id))
+    .sort((a, b) => a.data < b.data ? 1 : -1);
+  const risultati = [...passati.map(t => ({ data: t.data, torneo: t })), ...finite.map(p => ({ data: p.data, partita: p }))]
+    .sort((a, b) => a.data < b.data ? 1 : -1);
+  const quanti = VIEW.risN || 4;
 
   const matchCard = p => {
     const isLive = p.stato === "in_corso";
@@ -4405,7 +4608,13 @@ function vPartite() {
     </div>
     <div>
       <div class="sec-head"><h2>Risultati</h2></div>
-      <div class="stack">${finite.map(matchCard).join("") || `<div class="empty">Ancora nessun risultato.</div>`}</div>
+      <div class="stack">
+        ${risultati.slice(0, quanti).map((x, i) => {
+          const nuovo = i >= (VIEW.risPrima || quanti) ? " entra" : "";
+          return x.torneo ? torneoRisultatoHTML(x.torneo, nuovo) : matchCard(x.partita).replace('class="card clickable"', `class="card clickable${nuovo}"`);
+        }).join("") || `<div class="empty">Ancora nessun risultato.</div>`}
+        ${risultati.length > quanti ? `<button class="btn ris-altri" data-act="risAltri">Carica altri <span class="muted num">${Math.min(4, risultati.length - quanti)} di ${risultati.length - quanti}</span></button>` : ""}
+      </div>
     </div>
   </div>`;
 }
@@ -4599,7 +4808,9 @@ ACT.matchEdit = id => {
           // altrimenti salvare senza toccare il campo lo scollegherebbe senza volerlo
           const passato = p?.collegaTorneo && !prossimi.some(o => o.v === p.collegaTorneo)
             ? [{ v: p.collegaTorneo, t: p.collegaTorneo.split("|")[0] + " (passato)" }] : [];
-          return [{ v: "", t: "Nessuno partita singola" }, ...prossimi, ...passato];
+          const giocati = torneiPassati().filter(t => !prossimi.some(o => o.v === t.k) && t.k !== p?.collegaTorneo)
+            .map(t => ({ v: t.k, t: t.nome + " " + fmtDate(t.data) + " (giocato)" }));
+          return [{ v: "", t: "Nessuno partita singola" }, ...prossimi, ...passato, ...giocati];
         })()
       },
       { key: "data", label: "Data", type: "date", value: p?.data || todayISO(), required: true },
@@ -4933,7 +5144,7 @@ ACT.exportData = () => {
 };
 ACT.importPick = () => document.getElementById("importFile").click();
 ACT.resetData = () => confirmModal("Sostituire TUTTI i dati attuali con quelli demo iniziali? L'operazione non è reversibile (scarica prima un backup se vuoi conservarli).", () => {
-  S = aggiungiTorneiEsempio(defaultData()); save(); go({ name: "home" }); toast("Dati demo ripristinati");
+  S = aggiungiRisultatiEsempio(aggiungiTorneiEsempio(defaultData())); save(); go({ name: "home" }); toast("Dati demo ripristinati");
 });
 
 /* =====================================================================
