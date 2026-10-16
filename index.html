@@ -760,7 +760,10 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 .stack>.mese-sep:first-child{margin-top:0}
 /* tra le card torneo (gap 20px): 50px dalla card sopra al nome del mese, 15px dal nome alla card sotto */
 .tc-lista>.mese-sep{margin:30px 2px -5px}
-.tc-lista>.mese-sep:first-child{margin-top:0}
+/* 50px anche dal titolo della sezione ("PROSSIMI TORNEI") al nome del primo mese; nella
+   categoria il titolo ha accanto il pulsante "+", che alza la riga di 4px */
+.tc-lista>.mese-sep:first-child{margin-top:42px}
+.sec-head:has(>button,>.btn)+.tc-lista>.mese-sep:first-child{margin-top:38px}
 .mese-sep span{
   flex:none;font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-4);
