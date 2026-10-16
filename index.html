@@ -1433,6 +1433,9 @@ html[data-senza-topbar] .topbar{display:none}
 .figlio-com{display:flex;align-items:center;gap:13px;padding:0 16px}
 /* elenco delle comunicazioni nella Home: 14px fra una e l'altra (prima erano 2px) */
 .home-com-lista{display:flex;flex-direction:column;gap:14px}
+/* Home: le comunicazioni hanno lo stesso stile della pagina categoria (card com-card),
+   ma il testo è tagliato a 3 righe; un tocco apre il foglio con il testo intero */
+.com-taglio{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
 .home-sezione.com>.figlio-avviso{margin-bottom:12px}
 /* testo tagliato: 3 righe nella comunicazione in evidenza, 2 nelle note; il resto si legge
    toccando la card (foglio dal basso) */
@@ -3344,12 +3347,6 @@ function homeSezioniHTML(avviso) {
   const coms = S.comunicazioni.filter(vedeCom).sort((a, b) =>
     (b.fissata - a.fissata) || (a.data < b.data ? 1 : -1));
   const nuove = coms.filter(c => giorniFa(c.data) <= 7).length;
-  const azioni = c => can("comunicazioni") ? `
-    <span class="row-actions figlio-com-azioni">
-      ${btnIcon("pin", "comPin", c.id, "", "Fissa in evidenza")}
-      ${btnIcon("edit", "comEdit", c.id, "", "Modifica")}
-      ${btnIcon("trash", "comDel", c.id, "danger", "Elimina")}
-    </span>` : "";
 
   return `<div class="home-sezioni">
     <div class="home-sezione">
@@ -3388,23 +3385,19 @@ function homeSezioniHTML(avviso) {
       </div>
       ${avviso}
       <div class="home-com-lista">
-      ${coms.length ? coms.slice(0, 3).map(c => c.fissata ? `
-        <div class="figlio-com evidenza clickable" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
-          <span class="figlio-com-barra lime"></span>
-          <div class="grow" style="flex:1;min-width:0">
-            <div class="figlio-com-testa">${etichettaDestinatari(c)}<span class="figlio-com-data">${tempoRelativo(c.data)}</span></div>
-            <div class="figlio-com-titolo">${esc(c.titolo)}</div>
-            <div class="figlio-com-corpo">${esc(c.corpo)}</div>
-            ${azioni(c)}
+      ${coms.length ? coms.slice(0, 3).map(c => `
+        <div class="card com-card clickable ${c.fissata ? "pinned" : ""}" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
+          <div class="row">
+            ${c.fissata ? `<span class="pill tag">${ic("pin")} In evidenza</span>` : ""}
+            ${etichettaDestinatari(c)}
+            <span class="muted num">${fmtDate(c.data)}</span>
+            ${can("comunicazioni") ? `<span class="row-actions">
+              ${btnIcon("edit", "comEdit", c.id, "", "Modifica")}
+              ${btnIcon("trash", "comDel", c.id, "danger", "Elimina")}
+            </span>` : `<span class="grow"></span>`}
           </div>
-        </div>` : `
-        <div class="figlio-com clickable" data-act="comApri" data-arg="${c.id}" role="button" tabindex="0" aria-label="Leggi: ${esc(c.titolo)}">
-          <span class="figlio-com-barra"></span>
-          <div class="grow" style="flex:1;min-width:0">
-            <div class="figlio-com-testa">${etichettaDestinatari(c)}<span class="figlio-com-data">${tempoRelativo(c.data)}</span></div>
-            <div class="figlio-com-nota">${esc(c.corpo || c.titolo)}</div>
-            ${azioni(c)}
-          </div>
+          <h3>${esc(c.titolo)}</h3>
+          ${c.corpo ? `<div class="body com-taglio">${esc(c.corpo)}</div>` : ""}
         </div>`).join("") :
         `<div class="empty">Nessuna comunicazione. ${can("comunicazioni") ? "Premi “+” per pubblicare la prima." : ""}</div>`}
       </div>
