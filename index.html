@@ -1635,11 +1635,15 @@ div.mia-testa-io{cursor:default}
 .fs-filo{flex:1;height:1px;background:var(--home-dot)}
 .fs-avvisi{margin-top:auto;padding-top:18px;padding-bottom:8px}
 .fs-tempo{position:relative;display:flex;flex-direction:column}
-/* linea del tempo: dal riquadro data di una riga a quello della riga dopo */
-.fs-riga{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;padding:8px 0}
-.fs-riga:not(:last-child)::before{
-  content:"";position:absolute;left:27px;top:24px;width:2px;height:calc(100% + 6px);background:rgba(0,37,63,.14);
+/* linea del tempo: il riquadro data sta centrato in altezza sull'impegno (come in La mia
+   area); la linea si disegna in due metà per riga, sopra e sotto il centro, cosi unisce
+   i riquadri anche quando le righe hanno altezze diverse */
+.fs-riga{position:relative;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;padding:8px 0;align-items:center}
+.fs-riga:not(:first-child)::before,.fs-riga:not(:last-child)::after{
+  content:"";position:absolute;left:27px;width:2px;background:rgba(0,37,63,.14);
 }
+.fs-riga:not(:first-child)::before{top:0;bottom:50%}
+.fs-riga:not(:last-child)::after{top:50%;bottom:0}
 .fs-data{
   position:relative;z-index:1;width:44px;height:44px;margin:0 auto;box-sizing:border-box;border-radius:12px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
