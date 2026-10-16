@@ -795,6 +795,86 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
   letter-spacing:.01em;text-transform:uppercase;color:#FFFFFF;margin-bottom:-7px;
 }
 .cat-card:hover{filter:brightness(.95)}
+
+/* ===== Contatti (design "Contatti 52a leggero"): righe a fisarmonica + staff per categoria ===== */
+.card.ct-list{padding:2px 16px}
+.ct-list{padding:2px 16px}
+.ct-item+.ct-item{border-top:1px solid var(--line)}
+.ct-row{
+  width:100%;min-height:68px;display:flex;align-items:center;gap:12px;padding:10px 0;
+  border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;
+}
+.ct-tile{
+  flex:none;position:relative;overflow:hidden;width:44px;height:44px;border-radius:13px;
+  background:var(--navy);
+}
+.ct-tile>span{
+  position:absolute;left:5px;bottom:-.2em;font-family:var(--font-display);font-weight:800;
+  font-size:32px;line-height:1;color:var(--navy-ink);white-space:nowrap;
+}
+.ct-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.ct-cat .ct-tile>span{color:#FFFFFF}
+.ct-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ct-nome{font-family:var(--font);font-weight:600;font-size:calc(17px * var(--st));line-height:1.25;color:var(--ink)}
+.ct-sub{
+  font-family:var(--font-data);font-size:calc(14px * var(--st));line-height:1.3;color:var(--ink-4);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ct-chev{
+  flex:none;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+}
+.ct-chev svg{width:18px;height:18px;transition:transform 200ms cubic-bezier(.23,1,.32,1)}
+.ct-item.open .ct-chev svg{transform:rotate(180deg)}
+.ct-panel{display:none;padding:0 0 14px;flex-direction:column;gap:8px}
+.ct-item.open .ct-panel{display:flex;animation:ctIn 200ms cubic-bezier(.23,1,.32,1) both}
+@keyframes ctIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ct-act{
+  min-height:52px;min-width:0;border-radius:14px;background:var(--surface);border:1px solid var(--line);
+  padding:0 16px;display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;
+}
+.ct-act svg{flex:none;width:18px;height:18px}
+.ct-act b{font-family:var(--font);font-weight:700;font-size:16px}
+.ct-act i{
+  margin-left:auto;min-width:0;font-family:var(--font-mono);font-weight:500;font-size:12px;font-style:normal;
+  color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ct-act.prim{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ct-act.prim i{color:inherit;font-size:13px}
+.ct-vuoto{margin:0}
+.ct-eds{display:flex;gap:8px}
+.ct-ed{
+  flex:1;min-height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--line);
+  font-family:var(--font);font-weight:600;font-size:15px;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+}
+.ct-ed svg{width:16px;height:16px}
+.ct-ed.del{color:var(--bad)}
+.ct-scheda{
+  min-height:44px;border:0;background:none;font-family:var(--font);font-weight:600;font-size:15px;color:var(--ink);
+  display:flex;align-items:center;justify-content:space-between;padding:0 4px;cursor:pointer;
+}
+.ct-scheda svg{width:18px;height:18px}
+.ct-groups{display:flex;flex-direction:column;gap:16px}
+.card.ct-cat{padding:0;overflow:hidden}
+.ct-band{position:relative;height:72px;overflow:hidden}
+.ct-cn{
+  position:absolute;left:14px;bottom:-.2em;font-family:var(--font-display);font-weight:800;
+  font-size:calc(80px * var(--st-g));line-height:1;text-transform:uppercase;color:#FFFFFF;white-space:nowrap;
+}
+/* il contatore sta sopra il nome: con nomi lunghi ("Prime Mete") le lettere arrivano
+   fin sotto, quindi ha un fondo scuro trasparente per restare leggibile */
+.ct-cc{
+  position:absolute;z-index:1;right:10px;top:8px;padding:4px 6px;border-radius:var(--r-pill);
+  background:rgba(0,19,31,.28);font-family:var(--font-mono);font-weight:500;font-size:11px;
+  line-height:1;letter-spacing:.12em;text-transform:uppercase;color:#FFFFFF;
+}
+.ct-act,.ct-ed,.ct-scheda{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
+.ct-act:active,.ct-ed:active,.ct-scheda:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){
+  .ct-item.open .ct-panel{animation:none}
+  .ct-chev svg,.ct-act,.ct-ed,.ct-scheda{transition:none}
+}
 .clickable{cursor:pointer}
 .list-row.clickable:hover,.card.clickable:hover,.tile:hover{background:var(--surface-2)}
 /* feedback alla pressione: nessuno scatta ancora al tocco (solo :hover, che sul telefono
@@ -1971,9 +2051,9 @@ function defaultData() {
       { id: uid(), nome: "Sei Nazioni su maxischermo: Italia–Francia", data: "2027-02-06", ora: "15:30", luogo: "Club house", costo: "Gratuito", descr: "Guardiamo la partita tutti insieme al club. Merenda offerta ai bambini, birra e salamelle per i grandi.", locandina: "" }
     ],
     contatti: [
-      { id: uid(), nome: "Segreteria", descr: "Iscrizioni, quote e certificati medici", telefono: "+39 340 123 4567", email: "segreteria@rugbyparcosempione.it" },
-      { id: uid(), nome: "Direzione sportiva", descr: "", telefono: "+39 348 765 4321", email: "direzione@rugbyparcosempione.it" },
-      { id: uid(), nome: "Campo Parco Sempione", descr: "Viale del Campo 1, Milano ingresso lato parcheggio", telefono: "", email: "" }
+      { id: uid(), nome: "Segreteria", descr: "Iscrizioni, quote e certificati medici", telefono: "+39 340 123 4567", email: "segreteria@rugbyparcosempione.it", indirizzo: "" },
+      { id: uid(), nome: "Direzione sportiva", descr: "", telefono: "+39 348 765 4321", email: "direzione@rugbyparcosempione.it", indirizzo: "" },
+      { id: uid(), nome: "Campo Parco Sempione", descr: "Ingresso lato parcheggio", telefono: "", email: "", indirizzo: "Viale del Campo 1, Milano" }
     ],
     comunicazioni: [
       { id: uid(), titolo: "Raduno inizio stagione 2026/27", corpo: "Sabato 5 settembre ore 10:00 al campo: raduno di apertura per tutte le categorie. Presentazione staff, consegna kit e merenda insieme. Sono invitati anche i genitori.", data: "2026-07-01", fissata: true, autore: "Direzione" },
@@ -2141,6 +2221,13 @@ function migrate(d) {
   if (r5 && r5.nome === "Aiuto allenatore") r5.nome = "Genitore";
   if (!d.permessi.contatti) d.permessi.contatti = { r2: true, r3: false, r4: false, r5: false };
   if (!Array.isArray(d.contatti)) d.contatti = defaultData().contatti;
+  for (const c of d.contatti) {
+    // campo indirizzo (pulsante "Apri mappa"): il campo demo lo aveva dentro la descrizione
+    if (c.indirizzo === undefined && /^Viale del Campo 1, Milano/.test(c.descr || "")) {
+      c.indirizzo = "Viale del Campo 1, Milano"; c.descr = "Ingresso lato parcheggio";
+    }
+    c.indirizzo = c.indirizzo ?? "";
+  }
   if (!d.permessi.eventi) d.permessi.eventi = { r2: true, r3: true, r4: false, r5: false };
   if (!Array.isArray(d.eventi)) d.eventi = [];
   for (const a of d.allenatori) { a.telefono = a.telefono ?? ""; a.email = a.email ?? ""; a.foto = a.foto ?? ""; }
@@ -2392,6 +2479,8 @@ const IC = {
   trash: '<path d="M4 7h16M9 7V5h6v2M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/>',
   pin:   '<path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7z"/><path d="M12 16v5"/>',
   right: '<path d="M9 5l7 7-7 7"/>',
+  chev:  '<path d="m6 9 6 6 6-6"/>',
+  map:   '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
   left:  '<path d="M15 5l-7 7 7 7"/>',
   cal:   '<rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3.5v4M16 3.5v4"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/>',
@@ -5422,22 +5511,57 @@ ACT.posterDel = id => confirmModal("Rimuovere la locandina?", () => {
 /* =====================================================================
    CONTATTI — rubrica visibile a tutti i livelli
    ===================================================================== */
+/* Righe a fisarmonica (design "Contatti 52a leggero"): la riga mostra solo nome e
+   sottotitolo, il tocco apre i pulsanti Chiama / Scrivi / Apri mappa. Una sola riga
+   aperta alla volta in tutta la schermata; all'apertura è aperta la prima della società. */
+function ctRiga(x) {
+  const azioni =
+    (x.tel ? `<a class="ct-act prim" href="tel:${esc(x.tel.replace(/\s/g, ""))}">${ic("phone")}<b>Chiama</b><i>${esc(x.tel)}</i></a>` : "") +
+    (x.mail ? `<a class="ct-act" href="mailto:${esc(x.mail)}">${ic("mail")}<b>Scrivi</b><i>${esc(x.mail)}</i></a>` : "") +
+    (x.ind ? `<a class="ct-act" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x.ind)}">${ic("map")}<b>Apri mappa</b><i>${esc(x.ind)}</i></a>` : "");
+  const vuoto = !azioni ? `<p class="muted ct-vuoto">Nessun recapito inserito</p>` : "";
+  return `<div class="ct-item${x.aperto ? " open" : ""}">
+    <button class="ct-row" data-act="contattoApri" aria-expanded="${!!x.aperto}">
+      <span class="ct-tile${x.foto ? " imgsk" : ""}"${x.tinta ? ` style="background:${x.tinta}"` : ""}>${x.foto ? `<img src="${x.foto}" alt="" data-sk="1">` : `<span>${esc(x.sigla || initials(x.nome))}</span>`}</span>
+      <span class="ct-txt"><span class="ct-nome">${esc(x.nome)}</span>${x.sub ? `<span class="ct-sub">${esc(x.sub)}</span>` : ""}</span>
+      <span class="ct-chev">${ic("chev")}</span>
+    </button>
+    <div class="ct-panel">${azioni}${vuoto}${x.extra || ""}</div>
+  </div>`;
+}
 function vContatti() {
   const editabile = can("contatti");
-  const contactRow = (nome, sub, tel, mail, actions, foto) => `
-    <div class="list-row">
-      <div class="avatar blue${foto ? " imgsk" : ""}" style="width:38px;height:38px;font-size:12px">${foto ? `<img src="${foto}" alt="" data-sk="1">` : initials(nome)}</div>
-      <div class="grow">
-        <div class="title">${esc(nome)}</div>
-        ${sub ? `<div class="muted">${esc(sub)}</div>` : ""}
-        <div class="row" style="flex-wrap:wrap;gap:12px;margin-top:3px">
-          ${tel ? `<a class="small" href="tel:${esc(tel.replace(/\s/g, ""))}">${ic("phone", "icon-inline")}${esc(tel)}</a>` : ""}
-          ${mail ? `<a class="small" href="mailto:${esc(mail)}">${ic("mail", "icon-inline")}${esc(mail)}</a>` : ""}
-          ${!tel && !mail ? `<span class="muted">Nessun recapito inserito</span>` : ""}
-        </div>
-      </div>
-      ${actions || ""}
+  const socEd = id => editabile ? `<div class="ct-eds">
+      <button class="ct-ed" data-act="contattoEdit" data-arg="${esc(id)}">${ic("edit")}Modifica</button>
+      <button class="ct-ed del" data-act="contattoDel" data-arg="${esc(id)}">${ic("trash")}Elimina</button>
+    </div>` : "";
+  const soc = S.contatti.map((c, i) => ctRiga({
+    nome: c.nome, sub: c.descr || c.indirizzo, tel: c.telefono, mail: c.email, ind: c.indirizzo,
+    extra: socEd(c.id), aperto: i === 0
+  })).join("");
+
+  // staff raggruppato per categoria: chi allena più categorie compare in ognuna,
+  // con "anche ..." nel sottotitolo; la tessera prende il colore della sua prima categoria
+  const scheda = a => canSee("allenatori")
+    ? `<button class="ct-scheda" data-act="go" data-arg="${esc(JSON.stringify({ name: "allenatore", id: a.id }))}">Scheda allenatore${ic("right")}</button>` : "";
+  const tintaDi = a => { const c = getCat(a.categorie[0]); return c ? coloreCat(c, S.categorie.indexOf(c)) : ""; };
+  const rigaStaff = (a, catId) => {
+    const altri = a.categorie.filter(id => id !== catId).map(nomeCat);
+    return ctRiga({
+      nome: a.nome, sub: a.titolo + (altri.length ? " · anche " + altri.join(", ") : ""),
+      tel: a.telefono, mail: a.email, foto: a.foto, tinta: tintaDi(a), extra: scheda(a)
+    });
+  };
+  const gruppo = (nome, tinta, persone, catId) => `<div class="card ct-cat">
+      <div class="ct-band" style="background:${tinta}"><span class="ct-cn">${esc(nome)}</span><span class="ct-cc">${persone.length} ${persone.length === 1 ? "persona" : "persone"}</span></div>
+      <div class="ct-list">${persone.map(a => rigaStaff(a, catId)).join("")}</div>
     </div>`;
+  const gruppi = S.categorie.map((c, i) => {
+    const ppl = S.allenatori.filter(a => a.categorie.includes(c.id));
+    return ppl.length ? gruppo(c.nome, coloreCat(c, i), ppl, c.id) : "";
+  }).join("");
+  const senza = S.allenatori.filter(a => !a.categorie.some(getCat));
+  const gruppoSenza = senza.length ? gruppo("Altri", "var(--navy-light)", senza, "") : "";
 
   return `<div class="stack-lg">
     <div class="row">
@@ -5447,30 +5571,24 @@ function vContatti() {
       ${editabile ? btnAdd("Contatto", "contattoEdit", "") : ""}
     </div>
 
-    <div>
-      <div class="sec-head"><h2>Società</h2></div>
-      <div class="card list">
-        ${S.contatti.map(c => contactRow(c.nome, c.descr, c.telefono, c.email,
-          editabile ? btnIcon("edit", "contattoEdit", c.id, "", "Modifica") + btnIcon("trash", "contattoDel", c.id, "danger", "Elimina") : ""
-        )).join("") || `<div class="empty">Nessun contatto inserito.</div>`}
-      </div>
+    <div class="card ct-list ct-soc">
+      ${soc || `<div class="empty">Nessun contatto inserito.</div>`}
     </div>
 
     <div>
       <div class="sec-head"><h2>Staff tecnico</h2></div>
-      <div class="card list">
-        ${S.allenatori.map(a => contactRow(
-          a.nome,
-          a.titolo + (a.categorie.length ? " · " + a.categorie.map(nomeCat).join(", ") : ""),
-          a.telefono, a.email,
-          canSee("allenatori") ? btnIcon("right", "go", JSON.stringify({ name: "allenatore", id: a.id }), "", "Apri scheda") : "",
-          a.foto
-        )).join("")}
-      </div>
-      ${can("allenatori") ? `<p class="small" style="margin-top:8px">I recapiti dello staff si modificano dalla scheda di ogni allenatore.</p>` : ""}
+      <div class="ct-groups">${gruppi}${gruppoSenza}</div>
+      ${can("allenatori") ? `<p class="small" style="margin-top:12px">I recapiti dello staff si modificano dalla scheda di ogni allenatore.</p>` : ""}
     </div>
   </div>`;
 }
+ACT.contattoApri = (_, el) => {
+  const it = el.parentElement, era = it.classList.contains("open");
+  document.querySelectorAll(".ct-item.open").forEach(o => {
+    o.classList.remove("open"); o.querySelector(".ct-row").setAttribute("aria-expanded", "false");
+  });
+  if (!era) { it.classList.add("open"); el.setAttribute("aria-expanded", "true"); }
+};
 ACT.contattoEdit = id => {
   const c = S.contatti.find(x => x.id === id);
   openModal({
@@ -5479,7 +5597,8 @@ ACT.contattoEdit = id => {
       { key: "nome", label: "Nome", value: c?.nome, required: true, placeholder: "es. Segreteria" },
       { key: "descr", label: "Descrizione", value: c?.descr, placeholder: "es. Iscrizioni e quote" },
       { key: "telefono", label: "Telefono", type: "tel", value: c?.telefono, placeholder: "+39 ..." },
-      { key: "email", label: "Email", type: "email", value: c?.email }
+      { key: "email", label: "Email", type: "email", value: c?.email },
+      { key: "indirizzo", label: "Indirizzo (per aprire la mappa)", value: c?.indirizzo, placeholder: "es. Viale del Campo 1, Milano" }
     ],
     onSave: v => {
       if (c) Object.assign(c, v); else S.contatti.push({ id: uid(), ...v });
