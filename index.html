@@ -862,13 +862,6 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
   position:absolute;left:14px;bottom:-.2em;font-family:var(--font-display);font-weight:800;
   font-size:calc(80px * var(--st-g));line-height:1;text-transform:uppercase;color:#FFFFFF;white-space:nowrap;
 }
-/* il contatore sta sopra il nome: con nomi lunghi ("Prime Mete") le lettere arrivano
-   fin sotto, quindi ha un fondo scuro trasparente per restare leggibile */
-.ct-cc{
-  position:absolute;z-index:1;right:10px;top:8px;padding:4px 6px;border-radius:var(--r-pill);
-  background:rgba(0,19,31,.28);font-family:var(--font-mono);font-weight:500;font-size:11px;
-  line-height:1;letter-spacing:.12em;text-transform:uppercase;color:#FFFFFF;
-}
 .ct-act,.ct-ed,.ct-scheda{transition:transform 160ms cubic-bezier(.23,1,.32,1)}
 .ct-act:active,.ct-ed:active,.ct-scheda:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){
@@ -5553,7 +5546,7 @@ function vContatti() {
     });
   };
   const gruppo = (nome, tinta, persone, catId) => `<div class="card ct-cat">
-      <div class="ct-band" style="background:${tinta}"><span class="ct-cn">${esc(nome)}</span><span class="ct-cc">${persone.length} ${persone.length === 1 ? "persona" : "persone"}</span></div>
+      <div class="ct-band" style="background:${tinta}"><span class="ct-cn">${esc(nome)}</span></div>
       <div class="ct-list">${persone.map(a => rigaStaff(a, catId)).join("")}</div>
     </div>`;
   const gruppi = S.categorie.map((c, i) => {
