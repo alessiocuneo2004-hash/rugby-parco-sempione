@@ -5994,7 +5994,11 @@ function avviaParallasse() {
 }
 avviaParallasse();
 
-/* avvio: se l'URL contiene già una schermata (deep link), riaprila */
-if (location.hash) VIEW = hashToView(location.hash);
+/* avvio: l'app parte sempre dalla Home (richiesta di Alessio), anche se l'indirizzo
+   ricorda l'ultima schermata aperta. replaceState sostituisce l'indirizzo senza
+   aggiungere un passo alla cronologia, cosi il tasto Indietro non riporta alla
+   schermata vecchia. */
+VIEW = { name: "home" };
+if (location.hash && location.hash !== "#/home") history.replaceState(null, "", location.pathname + location.search + "#/home");
 go(VIEW);
 </script>
