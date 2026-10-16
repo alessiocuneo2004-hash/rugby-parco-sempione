@@ -1403,7 +1403,8 @@ html[data-senza-topbar] .topbar{display:none}
   position:relative;margin-top:20px;font-family:var(--font-mono);font-size:calc(12px * var(--st));
   letter-spacing:.26em;text-transform:uppercase;color:var(--chart-1);
 }
-.figlio-hero-riga{position:relative;margin-top:10px;margin-bottom:35px;display:flex;align-items:center;gap:14px}
+/* margin-bottom 57px (handoff 53): il blu finisce a metà altezza dei banner sotto */
+.figlio-hero-riga{position:relative;margin-top:10px;margin-bottom:57px;display:flex;align-items:center;gap:14px}
 .figlio-hero-nome{
   flex:1;min-width:0;font-family:var(--font-display);font-size:calc(58px * var(--st-g));line-height:.87;
   font-weight:800;text-transform:uppercase;color:#FFFFFF;
@@ -1415,23 +1416,34 @@ html[data-senza-topbar] .topbar{display:none}
   text-transform:uppercase;color:#B9C9D4;
 }
 .figlio-hero-ruolo .bianco{color:#FFFFFF}
-.figlio-cards{position:relative;margin-top:-16px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:11px;z-index:3}
-.figlio-card{
-  position:relative;overflow:hidden;height:112px;box-sizing:border-box;
-  border-radius:24px;padding:14px 15px;display:flex;flex-direction:column;
+/* banner inclinati figli / «La mia area» (handoff 53). La fascia va da bordo a bordo dello
+   schermo (le posizioni del disegno sono sulla larghezza intera del telefono, 390px) e
+   sale di 62px sopra il blu; ogni banner è assoluto, con x e larghezza in percentuale. */
+.home-banner{position:relative;z-index:3;height:136px;margin:-62px -16px 0}
+@media (min-width:960px){.home-banner{margin:-62px auto 0;max-width:480px}}
+.hb{
+  position:absolute;height:112px;box-sizing:border-box;overflow:hidden;
+  border-radius:24px;padding:13px 14px;display:flex;flex-direction:column;
   box-shadow:0 14px 28px rgba(11,27,38,.24);cursor:pointer;color:#FFFFFF;
+  transform-origin:50% 50%;transform:rotate(var(--rot,0deg));transition:transform .16s ease;
 }
-.figlio-card-freccia{align-self:flex-end;width:16px;height:16px;color:#FFFFFF}
-.figlio-card-freccia svg{width:100%;height:100%}
-/* nome grande che sborda sotto il bordo e viene tagliato, come le sigle delle categorie */
-.figlio-card-nome{
-  position:absolute;left:15px;bottom:-12px;white-space:nowrap;
+/* la pressione si somma alla rotazione, non la sostituisce */
+.hb:active{transform:rotate(var(--rot,0deg)) scale(.97)}
+.hb.mia{background:#FFFFFF;color:#00253F}
+.hb-etichetta{
+  position:absolute;left:14px;top:15px;font-family:var(--font-mono);font-size:10px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;line-height:1;
+}
+.hb-freccia{align-self:flex-end;width:16px;height:16px;color:currentColor}
+.hb.freccia-sx .hb-freccia{align-self:flex-start}
+.hb-freccia svg{width:100%;height:100%;stroke-width:3}
+/* nome grande tagliato dal bordo del banner: fa parte dello stile, come le sigle */
+.hb-nome{
+  position:absolute;left:13px;bottom:-12px;white-space:nowrap;
   font-family:var(--font-display);font-size:calc(72px * var(--st-g));line-height:1;font-weight:800;text-transform:uppercase;
 }
-/* livelli 1-4: al posto delle due card figlio c'è una sola card larga, la scorciatoia
-   verso "La mia area". Sfondo navy perché è l'unica azione della fascia. */
-.figlio-cards.uno{grid-template-columns:1fr}
-.figlio-card.mia-area .figlio-card-freccia{color:currentColor;width:20px;height:20px}
+.home-banner.n3 .hb-nome{font-size:calc(56px * var(--st-g));bottom:-10px}
+@media (prefers-reduced-motion:reduce){.hb{transition:none}}
 
 /* sezioni "Settimana" / "Comunicazioni" della Home: disegno "31b titolo che resta in
    vista" di Claude Design, misure e colori 1:1. Ogni sezione è un contenitore a sé, cosi
@@ -1782,14 +1794,14 @@ div.mia-testa-io{cursor:default}
    rapido si vede. Va in fondo al file per vincere sulle transizioni dei singoli pezzi. */
 :root{--ease-out:cubic-bezier(.23,1,.32,1)}
 .btn,.iconbtn,.chip,.tile,.card.clickable,.nav button,.list-row.clickable,.altro-item,
-.role-pill,.cat-card,.hero-card.clickable,.figlio-card,.home-ev.clickable,
+.role-pill,.cat-card,.hero-card.clickable,.home-ev.clickable,
 .figlio-avviso,.fs-lato,.fs-grande.clickable{
   transition:transform .16s var(--ease-out),background-color .12s ease-out,color .12s ease-out,
     border-color .12s ease-out,filter .12s ease-out;
 }
 .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
 .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
-.hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
+.hero-card.clickable:active,.home-ev.clickable:active,
 .figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{
   transform:scale(.97);transition-duration:.1s;
 }
@@ -1804,7 +1816,7 @@ div.mia-testa-io{cursor:default}
 @media (prefers-reduced-motion:reduce){
   .btn:active,.iconbtn:active,.chip:active,.tile:active,.card.clickable:active,.nav button:active,
   .list-row.clickable:active,.altro-item:active,.role-pill:active,.cat-card:active,
-  .hero-card.clickable:active,.figlio-card:active,.home-ev.clickable:active,
+  .hero-card.clickable:active,.home-ev.clickable:active,
   .figlio-avviso:active,.fs-lato:active,.fs-grande.clickable:active{transform:none;filter:brightness(.93)}
 }
 
@@ -2907,8 +2919,8 @@ const SK = {
           ${sk("", "width:62%;height:44px;border-radius:10px")}${sk("", "width:46%;height:44px;border-radius:10px")}
         </div>
       </div>
-      <div class="figlio-cards${genitore ? "" : " uno"}">
-        ${(genitore ? [1, 2] : [1]).map(() => sk("sk-carta", "height:112px;border-radius:24px")).join("")}
+      <div class="home-banner">
+        ${(genitore ? BANNER_LAYOUT[2] : BANNER_LAYOUT[3]).map(p => sk("sk-carta hb", `left:${(p.x / 390 * 100).toFixed(3)}%;width:${(p.w / 390 * 100).toFixed(3)}%;top:${p.y}px;z-index:${p.z};--rot:${p.r}deg;border-radius:24px;box-shadow:none`)).join("")}
       </div>
       <div class="sk-home-sezioni">
         <div class="stack" style="gap:12px">
@@ -3344,7 +3356,7 @@ function vHome() {
   return `<div class="figlio-sfondo" id="figlioSfondo">
     ${homeTestataHTML(a ? a.nome : r.nome, a ? r.nome : "", "")}
 
-    ${miaAreaHTML(a)}
+    ${bannerFigliHTML((a ? a.nome : r.nome).split(" ")[0])}
 
     ${banners.length ? `<div class="home-live">${banners.join("")}</div>` : ""}
 
@@ -3352,20 +3364,40 @@ function vHome() {
   </div>`;
 }
 
-/* scorciatoia a tutta larghezza verso "La mia area", al posto delle card dei figli.
-   Prende il colore della categoria allenata: se un allenatore ne segue più di una vince
-   la più grande (S.categorie va dalla più piccola alla più grande). Chi non allena
-   nessuna categoria — o non ha ancora scelto il proprio profilo — resta sul verde. */
-function miaAreaHTML(a) {
-  const sue = a ? S.categorie.filter(c => (a.categorie || []).includes(c.id)) : [];
-  const cat = sue[sue.length - 1];
-  const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#8FC03F";
-  return `<div class="figlio-cards uno">
-    <div class="figlio-card mia-area" style="background:${tinta}"
-         data-act="miaArea" role="button" tabindex="0" aria-label="Vai a La mia area">
-      <span class="figlio-card-freccia">${ic("right")}</span>
-      <span class="figlio-card-nome">La mia area</span>
-    </div>
+/* Banner inclinati sotto il saluto blu (handoff "Banner figli inclinati 53" di Claude
+   Design): prima «La mia area» (solo livelli 1-4, `nomeMio` = nome dell'utente), poi un
+   banner per figlio dalla categoria più piccola. Posizioni misurate su un telefono largo
+   390px: in CSS diventano percentuali della fascia, cosi scalano con lo schermo.
+   Ogni banner ruota attorno al proprio centro e non esce mai di lato.
+   PROTOTIPO: i figli sono quelli d'esempio (FIGLI_DEMO), uguali per tutti i livelli. */
+const BANNER_LAYOUT = {
+  1: [{ x: 45, y: 4, w: 300, r: -3, z: 1 }],
+  2: [{ x: 28, y: 6, w: 170, r: -6, z: 1 }, { x: 192, y: 6, w: 170, r: 6, z: 2 }],
+  3: [{ x: 20, y: 8, w: 136, r: -6, z: 1 }, { x: 127, y: 0, w: 136, r: 0, z: 3 }, { x: 234, y: 8, w: 136, r: 6, z: 2 }]
+};
+function bannerFigliHTML(nomeMio) {
+  const ordineCat = nome => { const i = S.categorie.findIndex(c => c.nome === nome); return i < 0 ? 99 : i; };
+  const figli = Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat));
+  const voci = [
+    ...(nomeMio ? [{ mia: true, nome: nomeMio }] : []),
+    ...figli.map(([id, f]) => ({ id, nome: f.nome, colore: f.colore }))
+  ].slice(0, 3);   // 4 banner (L1-L4 con 3 figli) non sono ancora disegnati: si fermano a 3
+  if (!voci.length) return "";
+  const L = BANNER_LAYOUT[voci.length];
+  return `<div class="home-banner n${voci.length}">
+    ${voci.map((v, i) => {
+      const p = L[i];
+      const pos = `left:${(p.x / 390 * 100).toFixed(3)}%;width:${(p.w / 390 * 100).toFixed(3)}%;top:${p.y}px;z-index:${p.z};--rot:${p.r}deg`;
+      // la freccia va a sinistra solo sul primo di due banner figli (senza «La mia area»)
+      const sx = voci.length === 2 && i === 0 && !v.mia;
+      return `<div class="hb${v.mia ? " mia" : ""}${sx ? " freccia-sx" : ""}" style="${pos}${v.mia ? "" : `;background:${v.colore}`}"
+          data-act="${v.mia ? "miaArea" : "figlioApri"}" data-arg="${v.id || ""}" role="button" tabindex="0"
+          aria-label="${v.mia ? "Vai a La mia area" : "Apri la scheda di " + esc(v.nome)}">
+        ${v.mia ? `<span class="hb-etichetta">La mia area</span>` : ""}
+        <span class="hb-freccia">${ic("right")}</span>
+        <span class="hb-nome">${esc(v.nome)}</span>
+      </div>`;
+    }).join("")}
   </div>`;
 }
 /* il tocco porta subito nella propria area: l'unica cosa animata è la schermata che
@@ -3672,14 +3704,7 @@ function vHomeGenitore() {
   return `<div class="figlio-sfondo" id="figlioSfondo">
     ${homeTestataHTML("Matteo Bianchi", "Genitore", "socio 0421")}
 
-    <div class="figlio-cards">
-      ${Object.entries(FIGLI_DEMO).map(([id, f]) => `
-        <div class="figlio-card" style="background:${f.colore}"
-             data-act="figlioApri" data-arg="${id}" role="button" tabindex="0" aria-label="Apri la scheda di ${esc(f.nome)}">
-          <span class="figlio-card-freccia">${ic("right")}</span>
-          <span class="figlio-card-nome">${esc(f.nome)}</span>
-        </div>`).join("")}
-    </div>
+    ${bannerFigliHTML("")}
 
     ${homeSezioniHTML(avviso)}
   </div>`;
