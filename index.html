@@ -5506,7 +5506,7 @@ ACT.posterDel = id => confirmModal("Rimuovere la locandina?", () => {
    ===================================================================== */
 /* Righe a fisarmonica (design "Contatti 52a leggero"): la riga mostra solo nome e
    sottotitolo, il tocco apre i pulsanti Chiama / Scrivi / Apri mappa. Una sola riga
-   aperta alla volta in tutta la schermata; all'apertura è aperta la prima della società. */
+   aperta alla volta in tutta la schermata; all'apertura sono tutte chiuse. */
 function ctRiga(x) {
   const azioni =
     (x.tel ? `<a class="ct-act prim" href="tel:${esc(x.tel.replace(/\s/g, ""))}">${ic("phone")}<b>Chiama</b><i>${esc(x.tel)}</i></a>` : "") +
@@ -5528,9 +5528,9 @@ function vContatti() {
       <button class="ct-ed" data-act="contattoEdit" data-arg="${esc(id)}">${ic("edit")}Modifica</button>
       <button class="ct-ed del" data-act="contattoDel" data-arg="${esc(id)}">${ic("trash")}Elimina</button>
     </div>` : "";
-  const soc = S.contatti.map((c, i) => ctRiga({
+  const soc = S.contatti.map(c => ctRiga({
     nome: c.nome, sub: c.descr || c.indirizzo, tel: c.telefono, mail: c.email, ind: c.indirizzo,
-    extra: socEd(c.id), aperto: i === 0
+    extra: socEd(c.id)
   })).join("");
 
   // staff raggruppato per categoria: chi allena più categorie compare in ognuna,
