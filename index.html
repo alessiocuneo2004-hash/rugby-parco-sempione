@@ -408,6 +408,29 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 .altro-voce.on,.altro-voce.on svg{color:var(--chart-1)}
 .altro-voce:active{background:rgba(255,255,255,.06)}
 @media (hover:hover) and (pointer:fine){.altro-voce:hover{background:rgba(255,255,255,.06)}}
+/* pannello del livello: stesso pannello navy di "Altro", ma nasce dal tasto L1/L2... in alto
+   a destra (anche nella Home, dove il riferimento è la riga del marchio: vedi misuraTopbar) */
+.liv-menu{
+  bottom:auto;top:calc(var(--topbar-h, 64px) + 4px);transform-origin:top right;
+  max-height:calc(100dvh - var(--topbar-h, 64px) - 24px);overflow-y:auto;overscroll-behavior:contain;
+  padding:6px 0 8px;
+}
+.liv-titolo{
+  padding:10px 22px 6px;font-family:var(--font-mono);font-size:calc(11px * var(--st));font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:#B9C9D4;
+}
+.liv-titolo.sep{margin-top:6px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+.liv-menu .altro-voce{min-height:48px}
+.liv-sigla{
+  flex:none;min-width:34px;text-align:center;border:1.5px solid rgba(255,255,255,.55);color:#FFFFFF;
+  font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.08em;padding:3px 7px;border-radius:var(--r-pill);
+}
+.liv-sigla.l1{background:var(--chart-1);border-color:var(--chart-1);color:#00253F}
+.liv-voce.on{color:#FFFFFF;font-weight:700}
+.liv-voce svg.liv-ok{margin-left:auto;width:20px;height:20px;color:var(--chart-1)}
+/* la pastiglia del livello nella Home ora è un pulsante: area di tocco allargata a 44px */
+button.figlio-hero-liv{position:relative;border:0;cursor:pointer;font-family:var(--font)}
+button.figlio-hero-liv::after{content:"";position:absolute;inset:-12px -8px}
 /* il pulsante "Altro" resta acceso finché il menu è aperto */
 .nav button[data-view="altro"].aperto{color:var(--chart-1)}
 .nav button[data-view="altro"].aperto::after{
@@ -2473,6 +2496,8 @@ const IC = {
   pin:   '<path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7z"/><path d="M12 16v5"/>',
   right: '<path d="M9 5l7 7-7 7"/>',
   chev:  '<path d="m6 9 6 6 6-6"/>',
+  home:  '<path d="M3.6 10.6l7-5.9c.8-.7 2-.7 2.8 0l7 5.9c.6.5.9 1.2.9 1.9V19a2.5 2.5 0 0 1-2.5 2.5H15V16a3 3 0 0 0-6 0v5.5H5.2A2.5 2.5 0 0 1 2.7 19v-6.5c0-.7.3-1.4.9-1.9z"/>',
+  grid:  '<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>',
   map:   '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
   left:  '<path d="M15 5l-7 7 7 7"/>',
   cal:   '<rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3.5v4M16 3.5v4"/>',
@@ -3357,7 +3382,7 @@ function homeTestataHTML(nomeGrande, riga1, riga2) {
       <div class="figlio-hero-brand">
         <img src="${S.settings.logo || LOGO_DEFAULT}" alt="">
         <span class="figlio-hero-club">${esc(S.settings.club)}</span>
-        <span class="figlio-hero-liv">L${ruoloCorrente().livello}</span>
+        <button class="figlio-hero-liv" data-act="livelloApri" aria-haspopup="menu" aria-label="Livello L${ruoloCorrente().livello}: cambia livello o apri una sezione">L${ruoloCorrente().livello}</button>
         ${MENU_BTN}
       </div>
       <div class="figlio-hero-eyebrow">Bentornato</div>
@@ -5776,10 +5801,10 @@ function renderLogo() {
 const MENU_BTN = `<button class="iconbtn" id="menuBtn" data-act="toggleTendina" aria-label="Apri il menu" aria-expanded="false">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
 </button>`;
-/* pastiglia del livello: solo la sigla (L1, L2...), senza nome — apre "La mia area", dove
-   ora vive anche il cambio ruolo (un domani lì si potrà anche mettere una foto). */
+/* pastiglia del livello: solo la sigla (L1, L2...), senza nome — apre il pannello del
+   livello (openLivello): cambio livello di prova + sezioni aperte a quel livello. */
 function rolePillHTML(r) {
-  return `<button class="role-pill" data-act="go" data-arg="${esc(JSON.stringify({ name: "mio" }))}" title="Vai alla tua area">
+  return `<button class="role-pill" data-act="livelloApri" aria-haspopup="menu" aria-label="Livello L${r.livello}: cambia livello o apri una sezione">
     <span class="lvl ${r.livello === 1 ? "l1" : ""}">L${r.livello}</span>
   </button>`;
 }
@@ -5881,6 +5906,7 @@ function render() {
   clearTimeout(_attesa);            // se stavamo aspettando, il contenuto vero ha la precedenza
   renderChrome();
   closeAltro();   // una navigazione chiude sempre il menu "Altro", se era aperto
+  closeLivello(); // ...e il pannello del livello
   chiudiCom();    // ...e il foglio della comunicazione
   // una navigazione vera (tasto Indietro, voce di menu...) chiude sempre la scheda del figlio,
   // se era aperta: #main sta per essere ricostruito da zero, non avrebbe più senso lasciarla lì.
@@ -6116,6 +6142,58 @@ function closeAltro() {
   clearTimeout(_altroTimer);
   _altroTimer = setTimeout(() => { root.innerHTML = ""; }, 140);
 }
+/* pannello del livello (tasto L1/L2... in alto a destra, in ogni schermata compresa la
+   Home). VERSIONE DI PROVA: il cambio libero di livello sparirà con i codici di accesso
+   personali (vedi promemoria), le sezioni sotto invece possono restare. */
+const SEZIONI_LIVELLO = [
+  { v: "home", t: "Home", icona: "home" },
+  { v: "categorie", t: "Categorie", icona: "grid" },
+  { v: "partite", t: "Tornei", icona: "ball" },
+  { v: "eventi", t: "Eventi", icona: "cal" },
+  { v: "mio", t: "La mia area", icona: "user" },
+  { v: "allenatori", t: "Allenatori", icona: "users" },
+  { v: "contatti", t: "Contatti", icona: "phone" },
+  { v: "impostazioni", t: "Impostazioni", icona: "ingranaggio" }
+];
+function livelloAperto() { return !!document.querySelector("#livRoot .liv-menu"); }
+function openLivello() {
+  closeAltro();
+  const r = ruoloCorrente();
+  const parent = NAV_PARENT[VIEW.name];
+  let root = document.getElementById("livRoot");
+  if (!root) { root = document.createElement("div"); root.id = "livRoot"; document.body.appendChild(root); }
+  const ruoli = [...S.ruoli].sort((a, b) => a.livello - b.livello);
+  root.innerHTML = `
+    <div class="altro-velo" data-act="livelloChiudi"></div>
+    <div class="altro-menu liv-menu" role="menu" aria-label="Livello e sezioni">
+      <div class="liv-titolo">Versione di prova · cambia livello</div>
+      ${ruoli.map(x => `
+        <button class="altro-voce liv-voce ${x.id === r.id ? "on" : ""}" role="menuitemradio" aria-checked="${x.id === r.id}" data-act="livelloScegli" data-arg="${x.id}">
+          <span class="liv-sigla ${x.livello === 1 ? "l1" : ""}">L${x.livello}</span><span>${esc(x.nome)}</span>${x.id === r.id ? ic("check", "liv-ok") : ""}
+        </button>`).join("")}
+      <div class="liv-titolo sep">Sezioni aperte a L${r.livello}</div>
+      ${SEZIONI_LIVELLO.filter(x => canSee(x.v)).map(x => `
+        <button class="altro-voce ${x.v === parent ? "on" : ""}" role="menuitem" data-act="livelloGo" data-arg="${x.v}">
+          ${ic(x.icona)}<span>${esc(x.t)}</span>
+        </button>`).join("")}
+    </div>`;
+  root.querySelector(".liv-voce.on")?.focus({ preventScroll: true });
+}
+function closeLivello() {
+  const root = document.getElementById("livRoot");
+  if (root) root.innerHTML = "";
+}
+ACT.livelloApri = () => livelloAperto() ? closeLivello() : openLivello();
+ACT.livelloChiudi = () => closeLivello();
+ACT.livelloGo = v => { closeLivello(); go({ name: v }); };
+ACT.livelloScegli = id => {
+  if (id === S.ruoloCorrente) return;
+  S.ruoloCorrente = id; save();
+  toast("Ora vedi l'app come: L" + ruoloCorrente().livello + " " + ruoloCorrente().nome);
+  // se la schermata aperta non è tra quelle del nuovo livello si torna alla Home
+  if (!canSee(NAV_PARENT[VIEW.name] || "home")) go({ name: "home" }); else render();
+  openLivello();   // il pannello resta aperto: ora mostra le sezioni del nuovo livello
+};
 ACT.altroGo = v => { closeAltro(); go({ name: v }); };
 ACT.altroChiudi = () => closeAltro();
 
@@ -6132,6 +6210,7 @@ document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
   if (MODAL) closeModal(); else chiudiCom();
   closeAltro();
+  closeLivello();
   chiudiTendina();
 });
 
