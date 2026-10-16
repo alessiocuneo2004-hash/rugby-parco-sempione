@@ -758,6 +758,9 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
    come i titoli delle sezioni della Home. Più aria sopra che sotto: chiude il mese prima. */
 .mese-sep{display:flex;align-items:center;gap:10px;margin:14px 2px 2px}
 .stack>.mese-sep:first-child{margin-top:0}
+/* tra le card torneo (gap 20px): 50px dalla card sopra al nome del mese, 15px dal nome alla card sotto */
+.tc-lista>.mese-sep{margin:30px 2px -5px}
+.tc-lista>.mese-sep:first-child{margin-top:0}
 .mese-sep span{
   flex:none;font-family:var(--font-mono);font-size:calc(11.5px * var(--st));letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-4);
