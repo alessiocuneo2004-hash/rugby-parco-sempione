@@ -4209,16 +4209,12 @@ function vCategoria(id) {
       <div class="sec-head"><h2>Tornei</h2>
         ${can("categorie") ? btnAdd("Torneo", "torneoEdit", JSON.stringify({ cat: c.id })) : ""}
       </div>
-      <div class="card list font-com">
-        ${tornei.map(t => `
-          <div class="list-row">
-            ${dataGrande(t.data)}
-            <div class="grow">
-              <div class="title">${esc(t.nome)}</div>
-              <div class="muted">${ic("place", "icon-inline")}${esc(t.luogo)}${t.note ? " " + esc(t.note) : ""}</div>
-            </div>
-            ${can("categorie") ? btnIcon("edit", "torneoEdit", JSON.stringify({ cat: c.id, id: t.id }), "", "Modifica") + btnIcon("trash", "torneoDel", JSON.stringify({ cat: c.id, id: t.id }), "danger", "Elimina") : ""}
-          </div>`).join("") || `<div class="empty">Nessun torneo inserito.</div>`}
+      <div class="stack tc-lista">
+        ${conMesi(tornei.map(t => ({ data: t.data, torneo: { nome: t.nome, luogo: t.luogo, cats: [c] }, t })), x =>
+          torneoCard44(x, can("categorie") ? `
+            <button class="tc-x" data-act="torneoEdit" data-arg="${esc(JSON.stringify({ cat: c.id, id: x.t.id }))}" aria-label="Modifica torneo">${ic("edit")}</button>
+            <button class="tc-x" data-act="torneoDel" data-arg="${esc(JSON.stringify({ cat: c.id, id: x.t.id }))}" aria-label="Elimina torneo">${ic("trash")}</button>` : "")
+        ) || `<div class="empty">Nessun torneo inserito.</div>`}
       </div>
     </div>
 
@@ -4776,7 +4772,7 @@ ACT.torneoPartita = arg => {
    (e "Partita" se è una partita già in calendario). Solo transform/opacity/filter,
    ritardi a cascata in apertura e nessun ritardo in chiusura.
    ===================================================================== */
-function torneoCard44(x) {
+function torneoCard44(x, azioni = "") {
   const p = x.partita, t = x.torneo;
   const nome = p ? (p.collegaTorneo ? p.collegaTorneo.split("|")[0] : p.avversario) : t.nome;
   const luogo = (p ? p.luogo : t.luogo) || "";
@@ -4804,6 +4800,7 @@ function torneoCard44(x) {
     <div class="tc-vetro" inert>
       <div class="tc-r">
         <div class="tc-titolo2">${esc(nome)}</div>
+        ${azioni}
         <button class="tc-x" data-act="tcChiudi" aria-label="Chiudi">${ic("x")}</button>
       </div>
       <div class="tc-r tc-r2">
@@ -4822,7 +4819,7 @@ function tcStato(card, aperta) {
   card.classList.toggle("aperta", aperta);
   card.querySelector(".tc-apri").setAttribute("aria-expanded", aperta ? "true" : "false");
   card.querySelector(".tc-vetro").inert = !aperta;
-  if (aperta) card.querySelector(".tc-x").focus({ preventScroll: true });
+  if (aperta) card.querySelector('.tc-x[data-act="tcChiudi"]').focus({ preventScroll: true });
 }
 /* un tocco sulla card apre il pannello (o lo chiude se è già aperto); se ne apri un'altra,
    quella di prima si chiude */
@@ -5637,8 +5634,8 @@ function headerMainHTML(r) {
         <div class="spacer"></div>
         ${rolePillHTML(r)}`;
     }
-    case "categoria": case "diario": {
-      const cat = getCat(VIEW.name === "diario" ? VIEW.cat : VIEW.id);
+    case "diario": {
+      const cat = getCat(VIEW.cat);
       return back({ name: "categorie" }, "", "Categoria · " + (cat ? cat.fascia : ""));
     }
     case "allenatore": {
