@@ -2922,7 +2922,7 @@ const SK = {
         </div>
       </div>
       <div class="home-banner">
-        ${(genitore ? BANNER_LAYOUT[2] : BANNER_LAYOUT[3]).map(p => sk("sk-carta hb", `left:${(p.x / 390 * 100).toFixed(3)}%;width:${(p.w / 390 * 100).toFixed(3)}%;top:${p.y}px;z-index:${p.z};--rot:${p.r}deg;border-radius:24px;box-shadow:none`)).join("")}
+        ${(genitore ? BANNER_LAYOUT[2] : BANNER_LAYOUT[1]).map(p => sk("sk-carta hb", `left:${(p.x / 390 * 100).toFixed(3)}%;width:${(p.w / 390 * 100).toFixed(3)}%;top:${p.y}px;z-index:${p.z};--rot:${p.r}deg;border-radius:24px;box-shadow:none`)).join("")}
       </div>
       <div class="sk-home-sezioni">
         <div class="stack" style="gap:12px">
@@ -3371,7 +3371,7 @@ function vHome() {
    banner per figlio dalla categoria più piccola. Posizioni misurate su un telefono largo
    390px: in CSS diventano percentuali della fascia, cosi scalano con lo schermo.
    Ogni banner ruota attorno al proprio centro e non esce mai di lato.
-   PROTOTIPO: i figli sono quelli d'esempio (FIGLI_DEMO), uguali per tutti i livelli. */
+   PROTOTIPO: i figli sono quelli d'esempio (FIGLI_DEMO). */
 const BANNER_LAYOUT = {
   1: [{ x: 45, y: 4, w: 300, r: -3, z: 1 }],
   2: [{ x: 28, y: 6, w: 170, r: -6, z: 1 }, { x: 192, y: 6, w: 170, r: 6, z: 2 }],
@@ -3379,7 +3379,9 @@ const BANNER_LAYOUT = {
 };
 function bannerFigliHTML(nomeMio) {
   const ordineCat = nome => { const i = S.categorie.findIndex(c => c.nome === nome); return i < 0 ? 99 : i; };
-  const figli = Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat));
+  // logica della Home di prima (scelta di Alessio): i livelli 1-4 hanno solo «La mia
+  // area», i figli compaiono solo al genitore (L5)
+  const figli = nomeMio ? [] : Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat));
   const voci = [
     ...(nomeMio ? [{ mia: true, nome: nomeMio }] : []),
     ...figli.map(([id, f]) => ({ id, nome: f.nome, colore: f.colore }))
