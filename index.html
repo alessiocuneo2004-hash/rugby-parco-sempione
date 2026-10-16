@@ -5556,6 +5556,7 @@ function vImpostazioni() {
       </div>
     </div>
 
+    ${ruoloCorrente().livello === 1 ? `
     <div>
       <div class="sec-head"><h2>Permessi</h2></div>
       <p class="small" style="margin-bottom:10px">Il Livello 1 può sempre modificare tutto. Tutti i ruoli possono <b>vedere</b> ogni sezione: qui decidi chi può anche <b>modificarla</b>.</p>
@@ -5576,7 +5577,7 @@ function vImpostazioni() {
           </tbody>
         </table>
       </div>
-    </div>
+    </div>` : ""}
 
     <div>
       <div class="sec-head"><h2>Società</h2></div>
