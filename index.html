@@ -533,30 +533,31 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 /* card torneo dell'elenco "Prossimi tornei": padding proprio e pastiglie categoria
    ancorate a destra (era inline in 06-views.js) */
 .torneo-card{padding:12px 14px}
-/* ===== selettore delle categorie "50d" (Tornei): rotella con triangolino sopra ===== */
+/* ===== selettore delle categorie "50e" (Tornei): rotella con triangolino sopra e sigle
+   grandi tagliate dal bordo basso della tessera, come il nome nel banner di La mia area ===== */
 .ruota{--ruota-tutte:#00253F;display:flex;flex-direction:column;gap:10px;position:relative}
 :root[data-theme="dark"] .ruota{--ruota-tutte:#2C5C86}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ruota{--ruota-tutte:#2C5C86}}
 .ruota-freccia{align-self:center;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:9px solid var(--ink)}
-/* esce fino ai bordi dello schermo (margine -16px). A sinistra il padding è 16px meno
-   del documento (50% - 48px): con la rotella allargata di 32px, cosi anche "Tutte"
-   (128px) arriva esattamente al centro; a destra resta 50% - 32px. */
+/* esce fino ai bordi dello schermo (margine -16px). A sinistra il padding è più stretto
+   del documento (50% - 68px): con la rotella allargata di 32px, cosi anche "Tutte"
+   (168px) arriva esattamente al centro; a destra resta 50% - 32px. */
 .ruota-rullo{
   display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;
-  margin:0 -16px;padding:10px calc(50% - 32px) 4px calc(50% - 48px);
+  margin:0 -16px;padding:10px calc(50% - 32px) 4px calc(50% - 68px);
   -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 64px,#000 calc(100% - 64px),transparent 100%);
   mask-image:linear-gradient(90deg,transparent 0,#000 64px,#000 calc(100% - 64px),transparent 100%);
 }
 .ruota-rullo::-webkit-scrollbar{display:none}
 .ruota-t{
-  flex:none;width:96px;min-height:64px;border:0;border-radius:20px;margin:0;padding:0;cursor:pointer;
-  scroll-snap-align:center;display:inline-flex;align-items:center;justify-content:center;
+  flex:none;position:relative;overflow:hidden;width:96px;min-height:64px;border:0;border-radius:20px;margin:0;padding:0;cursor:pointer;
+  scroll-snap-align:center;
   opacity:.55;transform:scale(.84);-webkit-tap-highlight-color:transparent;
   transition:transform 200ms cubic-bezier(.23,1,.32,1),opacity 200ms ease;
 }
-.ruota-t.tutte{width:128px;background:var(--ruota-tutte)}
+.ruota-t.tutte{width:168px;background:var(--ruota-tutte)}
 .ruota-t.on{opacity:1;transform:scale(1)}
-.ruota-t span{font-family:var(--font-display);font-weight:800;font-size:calc(40px * var(--st-g));line-height:1;text-transform:uppercase;color:#FFFFFF}
+.ruota-t span{position:absolute;left:8px;bottom:-.2em;white-space:nowrap;font-family:var(--font-display);font-weight:800;font-size:calc(56px * var(--st-g));line-height:1;text-transform:uppercase;color:#FFFFFF}
 .ruota-t:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .ruota-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.ruota-t{transition-duration:1ms}}
@@ -2900,7 +2901,7 @@ const SK = {
   partite: () => `
     ${skPageTitle("56%", true)}
     <div class="row" style="gap:8px;overflow:hidden;justify-content:center;margin:0 -16px;padding-top:19px">
-      ${sk("", "width:81px;height:54px;border-radius:17px;flex:none")}${sk("", "width:128px;height:64px;border-radius:20px;flex:none")}${sk("", "width:81px;height:54px;border-radius:17px;flex:none")}${sk("", "width:81px;height:54px;border-radius:17px;flex:none")}
+      ${sk("", "width:81px;height:54px;border-radius:17px;flex:none")}${sk("", "width:168px;height:64px;border-radius:20px;flex:none")}${sk("", "width:81px;height:54px;border-radius:17px;flex:none")}${sk("", "width:81px;height:54px;border-radius:17px;flex:none")}
     </div>
     <div>
       ${skSecHead("76%")}
@@ -4938,7 +4939,7 @@ function vPartite() {
 ACT.matchFiltro = arg => { VIEW.cat = arg; render(); };
 
 /* =====================================================================
-   Selettore delle categorie "50d" (Claude Design): rotella orizzontale di tessere
+   Selettore delle categorie "50e" (Claude Design): rotella orizzontale di tessere
    colorate che si fermano al centro, sotto un triangolino fisso che indica la scelta.
    La tessera più vicina al centro si accende già mentre scorre; il filtro della pagina
    si applica quando la rotella si ferma (ridisegnare durante il trascinamento lo
