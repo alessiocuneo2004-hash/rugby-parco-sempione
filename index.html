@@ -410,24 +410,26 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
 @media (hover:hover) and (pointer:fine){.altro-voce:hover{background:rgba(255,255,255,.06)}}
 /* pannello del livello: stesso pannello navy di "Altro", ma nasce dal tasto L1/L2... in alto
    a destra (anche nella Home, dove il riferimento è la riga del marchio: vedi misuraTopbar) */
+/* fondo della card: bianco nel tema chiaro, blu (#00253F) nel tema scuro */
 .liv-menu{
   bottom:auto;top:calc(var(--topbar-h, 64px) + 4px);transform-origin:top right;
   max-height:calc(100dvh - var(--topbar-h, 64px) - 24px);overflow-y:auto;overscroll-behavior:contain;
-  padding:6px 0 8px;
+  padding:6px 0 8px;background:var(--surface);color:var(--ink);border-color:var(--line);
 }
 .liv-titolo{
   padding:10px 22px 6px;font-family:var(--font-mono);font-size:calc(11px * var(--st));font-weight:500;
-  letter-spacing:.14em;text-transform:uppercase;color:#B9C9D4;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
 }
-.liv-titolo.sep{margin-top:6px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
-.liv-menu .altro-voce{min-height:48px}
+.liv-menu .altro-voce{min-height:48px;color:var(--ink)}
+.liv-menu .altro-voce:active{background:var(--surface-2)}
+@media (hover:hover) and (pointer:fine){.liv-menu .altro-voce:hover{background:var(--surface-2)}}
 .liv-sigla{
-  flex:none;min-width:34px;text-align:center;border:1.5px solid rgba(255,255,255,.55);color:#FFFFFF;
+  flex:none;min-width:34px;text-align:center;border:1.5px solid var(--line-2);color:var(--ink);
   font-size:calc(11px * var(--st));font-weight:700;letter-spacing:.08em;padding:3px 7px;border-radius:var(--r-pill);
 }
-.liv-sigla.l1{background:var(--chart-1);border-color:var(--chart-1);color:#00253F}
-.liv-voce.on{color:#FFFFFF;font-weight:700}
-.liv-voce svg.liv-ok{margin-left:auto;width:20px;height:20px;color:var(--chart-1)}
+.liv-sigla.l1{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.liv-voce.on{color:var(--ink);font-weight:700}
+.liv-voce svg.liv-ok{margin-left:auto;width:20px;height:20px;color:var(--accent-soft-ink)}
 /* la pastiglia del livello nella Home ora è un pulsante: area di tocco allargata a 44px */
 button.figlio-hero-liv{position:relative;border:0;cursor:pointer;font-family:var(--font)}
 button.figlio-hero-liv::after{content:"";position:absolute;inset:-12px -8px}
@@ -6274,37 +6276,21 @@ function closeAltro() {
 }
 /* pannello del livello (tasto L1/L2... in alto a destra, in ogni schermata compresa la
    Home). VERSIONE DI PROVA: il cambio libero di livello sparirà con i codici di accesso
-   personali (vedi promemoria), le sezioni sotto invece possono restare. */
-const SEZIONI_LIVELLO = [
-  { v: "home", t: "Home", icona: "home" },
-  { v: "categorie", t: "Categorie", icona: "grid" },
-  { v: "partite", t: "Tornei", icona: "ball" },
-  { v: "eventi", t: "Eventi", icona: "cal" },
-  { v: "mio", t: "La mia area", icona: "user" },
-  { v: "allenatori", t: "Allenatori", icona: "users" },
-  { v: "contatti", t: "Contatti", icona: "phone" },
-  { v: "impostazioni", t: "Impostazioni", icona: "ingranaggio" }
-];
+   personali (vedi promemoria). Solo i livelli: l'elenco delle sezioni è stato tolto. */
 function livelloAperto() { return !!document.querySelector("#livRoot .liv-menu"); }
 function openLivello() {
   closeAltro();
   const r = ruoloCorrente();
-  const parent = NAV_PARENT[VIEW.name];
   let root = document.getElementById("livRoot");
   if (!root) { root = document.createElement("div"); root.id = "livRoot"; document.body.appendChild(root); }
   const ruoli = [...S.ruoli].sort((a, b) => a.livello - b.livello);
   root.innerHTML = `
     <div class="altro-velo" data-act="livelloChiudi"></div>
-    <div class="altro-menu liv-menu" role="menu" aria-label="Livello e sezioni">
+    <div class="altro-menu liv-menu" role="menu" aria-label="Cambia livello">
       <div class="liv-titolo">Versione di prova · cambia livello</div>
       ${ruoli.map(x => `
         <button class="altro-voce liv-voce ${x.id === r.id ? "on" : ""}" role="menuitemradio" aria-checked="${x.id === r.id}" data-act="livelloScegli" data-arg="${x.id}">
           <span class="liv-sigla ${x.livello === 1 ? "l1" : ""}">L${x.livello}</span><span>${esc(x.nome)}</span>${x.id === r.id ? ic("check", "liv-ok") : ""}
-        </button>`).join("")}
-      <div class="liv-titolo sep">Sezioni aperte a L${r.livello}</div>
-      ${SEZIONI_LIVELLO.filter(x => canSee(x.v)).map(x => `
-        <button class="altro-voce ${x.v === parent ? "on" : ""}" role="menuitem" data-act="livelloGo" data-arg="${x.v}">
-          ${ic(x.icona)}<span>${esc(x.t)}</span>
         </button>`).join("")}
     </div>`;
   root.querySelector(".liv-voce.on")?.focus({ preventScroll: true });
@@ -6315,14 +6301,13 @@ function closeLivello() {
 }
 ACT.livelloApri = () => livelloAperto() ? closeLivello() : openLivello();
 ACT.livelloChiudi = () => closeLivello();
-ACT.livelloGo = v => { closeLivello(); go({ name: v }); };
 ACT.livelloScegli = id => {
-  if (id === S.ruoloCorrente) return;
+  if (id === S.ruoloCorrente) { closeLivello(); return; }
   S.ruoloCorrente = id; save();
   toast("Ora vedi l'app come: L" + ruoloCorrente().livello + " " + ruoloCorrente().nome);
   // se la schermata aperta non è tra quelle del nuovo livello si torna alla Home
+  // (render chiude anche il pannello)
   if (!canSee(NAV_PARENT[VIEW.name] || "home")) go({ name: "home" }); else render();
-  openLivello();   // il pannello resta aperto: ora mostra le sezioni del nuovo livello
 };
 ACT.altroGo = v => { closeAltro(); go({ name: v }); };
 ACT.altroChiudi = () => closeAltro();
