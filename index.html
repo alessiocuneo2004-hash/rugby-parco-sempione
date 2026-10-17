@@ -2168,7 +2168,7 @@ function defaultData() {
     ],
     categorie: [
       {
-        id: catIds.pm, nome: "Prime Mete", fascia: "3–5 anni",
+        id: catIds.pm, nome: "Prime Mete", fascia: "Prime Mete",
         allenatori: [co.giulia, co.sara],
         orari: [{ id: uid(), giorno: 6, dalle: "10:00", alle: "11:00", luogo: "Campo Parco Sempione" }],
         tornei: [{ id: uid(), nome: "Festa del minirugby", data: "2026-09-27", luogo: "Cesano Boscone", note: "Festa di apertura, non competitiva." }],
@@ -2338,6 +2338,8 @@ function migrate(d) {
   if (!Array.isArray(d.eventi)) d.eventi = [];
   // 17 ott 2026: eventi d'esempio in più (per vedere i manifesti a colori alterni),
   // aggiunti una volta sola anche a chi aveva già i dati salvati
+  // 17 ott 2026: Prime Mete si chiama "Prime Mete" anche come titolo, non "3–5 anni"
+  for (const c of d.categorie) if (c.nome === "Prime Mete" && /^3.5 anni$/.test(c.fascia || "")) c.fascia = "Prime Mete";
   if (!d.settings.eventiEsempio2) {
     for (const e of EVENTI_ESEMPIO_EXTRA) if (!d.eventi.some(x => x.nome === e.nome)) d.eventi.push({ id: uid(), ...e });
     d.settings.eventiEsempio2 = true;
@@ -5213,7 +5215,7 @@ ACT.matchFiltro = arg => { VIEW.cat = arg; render(); };
    interromperebbe). Dopo il ridisegno la rotella torna esattamente dov'era.
    ===================================================================== */
 function nomeCompletoCat(c) {
-  if (c.nome === "Prime Mete") return "Prime Mete" + (c.fascia ? " · " + c.fascia : "");
+  if (c.nome === "Prime Mete") return "Prime Mete" + (c.fascia && c.fascia !== c.nome ? " · " + c.fascia : "");
   const m = /^U(\d+)$/.exec(c.nome);
   return m ? "Under " + m[1] : c.nome;
 }
