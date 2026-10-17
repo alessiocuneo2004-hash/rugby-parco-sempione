@@ -1248,6 +1248,75 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 .hero-card hr.sep{border-top-color:rgba(255,255,255,.14)}
 
 /* locandine eventi */
+/* ===== Eventi «4b · manifesti inclinati» (handoff Claude Design) ===== */
+.eventi-pagina{display:flex;flex-direction:column;gap:22px}
+.eventi-pagina>.font-com{margin-top:34px}   /* respiro prima di «Già passati» */
+.manifesti{display:flex;flex-direction:column;gap:22px;padding:6px 4px}   /* il padding salva gli angoli ruotati */
+.manifesto-card{
+  position:relative;overflow:hidden;min-height:220px;box-sizing:border-box;padding:18px;border-radius:22px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:16px;cursor:pointer;
+  box-shadow:0 10px 22px rgba(11,27,38,.16);
+  transition:transform 160ms cubic-bezier(.23,1,.32,1);
+}
+/* la pressione va sulla card interna: la rotazione del contenitore resta intatta */
+.manifesto-card:active{transform:scale(.97)}
+.manifesto-fantasma{
+  position:absolute;right:-8px;top:-18px;pointer-events:none;
+  font-family:var(--font-display);font-weight:800;font-size:170px;line-height:.8;
+}
+.manifesto-riga{
+  position:relative;display:flex;justify-content:space-between;gap:12px;
+  font-family:var(--font-mono);font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+}
+.manifesto-nome{
+  position:relative;max-width:290px;font-family:var(--font-display);font-weight:800;
+  font-size:calc(46px * var(--st-g));line-height:.86;text-transform:uppercase;text-wrap:balance;
+}
+.manifesto-nome.lungo{font-size:calc(40px * var(--st-g))}
+.manifesto-piede{
+  position:relative;display:flex;justify-content:space-between;gap:12px;
+  border-top:2px solid currentColor;padding-top:10px;
+  font-family:var(--font);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+}
+.manifesto-piede .luogo{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.manifesto-piede>span:last-child{flex:none}
+
+/* dettaglio: testata navy a tutta larghezza + banda verde inclinata che ne taglia il bordo.
+   La pagina esce dai margini di <main> e taglia di lato la banda (che è più larga) */
+.evento-pagina{margin:-20px -16px 0;overflow-x:hidden;overflow-x:clip}
+@media (min-width:960px){.evento-pagina{margin:-20px -22px 0}}
+.evento-testata{position:relative;overflow:hidden;background:var(--navy-fixed);color:#FFFFFF;padding:20px 18px 96px}
+.evento-fantasma{
+  position:absolute;right:-16px;top:-26px;pointer-events:none;color:rgba(255,255,255,.07);
+  font-family:var(--font-display);font-weight:800;font-size:240px;line-height:.8;
+}
+.evento-testata-riga{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.evento-quando{font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#9FC2DA}
+.iconbtn.evento-matita{border-color:rgba(255,255,255,.25);background:transparent;color:#FFFFFF}
+.iconbtn.evento-matita:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.evento-nome{
+  position:relative;margin-top:14px;font-family:var(--font-display);font-weight:800;
+  font-size:calc(64px * var(--st-g));line-height:.84;text-transform:uppercase;text-wrap:balance;color:#FFFFFF;
+}
+.evento-banda-wrap{position:relative;height:0;z-index:2}
+.evento-banda{
+  position:absolute;left:-30px;right:-30px;top:-74px;height:72px;background:#8FC03F;color:#00253F;
+  transform:rotate(-4deg);box-shadow:0 10px 22px rgba(11,27,38,.22);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:800;font-size:calc(52px * var(--st-g));line-height:1;
+  text-transform:uppercase;white-space:nowrap;
+}
+.evento-contenuto{padding:30px 16px 0;display:flex;flex-direction:column;gap:18px}
+@media (min-width:960px){.evento-contenuto{padding:30px 22px 0}}
+.evento-locandina{border-radius:20px}
+.evento-locandina-vuota{
+  height:150px;border:1.5px dashed var(--line-2);border-radius:20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  color:var(--ink-3);font-family:var(--font-data);font-size:calc(15px * var(--st));
+}
+.evento-locandina-vuota svg{width:26px;height:26px}
+@media (prefers-reduced-motion:reduce){.manifesto-card{transition:none}}
+
 .poster{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:var(--surface)}
 .poster img{display:block;width:100%;max-height:520px;object-fit:contain}
 .poster-thumb{
@@ -5455,25 +5524,53 @@ function eventoCard(e) {
     </div>
   </div>`;
 }
+/* Eventi «4b · Manifesti inclinati» (handoff di Claude Design): gli eventi in programma
+   sono manifesti a fondo pieno, leggermente ruotati, col giorno enorme in trasparenza;
+   i passati restano card normali. Rotazione e colori girano a ciclo di tre. */
+const MANIFESTO_ROT = [-1.5, 1.4, -1];
+const MANIFESTO_TINTE = [
+  { bg: "#00253F", fg: "#FFFFFF", fantasma: "rgba(255,255,255,.08)" },
+  { bg: "#8FC03F", fg: "#00253F", fantasma: "rgba(0,37,63,.12)" },   // sul verde il testo è navy
+  { bg: "#004070", fg: "#FFFFFF", fantasma: "rgba(255,255,255,.08)" }
+];
+const SETT_BREVI = ["DOM", "LUN", "MAR", "MER", "GIO", "VEN", "SAB"];
+function dataEvento(iso) {
+  const d = new Date(iso + "T12:00");
+  return { giorno: d.getDate(), sett: SETT_BREVI[d.getDay()], mese: MESI[d.getMonth()].toUpperCase() };
+}
+/* «Tra 7 giorni», «Domani», «Oggi» (e per i passati «Ieri», «3 giorni fa») */
+function traGiorni(iso) {
+  const n = -giorniFa(iso);
+  return n === 0 ? "Oggi" : n === 1 ? "Domani" : n > 1 ? "Tra " + n + " giorni" : n === -1 ? "Ieri" : -n + " giorni fa";
+}
+function manifestoHTML(e, i) {
+  const t = MANIFESTO_TINTE[i % 3], d = dataEvento(e.data);
+  return `<div class="manifesto" style="transform:rotate(${MANIFESTO_ROT[i % 3]}deg)">
+    <div class="manifesto-card" style="background:${t.bg};color:${t.fg}" data-act="go"
+         data-arg="${esc(JSON.stringify({ name: "evento", id: e.id }))}" role="button" tabindex="0">
+      <span class="manifesto-fantasma" style="color:${t.fantasma}" aria-hidden="true">${d.giorno}</span>
+      <div class="manifesto-riga"><span>${d.sett} ${d.giorno} ${d.mese}</span>${e.ora ? `<span>Ore ${esc(e.ora)}</span>` : ""}</div>
+      <div class="manifesto-nome${e.nome.length > 40 ? " lungo" : ""}">${esc(e.nome)}</div>
+      <div class="manifesto-piede"><span class="luogo">${esc(e.luogo || "Luogo da definire")}</span><span>${esc(e.costo || "Gratuito")}</span></div>
+    </div>
+  </div>`;
+}
 function vEventi() {
   const oggi = todayISO();
   const prossimi = S.eventi.filter(e => e.data >= oggi).sort((a, b) => a.data < b.data ? -1 : 1);
   const passati = S.eventi.filter(e => e.data < oggi).sort((a, b) => a.data < b.data ? 1 : -1);
-  return `<div class="stack-lg font-com">
+  return `<div class="eventi-pagina">
     <div class="row">
       <div class="grow">
         <h1 class="page-title">Eventi</h1>
       </div>
       ${can("eventi") ? btnAdd("Evento", "eventoEdit", "") : ""}
     </div>
-    <div>
-      <div class="sec-head"><h2>In programma</h2></div>
-      <div class="stack">
-        ${prossimi.map(eventoCard).join("") || `<div class="empty">Nessun evento in programma.${can("eventi") ? " Crea il primo con il pulsante qui sopra." : ""}</div>`}
-      </div>
-    </div>
+    ${prossimi.length
+      ? `<div class="manifesti">${prossimi.map(manifestoHTML).join("")}</div>`
+      : `<div class="empty">Nessun evento in programma.${can("eventi") ? " Crea il primo con il pulsante qui sopra." : ""}</div>`}
     ${passati.length ? `
-    <div>
+    <div class="font-com">
       <div class="sec-head"><h2>Già passati</h2></div>
       <div class="stack">${passati.map(eventoCard).join("")}</div>
     </div>` : ""}
@@ -5483,36 +5580,44 @@ function vEvento(id) {
   const e = S.eventi.find(x => x.id === id);
   if (!e) return vEventi();
   const editabile = can("eventi");
-  return `<div class="stack-lg">
-    <div>
+  const d = dataEvento(e.data);
+  return `<div class="evento-pagina">
+    <div class="evento-testata">
+      <span class="evento-fantasma" aria-hidden="true">${d.giorno}</span>
+      <div class="evento-testata-riga">
+        <span class="evento-quando">${traGiorni(e.data)}</span>
+        ${editabile ? `<button class="iconbtn evento-matita" data-act="eventoEdit" data-arg="${e.id}" aria-label="Modifica evento">${ic("edit")}</button>` : ""}
+      </div>
+      <div class="evento-nome">${esc(e.nome)}</div>
+    </div>
+    <div class="evento-banda-wrap">
+      <div class="evento-banda"><span>${d.sett} ${d.giorno} ${d.mese}${e.ora ? " · " + esc(e.ora) : ""}</span></div>
+    </div>
+
+    <div class="evento-contenuto">
+      <div class="card">
+        <div class="list evento-info">
+          <div class="list-row">${ic("place", "icon-inline")}<div class="grow"><div class="muted">Luogo</div><b>${esc(e.luogo || "Da definire")}</b></div></div>
+          <div class="list-row">${ic("euro", "icon-inline")}<div class="grow"><div class="muted">Costo</div><b>${esc(e.costo || "Gratuito")}</b></div></div>
+        </div>
+      </div>
+
+      ${e.descr ? `
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:8px">Dettagli</div>
+        ${longText(e.descr)}
+      </div>` : ""}
+
+      ${e.locandina
+        ? `<div class="poster evento-locandina imgsk"><img src="${e.locandina}" alt="Locandina di ${esc(e.nome)}" data-sk="1"></div>`
+        : `<div class="evento-locandina-vuota">${ic("up")}<span>Nessuna locandina</span></div>`}
+      ${editabile ? `
       <div class="row">
-        <span class="grow"></span>
-        ${editabile ? btnIcon("edit", "eventoEdit", e.id, "", "Modifica evento") : ""}
-      </div>
+        <input type="file" id="posterFile" accept="image/*" hidden>
+        <button class="btn small" data-act="posterPick" data-arg="${e.id}">${ic("up")}${e.locandina ? "Sostituisci locandina" : "Carica locandina"}</button>
+        ${e.locandina ? `<button class="btn small danger" data-act="posterDel" data-arg="${e.id}">Rimuovi</button>` : ""}
+      </div>` : ""}
     </div>
-
-    ${e.locandina ? `<div class="poster imgsk"><img src="${e.locandina}" alt="Locandina di ${esc(e.nome)}" data-sk="1"></div>` : ""}
-    ${editabile ? `
-    <div class="row">
-      <input type="file" id="posterFile" accept="image/*" hidden>
-      <button class="btn small" data-act="posterPick" data-arg="${e.id}">${ic("up")}${e.locandina ? "Sostituisci locandina" : "Carica locandina"}</button>
-      ${e.locandina ? `<button class="btn small danger" data-act="posterDel" data-arg="${e.id}">Rimuovi</button>` : ""}
-    </div>` : ""}
-
-    <div class="card">
-      <div class="list evento-info">
-        <div class="list-row">${ic("cal", "icon-inline")}<div class="grow"><div class="muted">Data</div><b>${fmtDateLong(e.data)}</b></div></div>
-        <div class="list-row">${ic("clock", "icon-inline")}<div class="grow"><div class="muted">Orario</div><b class="num">${esc(e.ora || "Da definire")}</b></div></div>
-        <div class="list-row">${ic("place", "icon-inline")}<div class="grow"><div class="muted">Luogo</div><b>${esc(e.luogo || "Da definire")}</b></div></div>
-        <div class="list-row">${ic("euro", "icon-inline")}<div class="grow"><div class="muted">Costo</div><b>${esc(e.costo || "Gratuito")}</b></div></div>
-      </div>
-    </div>
-
-    ${e.descr ? `
-    <div class="card">
-      <div class="eyebrow" style="margin-bottom:8px">Dettagli</div>
-      ${longText(e.descr)}
-    </div>` : ""}
   </div>`;
 }
 ACT.eventoEdit = id => {
