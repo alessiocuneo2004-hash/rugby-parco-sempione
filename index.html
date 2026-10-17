@@ -1250,7 +1250,8 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
 /* locandine eventi */
 /* ===== Eventi «4b · manifesti inclinati» (handoff Claude Design) ===== */
 .eventi-pagina{display:flex;flex-direction:column;gap:22px}
-.eventi-pagina>.font-com{margin-top:34px}   /* respiro prima di «Già passati» */
+.eventi-pagina>.eventi-passati{margin-top:34px}   /* respiro prima di «Già passati» */
+.eventi-passati .sec-head{margin-bottom:16px}
 .manifesti{display:flex;flex-direction:column;gap:22px;padding:6px 4px}   /* il padding salva gli angoli ruotati */
 .manifesto-card{
   position:relative;overflow:hidden;min-height:220px;box-sizing:border-box;padding:18px;border-radius:22px;
@@ -2105,6 +2106,11 @@ function seedPresenze(startISO, weeks, perWeek, missRate, salt) {
   return out;
 }
 
+/* eventi d'esempio aggiunti il 17 ott 2026: con la cena (passata) e il Sei Nazioni fanno 4 */
+const EVENTI_ESEMPIO_EXTRA = [
+  { nome: "Castagnata d'autunno", data: "2026-10-24", ora: "16:00", luogo: "Campo Parco Sempione", costo: "Gratuito", descr: "Pomeriggio di festa al campo dopo l'allenamento: castagne, vin brulè per i grandi e cioccolata calda per i bambini. Portate i guanti!", locandina: "" },
+  { nome: "Festa di Natale del club", data: "2026-12-19", ora: "18:30", luogo: "Club house Campo Parco Sempione", costo: "15 € adulti · bambini gratis", descr: "Scambio di auguri con tutte le categorie, consegna dei regali ai bambini e buffet.", locandina: "" }
+];
 function defaultData() {
   const catIds = { pm: uid(), u6: uid(), u8: uid(), u10: uid(), u12: uid() };
   const co = {
@@ -2146,6 +2152,7 @@ function defaultData() {
       ruoli:         { r2: false, r3: false, r4: false, r5: false }
     },
     eventi: [
+      ...EVENTI_ESEMPIO_EXTRA.map(e => ({ id: uid(), ...e })),
       { id: uid(), nome: "Cena di inizio stagione", data: "2026-09-12", ora: "20:00", luogo: "Club house Campo Parco Sempione", costo: "25 € adulti · 12 € under 12", descr: "Cena di benvenuto per famiglie, giocatori e staff: presentazione della stagione 2026/27 e lotteria a premi. Prenotazione entro il 5 settembre in segreteria.", locandina: "" },
       { id: uid(), nome: "Sei Nazioni su maxischermo: Italia–Francia", data: "2027-02-06", ora: "15:30", luogo: "Club house", costo: "Gratuito", descr: "Guardiamo la partita tutti insieme al club. Merenda offerta ai bambini, birra e salamelle per i grandi.", locandina: "" }
     ],
@@ -2329,6 +2336,12 @@ function migrate(d) {
   }
   if (!d.permessi.eventi) d.permessi.eventi = { r2: true, r3: true, r4: false, r5: false };
   if (!Array.isArray(d.eventi)) d.eventi = [];
+  // 17 ott 2026: eventi d'esempio in più (per vedere i manifesti a colori alterni),
+  // aggiunti una volta sola anche a chi aveva già i dati salvati
+  if (!d.settings.eventiEsempio2) {
+    for (const e of EVENTI_ESEMPIO_EXTRA) if (!d.eventi.some(x => x.nome === e.nome)) d.eventi.push({ id: uid(), ...e });
+    d.settings.eventiEsempio2 = true;
+  }
   for (const a of d.allenatori) { a.telefono = a.telefono ?? ""; a.email = a.email ?? ""; a.foto = a.foto ?? ""; }
   for (const p of d.partite) { p.info = Array.isArray(p.info) ? p.info : []; p.collegaTorneo = p.collegaTorneo ?? ""; }
   for (const c of d.categorie) { c.comunicazioni = Array.isArray(c.comunicazioni) ? c.comunicazioni : []; }
@@ -5507,23 +5520,6 @@ ACT.matchEdit = id => {
 /* =====================================================================
    EVENTI — cene, partite in tv, feste (modificabili da L1–L3)
    ===================================================================== */
-function eventoCard(e) {
-  return `
-  <div class="card clickable" data-act="go" data-arg="${esc(JSON.stringify({ name: "evento", id: e.id }))}" role="button" tabindex="0">
-    <div class="row">
-      <div class="poster-thumb${e.locandina ? " imgsk" : ""}">${e.locandina ? `<img src="${e.locandina}" alt="" data-sk="1">` : ic("ticket")}</div>
-      <div class="grow">
-        <div class="title maiusc">${esc(e.nome)}</div>
-        <div class="muted num">${fmtDate(e.data)}${e.ora ? " · ore " + esc(e.ora) : ""}</div>
-        <div class="row evento-tags" style="margin-top:5px;flex-wrap:wrap;gap:6px">
-          ${e.costo ? `<span class="pill green"><span class="pill-ico">${ic("euro")}</span><span class="pill-txt">${esc(e.costo)}</span></span>` : ""}
-          ${e.luogo ? `<span class="pill trunc">${esc(e.luogo)}</span>` : ""}
-        </div>
-      </div>
-      ${ic("right", "icon-inline")}
-    </div>
-  </div>`;
-}
 /* Eventi «4b · Manifesti inclinati» (handoff di Claude Design): gli eventi in programma
    sono manifesti a fondo pieno, leggermente ruotati, col giorno enorme in trasparenza;
    i passati restano card normali. Rotazione e colori girano a ciclo di tre. */
@@ -5570,9 +5566,9 @@ function vEventi() {
       ? `<div class="manifesti">${prossimi.map(manifestoHTML).join("")}</div>`
       : `<div class="empty">Nessun evento in programma.${can("eventi") ? " Crea il primo con il pulsante qui sopra." : ""}</div>`}
     ${passati.length ? `
-    <div class="font-com">
+    <div class="eventi-passati">
       <div class="sec-head"><h2>Già passati</h2></div>
-      <div class="stack">${passati.map(eventoCard).join("")}</div>
+      <div class="manifesti">${passati.map((e, i) => manifestoHTML(e, prossimi.length + i)).join("")}</div>
     </div>` : ""}
   </div>`;
 }
@@ -5979,10 +5975,9 @@ function headerMainHTML(r) {
       const p = S.partite.find(x => x.id === VIEW.id);
       return back({ name: "partite" }, p ? p.avversario : "Partita");
     }
-    case "evento": {
-      const e = S.eventi.find(x => x.id === VIEW.id);
-      return back({ name: "eventi" }, e ? e.nome : "Evento");
-    }
+    case "evento":
+      // il nome dell'evento è già grande nella testata: in alto resta il nome del club
+      return back({ name: "eventi" }, S.settings.club);
     default:
       // schermate principali: scudo + nome del club, senza sottotitolo (come nel mockup)
       return `
