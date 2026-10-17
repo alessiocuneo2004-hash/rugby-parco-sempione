@@ -3377,16 +3377,15 @@ const BANNER_LAYOUT = {
   2: [{ x: 28, y: 6, w: 170, r: -6, z: 1 }, { x: 192, y: 6, w: 170, r: 6, z: 2 }],
   3: [{ x: 20, y: 8, w: 136, r: -6, z: 1 }, { x: 127, y: 0, w: 136, r: 0, z: 3 }, { x: 234, y: 8, w: 136, r: 6, z: 2 }]
 };
-function bannerFigliHTML(nomeMio) {
+/* `nomeMio` = nome dell'utente; `genitore` = mostra i figli invece di «La mia area".
+   Logica della Home di prima (scelta di Alessio): i livelli 1-4 hanno solo «La mia area»,
+   i figli compaiono solo al genitore (L5) — e se non ha figli resta «La mia area». */
+function bannerFigliHTML(nomeMio, genitore) {
   const ordineCat = nome => { const i = S.categorie.findIndex(c => c.nome === nome); return i < 0 ? 99 : i; };
-  // logica della Home di prima (scelta di Alessio): i livelli 1-4 hanno solo «La mia
-  // area», i figli compaiono solo al genitore (L5)
-  const figli = nomeMio ? [] : Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat));
-  const voci = [
-    ...(nomeMio ? [{ mia: true, nome: nomeMio }] : []),
-    ...figli.map(([id, f]) => ({ id, nome: f.nome, colore: f.colore }))
-  ].slice(0, 3);   // 4 banner (L1-L4 con 3 figli) non sono ancora disegnati: si fermano a 3
-  if (!voci.length) return "";
+  const figli = genitore ? Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat)) : [];
+  const voci = figli.length
+    ? figli.map(([id, f]) => ({ id, nome: f.nome, colore: f.colore })).slice(0, 3)   // oltre 3 non è disegnato
+    : [{ mia: true, nome: nomeMio }];
   const L = BANNER_LAYOUT[voci.length];
   return `<div class="home-banner n${voci.length}">
     ${voci.map((v, i) => {
@@ -3708,7 +3707,7 @@ function vHomeGenitore() {
   return `<div class="figlio-sfondo" id="figlioSfondo">
     ${homeTestataHTML("Matteo Bianchi", "Genitore", "socio 0421")}
 
-    ${bannerFigliHTML("")}
+    ${bannerFigliHTML("Matteo", true)}
 
     ${homeSezioniHTML(avviso)}
   </div>`;
