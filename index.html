@@ -2376,8 +2376,9 @@ function can(sez) {
   if (r.livello === 1) return true;                 // la Direzione modifica sempre tutto
   return !!(S.permessi[sez] && S.permessi[sez][r.id]);
 }
-/* Il Livello 5 (Genitori) è solo spettatore: vede Home, Categorie, Partite e Contatti (ma non il Diario) */
-const VISTE_SPETTATORE = ["home", "categorie", "partite", "eventi", "contatti"];
+/* Il Livello 5 (Genitori) è solo spettatore: vede Home, Categorie, Partite, Eventi, Contatti
+   e Impostazioni (lì solo la scelta del calendario), ma non il Diario */
+const VISTE_SPETTATORE = ["home", "categorie", "partite", "eventi", "contatti", "impostazioni"];
 function canSee(navKey) {
   return ruoloCorrente().livello === 5 ? VISTE_SPETTATORE.includes(navKey) : true;
 }
@@ -5817,7 +5818,7 @@ function vImpostazioni() {
             <div class="grow stack" style="gap:2px">
               <div class="title">${esc(x.nome)}</div>
               ${x.livello === 1 ? `<span class="muted">modifica tutto</span>` : ""}
-              ${x.livello === 5 ? `<span class="muted">spettatore: solo Home, Categorie e Partite</span>` : ""}
+              ${x.livello === 5 ? `<span class="muted">spettatore: vede senza modificare</span>` : ""}
             </div>
             ${canRoles ? btnIcon("edit", "roleRename", x.id, "", "Rinomina") : ""}
           </div>`).join("")}
@@ -6007,15 +6008,15 @@ function renderChrome() {
   const r = ruoloCorrente();
   document.getElementById("topbarMain").innerHTML = headerMainHTML(r);
   const parent = NAV_PARENT[VIEW.name] || "home";
-  const spettatore = ruoloCorrente().livello === 5;
   const stileMenu = S.settings.menu || "classico";
   document.documentElement.setAttribute("data-menu", stileMenu);
   // nella Home il marchio sta già dentro la testata navy: tenere anche la topbar
   // significherebbe mostrare scudo e nome del club due volte di fila.
   document.documentElement.toggleAttribute("data-senza-topbar", VIEW.name === "home" || VIEW.name === "mio");
   misuraTopbar();
-  // solo il menu classico raggruppa le sezioni secondarie sotto "Altro" (max 5 voci in basso)
-  const usaAltro = stileMenu === "classico" && !spettatore;
+  // solo il menu classico raggruppa le sezioni secondarie sotto "Altro" (max 5 voci in basso).
+  // Dal 19 ott 2026 vale anche per il genitore: il suo "Altro" contiene Contatti e Impostazioni.
+  const usaAltro = stileMenu === "classico";
   // design system: barra diretta con Home, Categorie, Tornei, Eventi, Altro;
   // Allenatori passa dentro "Altro" insieme a Mio/Contatti/Impostazioni.
   const GRUPPO_ALTRO = ["mio", "allenatori", "contatti", "impostazioni"];
@@ -6231,7 +6232,8 @@ function openAltro() {
     { v: "impostazioni", t: "Impostazioni", icona: "ingranaggio" }
   ].filter(x => canSee(x.v));
   const r = ruoloCorrente();
-  const a = getCoach(S.settings.profiloAllenatore);
+  // il genitore non è un allenatore: niente nome del profilo allenatore in testa al pannello
+  const a = r.livello === 5 ? null : getCoach(S.settings.profiloAllenatore);
   const parent = NAV_PARENT[VIEW.name];
   let root = document.getElementById("altroRoot");
   if (!root) { root = document.createElement("div"); root.id = "altroRoot"; document.body.appendChild(root); }
