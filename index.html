@@ -1503,11 +1503,10 @@ html[data-senza-topbar] .topbar{display:none}
 }
 /* la pressione si somma alla rotazione, non la sostituisce */
 .hb:active{transform:rotate(var(--rot,0deg)) scale(.97)}
-.hb.mia{background:#FFFFFF;color:#00253F}
-.hb-etichetta{
-  position:absolute;left:14px;top:15px;font-family:var(--font-mono);font-size:10px;font-weight:500;
-  letter-spacing:.14em;text-transform:uppercase;line-height:1;
-}
+.hb.mia{background:#FFFFFF;color:#00253F;container-type:inline-size}
+/* «LA MIA AREA» è lunga: si adatta alla larghezza del banner (resta tagliata solo in basso,
+   come i nomi dei figli, non di lato). 23cqw ≈ larghezza del banner meno i margini. */
+.hb.mia .hb-nome{font-size:60px;font-size:min(calc(72px * var(--st-g)), 23cqw)}
 .hb-freccia{align-self:flex-end;width:16px;height:16px;color:currentColor}
 .hb.freccia-sx .hb-freccia{align-self:flex-start}
 .hb-freccia svg{width:100%;height:100%;stroke-width:3}
@@ -3444,7 +3443,7 @@ function vHome() {
   return `<div class="figlio-sfondo" id="figlioSfondo">
     ${homeTestataHTML(a ? a.nome : r.nome, a ? r.nome : "", "")}
 
-    ${bannerFigliHTML((a ? a.nome : r.nome).split(" ")[0])}
+    ${bannerFigliHTML(false)}
 
     ${banners.length ? `<div class="home-live">${banners.join("")}</div>` : ""}
 
@@ -3453,8 +3452,8 @@ function vHome() {
 }
 
 /* Banner inclinati sotto il saluto blu (handoff "Banner figli inclinati 53" di Claude
-   Design): prima «La mia area» (solo livelli 1-4, `nomeMio` = nome dell'utente), poi un
-   banner per figlio dalla categoria più piccola. Posizioni misurate su un telefono largo
+   Design): «La mia area» (livelli 1-4; dal 19 ott 2026 c'è scritto solo «La mia area»,
+   non più il nome dell'utente), oppure un banner per figlio dalla categoria più piccola. Posizioni misurate su un telefono largo
    390px: in CSS diventano percentuali della fascia, cosi scalano con lo schermo.
    Ogni banner ruota attorno al proprio centro e non esce mai di lato.
    PROTOTIPO: i figli sono quelli d'esempio (FIGLI_DEMO). */
@@ -3463,15 +3462,15 @@ const BANNER_LAYOUT = {
   2: [{ x: 28, y: 6, w: 170, r: -6, z: 1 }, { x: 192, y: 6, w: 170, r: 6, z: 2 }],
   3: [{ x: 20, y: 8, w: 136, r: -6, z: 1 }, { x: 127, y: 0, w: 136, r: 0, z: 3 }, { x: 234, y: 8, w: 136, r: 6, z: 2 }]
 };
-/* `nomeMio` = nome dell'utente; `genitore` = mostra i figli invece di «La mia area".
+/* `genitore` = mostra i figli invece di «La mia area".
    Logica della Home di prima (scelta di Alessio): i livelli 1-4 hanno solo «La mia area»,
    i figli compaiono solo al genitore (L5) — e se non ha figli resta «La mia area». */
-function bannerFigliHTML(nomeMio, genitore) {
+function bannerFigliHTML(genitore) {
   const ordineCat = nome => { const i = S.categorie.findIndex(c => c.nome === nome); return i < 0 ? 99 : i; };
   const figli = genitore ? Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat)) : [];
   const voci = figli.length
     ? figli.map(([id, f]) => ({ id, nome: f.nome, colore: f.colore })).slice(0, 3)   // oltre 3 non è disegnato
-    : [{ mia: true, nome: nomeMio }];
+    : [{ mia: true, nome: "La mia area" }];
   const L = BANNER_LAYOUT[voci.length];
   return `<div class="home-banner n${voci.length}">
     ${voci.map((v, i) => {
@@ -3482,7 +3481,6 @@ function bannerFigliHTML(nomeMio, genitore) {
       return `<div class="hb${v.mia ? " mia" : ""}${sx ? " freccia-sx" : ""}" style="${pos}${v.mia ? "" : `;background:${v.colore}`}"
           data-act="${v.mia ? "miaArea" : "figlioApri"}" data-arg="${v.id || ""}" role="button" tabindex="0"
           aria-label="${v.mia ? "Vai a La mia area" : "Apri la scheda di " + esc(v.nome)}">
-        ${v.mia ? `<span class="hb-etichetta">La mia area</span>` : ""}
         <span class="hb-freccia">${ic("right")}</span>
         <span class="hb-nome">${esc(v.nome)}</span>
       </div>`;
@@ -3793,7 +3791,7 @@ function vHomeGenitore() {
   return `<div class="figlio-sfondo" id="figlioSfondo">
     ${homeTestataHTML("Matteo Bianchi", "Genitore", "socio 0421")}
 
-    ${bannerFigliHTML("Matteo", true)}
+    ${bannerFigliHTML(true)}
 
     ${homeSezioniHTML(avviso)}
   </div>`;
