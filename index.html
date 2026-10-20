@@ -5816,9 +5816,11 @@ ACT.calScegli = k => {
 };
 function vImpostazioni() {
   const canRoles = can("ruoli");
-  // i Genitori vedono solo la scelta del calendario
+  // i Genitori vedono l'aspetto (tema, stile del menu, prova di caricamento) e la scelta
+  // del calendario: niente ruoli, permessi, società o dati
   if (ruoloCorrente().livello === 5) return `<div class="stack-lg">
     <div><h1 class="page-title lungo">Impostazioni</h1></div>
+    ${cardAspetto()}
     ${cardCalendario()}
   </div>`;
   return `<div class="stack-lg">
