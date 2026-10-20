@@ -1053,6 +1053,15 @@ main.anim.spinta>*{animation:viewSpinta .22s cubic-bezier(.23,1,.32,1)}
   background:var(--surface-2);border-top:0;font-weight:700;
 }
 .permtable tbody tr:last-child>*{border-bottom:0}
+/* colonna in fondo a destra: cosa permette la spunta di quella riga */
+/* larga al massimo 260px: scorrendo la tabella fino in fondo a destra si legge intera
+   anche sul telefono */
+.permtable{min-width:760px}
+.permtable .perm-cosa{
+  text-align:left;width:260px;min-width:220px;max-width:260px;padding:10px 12px;
+  font-family:var(--font-data);font-size:calc(14px * var(--st));line-height:1.4;color:var(--ink-2);
+}
+.permtable thead .perm-cosa{font-family:var(--font-mono);font-size:calc(13px * var(--st));color:var(--ink-3)}
 
 /* pallino permesso: vuoto = no, pieno con spunta = sì */
 /* il pallino resta piccolo (tabella densa), ma l'area toccabile invisibile arriva a 44px:
@@ -1504,6 +1513,7 @@ html[data-senza-topbar] .topbar{display:none}
 /* la pressione si somma alla rotazione, non la sostituisce */
 .hb:active{transform:rotate(var(--rot,0deg)) scale(.97)}
 .hb.mia{background:#FFFFFF;color:#00253F;container-type:inline-size}
+.hb.mia.tinta{color:#FFFFFF}   /* chi allena: colore della categoria, scritta bianca */
 /* «LA MIA AREA» è lunga: si adatta alla larghezza del banner (resta tagliata solo in basso,
    come i nomi dei figli, non di lato). 23cqw ≈ larghezza del banner meno i margini. */
 .hb.mia .hb-nome{font-size:60px;font-size:min(calc(72px * var(--st-g)), 23cqw)}
@@ -1675,11 +1685,13 @@ div.mia-testa-io{cursor:default}
 }
 .mia-ruolo .chev{width:14px;height:14px;flex:none;color:#7C9AAE;transform:rotate(90deg)}
 .mia-ruolo select{position:absolute;inset:0;opacity:0;cursor:pointer;border:0;width:100%}
-.mia-testa #menuBtn{flex:none;border-color:rgba(0,37,63,.28);background:none;color:#00253F}
+.mia-testa #menuBtn,.mia-testa .iconbtn.mia-testa-btn{flex:none;border-color:rgba(0,37,63,.28);background:none;color:#00253F}
+.mia-testa .iconbtn.mia-testa-btn:hover{background:rgba(0,37,63,.08)}
 /* categorie scure: testo e iniziali chiari */
 .mia-testa.scura{color:#FFFFFF}
 .mia-testa.scura .mia-testa-io .avatar{background:#FFFFFF;color:#00253F}
-.mia-testa.scura #menuBtn{border-color:rgba(255,255,255,.28);color:#FFFFFF}
+.mia-testa.scura #menuBtn,.mia-testa.scura .iconbtn.mia-testa-btn{border-color:rgba(255,255,255,.28);color:#FFFFFF}
+.mia-testa.scura .iconbtn.mia-testa-btn:hover{background:rgba(255,255,255,.1)}
 .mia-nome{
   position:absolute;left:16px;bottom:-.19em;margin:0;
   font-family:var(--font-display);font-size:130px;line-height:1.05;font-weight:800;
@@ -2359,16 +2371,27 @@ function save() {
 }
 
 /* ---------- permessi ---------- */
+/* `cosa` = spiegazione mostrata in fondo a destra di ogni riga della matrice dei permessi:
+   cosa può fare in più chi ha la spunta (vedere, lo vedono tutti) */
 const SEZIONI_PERMESSI = [
-  { key: "comunicazioni", nome: "Comunicazioni in home" },
-  { key: "categorie",     nome: "Categorie: orari, tornei, rosa" },
-  { key: "diario",        nome: "Diario e programmazione" },
-  { key: "allenatori",    nome: "Allenatori: schede e contratti" },
-  { key: "presenze",      nome: "Registro presenze allenatori" },
-  { key: "partite",       nome: "Tornei: partite, convocazioni, risultati" },
-  { key: "eventi",        nome: "Eventi del club" },
-  { key: "contatti",      nome: "Rubrica contatti" },
-  { key: "ruoli",         nome: "Ruoli e permessi" }
+  { key: "comunicazioni", nome: "Comunicazioni in home",
+    cosa: "Pubblicare, modificare ed eliminare le comunicazioni, sia in Home sia nelle pagine delle categorie" },
+  { key: "categorie",     nome: "Categorie: orari, tornei, rosa",
+    cosa: "Modificare le categorie: orari degli allenamenti, tornei, rosa dei giocatori e allenatori assegnati" },
+  { key: "diario",        nome: "Diario e programmazione",
+    cosa: "Scrivere e modificare il diario: punti chiave, programmazioni e sedute di allenamento" },
+  { key: "allenatori",    nome: "Allenatori: schede e contratti",
+    cosa: "Aggiungere, modificare ed eliminare gli allenatori: dati, foto, recapiti, contratto e categorie" },
+  { key: "presenze",      nome: "Registro presenze allenatori",
+    cosa: "Segnare presenze e assenze degli allenatori e correggere il registro" },
+  { key: "partite",       nome: "Tornei: partite, convocazioni, risultati",
+    cosa: "Creare e modificare le partite, scegliere i convocati e scrivere i risultati" },
+  { key: "eventi",        nome: "Eventi del club",
+    cosa: "Creare, modificare ed eliminare gli eventi e caricarne la locandina" },
+  { key: "contatti",      nome: "Rubrica contatti",
+    cosa: "Aggiungere, modificare ed eliminare i contatti della società nella rubrica" },
+  { key: "ruoli",         nome: "Ruoli e permessi",
+    cosa: "Rinominare i ruoli e cambiare le spunte di questa tabella" }
 ];
 const ruoloCorrente = () => S.ruoli.find(r => r.id === S.ruoloCorrente) || S.ruoli[0];
 function can(sez) {
@@ -3471,7 +3494,9 @@ function bannerFigliHTML(genitore) {
   const figli = genitore ? Object.entries(FIGLI_DEMO).sort((a, b) => ordineCat(a[1].cat) - ordineCat(b[1].cat)) : [];
   const voci = figli.length
     ? figli.map(([id, f]) => ({ id, nome: f.nome, colore: f.colore })).slice(0, 3)   // oltre 3 non è disegnato
-    : [{ mia: true, nome: "La mia area" }];
+    // chi allena prende il colore della sua categoria (la più grande) con la scritta
+    // bianca; chi non allena (es. ruoli dirigenziali) resta bianco con la scritta blu
+    : [{ mia: true, nome: "La mia area", colore: genitore ? "" : tintaAllenatore(getCoach(S.settings.profiloAllenatore)) }];
   const L = BANNER_LAYOUT[voci.length];
   return `<div class="home-banner n${voci.length}">
     ${voci.map((v, i) => {
@@ -3479,7 +3504,7 @@ function bannerFigliHTML(genitore) {
       const pos = `left:${(p.x / 390 * 100).toFixed(3)}%;width:${(p.w / 390 * 100).toFixed(3)}%;top:${p.y}px;z-index:${p.z};--rot:${p.r}deg`;
       // la freccia va a sinistra solo sul primo di due banner figli (senza «La mia area»)
       const sx = voci.length === 2 && i === 0 && !v.mia;
-      return `<div class="hb${v.mia ? " mia" : ""}${sx ? " freccia-sx" : ""}" style="${pos}${v.mia ? "" : `;background:${v.colore}`}"
+      return `<div class="hb${v.mia ? " mia" : ""}${v.mia && v.colore ? " tinta" : ""}${sx ? " freccia-sx" : ""}" style="${pos}${v.colore ? `;background:${v.colore}` : ""}"
           data-act="${v.mia ? "miaArea" : "figlioApri"}" data-arg="${v.id || ""}" role="button" tabindex="0"
           aria-label="${v.mia ? "Vai a La mia area" : "Apri la scheda di " + esc(v.nome)}">
         <span class="hb-freccia">${ic("right")}</span>
@@ -4148,22 +4173,37 @@ const _comDel = id => confirmModal("Eliminare questa comunicazione?", () => {
    cambia il ruolo con cui si vede l'app (select trasparente sopra). In basso il nome di
    battesimo enorme in bianco, tagliato dal bordo; adattaNomeMia() lo rimpicciolisce se
    non ci sta. Toccare nome e iniziali porta alla scelta del profilo (era il "Cambia"). */
-function miaTestataHTML(a) {
+/* categorie allenate da `a`, dalla più piccola alla più grande, e la tinta che ne segue:
+   vince la più grande. Usata dalla testata qui sotto e dal banner «La mia area» in Home. */
+function categorieDi(a) { return a ? S.categorie.filter(c => (a.categorie || []).includes(c.id)) : []; }
+function tintaAllenatore(a) {
+  const sue = categorieDi(a), cat = sue[sue.length - 1];
+  return cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "";
+}
+/* `scheda` = la stessa testata, ma per la scheda di un allenatore aperta dall'elenco
+   Allenatori (19-20 ott 2026: Alessio vuole le due schermate uguali). Al posto della
+   pastiglia del ruolo ci sono la freccia indietro a sinistra e, per chi ha il permesso,
+   foto e modifica a destra; sotto il nome c'è la qualifica invece di «La mia area». */
+function miaTestataHTML(a, scheda) {
   const r = ruoloCorrente();
-  const sue = a ? S.categorie.filter(c => (a.categorie || []).includes(c.id)) : [];
-  const cat = sue[sue.length - 1];
-  const tinta = cat ? coloreCat(cat, S.categorie.indexOf(cat)) : "#8FC03F";
+  const sue = categorieDi(a);
+  const tinta = tintaAllenatore(a) || "#8FC03F";
   const nome = a ? a.nome.split(" ")[0] : r.nome;
-  const sotto = "La mia area" + (sue.length ? " · " + sue.map(siglaCat).join(" ") : "");
+  const sigle = sue.length ? " · " + sue.map(siglaCat).join(" ") : "";
+  const sotto = scheda ? (a.titolo || "Allenatore") + sigle : "La mia area" + sigle;
   const chi = `
       ${a ? avatarHTML(a, 38, "border-radius:50%") : `<div class="avatar" style="width:38px;height:38px;border-radius:50%">${ic("user")}</div>`}
       <span class="mia-testa-chi">
         <span class="n">${esc(a ? a.nome : r.nome)}</span>
         <span class="s">${esc(sotto)}</span>
       </span>`;
-  return `
-  <header class="mia-testa${tintaScura(tinta) ? " scura" : ""}" style="background:${tinta}">
-    <div class="mia-testa-riga">
+  const riga = scheda ? `
+      <button class="iconbtn mia-testa-btn" data-act="go" data-arg='{"name":"allenatori"}' aria-label="Indietro">${ic("left")}</button>
+      <div class="mia-testa-io">${chi}</div>
+      ${can("allenatori") ? `
+        <input type="file" id="coachFotoFile" data-coach="${a.id}" accept="image/*" hidden>
+        ${btnIcon("camera", "coachFotoPick", a.id, "mia-testa-btn", a.foto ? "Sostituisci foto" : "Aggiungi foto")}
+        ${btnIcon("edit", "coachEdit", a.id, "mia-testa-btn", "Modifica scheda")}` : ""}` : `
       ${a ? `<button class="mia-testa-io" data-act="mioScegli" data-arg="" aria-label="Cambia profilo">${chi}</button>`
           : `<div class="mia-testa-io">${chi}</div>`}
       <div class="mia-ruolo" title="Versione di prova: tocca per cambiare il ruolo con cui vedi l'app">
@@ -4173,7 +4213,11 @@ function miaTestataHTML(a) {
         <select id="roleSwitch" aria-label="Cambia il ruolo con cui vedi l'app">
           ${S.ruoli.map(x => `<option value="${x.id}" ${x.id === r.id ? "selected" : ""}>L${x.livello} ${esc(x.nome)}</option>`).join("")}
         </select>
-      </div>
+      </div>`;
+  return `
+  <header class="mia-testa${tintaScura(tinta) ? " scura" : ""}" style="background:${tinta}">
+    <div class="mia-testa-riga">
+      ${riga}
       ${MENU_BTN}
     </div>
     <h1 class="mia-nome entra-sx">${esc(nome)}</h1>
@@ -4786,47 +4830,24 @@ function vAllenatore(id) {
   const all = VIEW.all;
   const reg = [...a.presenze].sort((x, y) => x.data < y.data ? 1 : -1);
   const shown = all ? reg : reg.slice(0, 10);
-  return `<div class="stack-lg">
+  const imp = impegniAllenatore(a);
+  // stessa schermata di «La mia area» (testata colorata, presenze, mesi, impegni);
+  // in fondo il registro presenze, lo strumento con cui la Direzione le gestisce
+  return `${miaTestataHTML(a, true)}<div class="stack-lg mia-corpo">
+
+    ${presenzeStagioneHTML(st.fatte, a.contratto)}
+
     <div>
-      <div class="card">
-        <div class="row">
-          ${avatarHTML(a, 56)}
-          <div class="grow">
-            <h1 style="font-size:calc(20px * var(--st));font-weight:800">${esc(a.nome)}</h1>
-            <div class="muted">${esc(a.titolo)}</div>
-          </div>
-          ${can("allenatori") ? `
-            <input type="file" id="coachFotoFile" data-coach="${a.id}" accept="image/*" hidden>
-            ${btnIcon("camera", "coachFotoPick", a.id, "", a.foto ? "Sostituisci foto" : "Aggiungi foto")}
-            ${btnIcon("edit", "coachEdit", a.id, "", "Modifica scheda")}` : ""}
-        </div>
-        <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px">
-          ${a.categorie.map(cid => pillCat(cid, true)).join("")}
-          <span class="pill num">Contratto: ${a.contratto} sedute</span>
-        </div>
-        ${(a.telefono || a.email) ? `
-        <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:12px">
-          ${a.telefono ? `<a class="small" href="tel:${esc(a.telefono.replace(/\s/g, ""))}">${ic("phone", "icon-inline")}${esc(a.telefono)}</a>` : ""}
-          ${a.email ? `<a class="small" href="mailto:${esc(a.email)}">${ic("mail", "icon-inline")}${esc(a.email)}</a>` : ""}
-        </div>` : ""}
+      <div class="sec-head"><h2>Presenze per mese</h2></div>
+      <div class="card">${barChartHTML(mesi)}</div>
+    </div>
+
+    <div>
+      <div class="sec-head imp-testa">
+        <h2>Prossimi impegni</h2>
+        <button class="btn small" data-act="mioIcs" data-arg="${a.id}">${ic("calplus")}Calendario</button>
       </div>
-    </div>
-
-    <div class="statgrid">
-      <div class="card stat"><div class="eyebrow">Presenze</div><div class="k num">${st.fatte}</div></div>
-      <div class="card stat"><div class="eyebrow">Assenze</div><div class="k num">${st.assenze}</div></div>
-      <div class="card stat"><div class="eyebrow">Da contratto</div><div class="k num">${a.contratto}</div></div>
-      <div class="card stat"><div class="eyebrow">Completamento</div><div class="k num">${st.perc}<small>%</small></div></div>
-    </div>
-
-    <div class="card">
-      <div class="eyebrow" style="margin-bottom:10px">Presenze sul contratto</div>
-      ${donutHTML(st.fatte, a.contratto)}
-    </div>
-
-    <div class="card">
-      <div class="eyebrow" style="margin-bottom:10px">Andamento mensile</div>
-      ${barChartHTML(mesi)}
+      ${impegniMiaHTML(imp.slice(0, 12), a)}
     </div>
 
     <div>
@@ -5831,7 +5852,7 @@ function vImpostazioni() {
       <p class="small" style="margin-bottom:10px">Il Livello 1 può sempre modificare tutto. Tutti i ruoli possono <b>vedere</b> ogni sezione: qui decidi chi può anche <b>modificarla</b>.</p>
       <div class="permwrap">
         <table class="permtable">
-          <thead><tr><th>Sezione</th>${S.ruoli.map(x => `<th title="${esc(x.nome)}">L${x.livello}</th>`).join("")}</tr></thead>
+          <thead><tr><th>Sezione</th>${S.ruoli.map(x => `<th title="${esc(x.nome)}">L${x.livello}</th>`).join("")}<th class="perm-cosa">Cosa permette</th></tr></thead>
           <tbody>
             ${SEZIONI_PERMESSI.map(s => `
             <tr>
@@ -5842,6 +5863,7 @@ function vImpostazioni() {
                 `<td><span class="muted" title="I Genitori sono solo spettatori"> </span></td>` :
                 `<td><label class="permdot" title="${esc(x.nome)} ${esc(s.nome)}"><input type="checkbox" ${S.permessi[s.key][x.id] ? "checked" : ""} ${canRoles ? "" : "disabled"} data-act="permToggle" data-arg="${esc(JSON.stringify({ sez: s.key, ruolo: x.id }))}"><i></i></label></td>`
               ).join("")}
+              <td class="perm-cosa">${esc(s.cosa || "")}</td>
             </tr>`).join("")}
           </tbody>
         </table>
@@ -6012,7 +6034,7 @@ function renderChrome() {
   document.documentElement.setAttribute("data-menu", stileMenu);
   // nella Home il marchio sta già dentro la testata navy: tenere anche la topbar
   // significherebbe mostrare scudo e nome del club due volte di fila.
-  document.documentElement.toggleAttribute("data-senza-topbar", VIEW.name === "home" || VIEW.name === "mio");
+  document.documentElement.toggleAttribute("data-senza-topbar", ["home", "mio", "allenatore"].includes(VIEW.name));
   misuraTopbar();
   // solo il menu classico raggruppa le sezioni secondarie sotto "Altro" (max 5 voci in basso).
   // Dal 19 ott 2026 vale anche per il genitore: il suo "Altro" contiene Contatti e Impostazioni.
@@ -6083,7 +6105,7 @@ function render() {
   bindLongText(main);
   bindImgSk(main);
   if (VIEW.name === "home") bindSettimana(main); else _settGiorno = null;
-  if (VIEW.name === "mio") { adattaNomeMia(main); riempiArchi(main); }
+  if (VIEW.name === "mio" || VIEW.name === "allenatore") { adattaNomeMia(main); riempiArchi(main); }
   if (VIEW.name === "partite") bindRuota(main);
   adattaTitoli(main);
 
