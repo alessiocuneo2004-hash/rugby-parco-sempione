@@ -1955,16 +1955,18 @@ html.foglio-aperto{overflow:hidden}
    parte 282px più in basso (250 nel disegno, ma così il numero gigante non copre il "+"
    di Comunicazioni) e ci scorre sotto. */
 .cat-testa{
-  position:sticky;top:var(--topbar-h,64px);z-index:6;height:0;
-  margin:-20px -16px calc(282px - 56px);pointer-events:none;
+  /* sale di 3px sotto la topbar (che le sta sopra): sui telefoni l'altezza della topbar
+     non è un numero intero di pixel e restava una righina di sfondo fra le due fasce */
+  position:sticky;top:calc(var(--topbar-h,64px) - 3px);z-index:6;height:0;
+  margin:-23px -16px calc(285px - 56px);pointer-events:none;
 }
 @media (min-width:960px){.cat-testa{margin-left:-22px;margin-right:-22px}}
 .cat-testa-fondo{
-  position:absolute;left:0;right:0;top:0;height:270px;background:var(--cat);
+  position:absolute;left:0;right:0;top:0;height:273px;background:var(--cat);
   transition:background-color 300ms ease;
-  clip-path:polygon(0 0,100% 0,100% 167.4px,0 237.6px);
+  clip-path:polygon(0 0,100% 0,100% 170.4px,0 240.6px);
 }
-.cat-testa-num{position:absolute;left:0;right:0;top:0;height:270px;overflow:hidden}
+.cat-testa-num{position:absolute;left:0;right:0;top:3px;height:270px;overflow:hidden}
 .cat-testa-num span{
   position:absolute;right:-14px;bottom:-30px;
   font:800 270px/.8 'Big Shoulders Display',sans-serif;text-transform:uppercase;white-space:nowrap;
@@ -1972,7 +1974,7 @@ html.foglio-aperto{overflow:hidden}
   transform-origin:bottom right;will-change:transform,opacity;
 }
 .cat-testa.pm .cat-testa-num span{right:16px;bottom:40px;transform:scale(.42)}
-.cat-testa-tit{position:absolute;left:0;right:0;top:0;height:270px;overflow:hidden}
+.cat-testa-tit{position:absolute;left:0;right:0;top:3px;height:270px;overflow:hidden}
 .cat-testa-blocco{
   position:absolute;left:16px;top:24px;display:flex;flex-direction:column;gap:6px;
   transform-origin:top left;will-change:transform;
@@ -6434,9 +6436,10 @@ function aggiornaTestataCat() {
   const m = pm ? 0.42 : 1, r = pm ? 16 : -14, up = pm ? 70 : 0;
   const H = L(270, 70), C = Math.max(250 - y, H), d = sm(0.55, 1);
   const q = (el, css) => { const n = t.querySelector(el); if (n) Object.assign(n.style, css); };
+  // la fascia parte 3px più in alto, nascosta sotto la topbar (vedi .cat-testa nello stile)
   q(".cat-testa-fondo", {
-    height: H.toFixed(1) + "px",
-    clipPath: `polygon(0 0,100% 0,100% ${L(H * .62, H).toFixed(1)}px,0 ${L(H * .88, H).toFixed(1)}px)`,
+    height: (H + 3).toFixed(1) + "px",
+    clipPath: `polygon(0 0,100% 0,100% ${(3 + L(H * .62, H)).toFixed(1)}px,0 ${(3 + L(H * .88, H)).toFixed(1)}px)`,
     filter: `drop-shadow(0 6px 10px rgba(11,27,38,${(.25 * e).toFixed(2)}))`
   });
   q(".cat-testa-num", { height: C.toFixed(1) + "px" });
