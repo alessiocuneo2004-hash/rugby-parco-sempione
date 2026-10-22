@@ -1948,6 +1948,46 @@ html.foglio-aperto{overflow:hidden}
   #comRoot.aperto .com-foglio{opacity:1}
   #comRoot.uscita .com-foglio{opacity:0}
 }
+
+/* ---------- testata della categoria (Claude Design, Categoria 11f "Titolo che si fonde") ----------
+   Fascia nel colore della categoria, attaccata sotto la topbar; alta 270px, si accorcia a 70px
+   scorrendo (le misure le aggiorna aggiornaTestataCat). Ha altezza zero nel flusso: il contenuto
+   parte 282px più in basso (250 nel disegno, ma così il numero gigante non copre il "+"
+   di Comunicazioni) e ci scorre sotto. */
+.cat-testa{
+  position:sticky;top:var(--topbar-h,64px);z-index:6;height:0;
+  margin:-20px -16px calc(282px - 56px);pointer-events:none;
+}
+@media (min-width:960px){.cat-testa{margin-left:-22px;margin-right:-22px}}
+.cat-testa-fondo{
+  position:absolute;left:0;right:0;top:0;height:270px;background:var(--cat);
+  transition:background-color 300ms ease;
+  clip-path:polygon(0 0,100% 0,100% 167.4px,0 237.6px);
+}
+.cat-testa-num{position:absolute;left:0;right:0;top:0;height:270px;overflow:hidden}
+.cat-testa-num span{
+  position:absolute;right:-14px;bottom:-30px;
+  font:800 270px/.8 'Big Shoulders Display',sans-serif;text-transform:uppercase;white-space:nowrap;
+  color:var(--cat);-webkit-text-stroke:6px #fff;paint-order:stroke fill;
+  transform-origin:bottom right;will-change:transform,opacity;
+}
+.cat-testa.pm .cat-testa-num span{right:16px;bottom:40px;transform:scale(.42)}
+.cat-testa-tit{position:absolute;left:0;right:0;top:0;height:270px;overflow:hidden}
+.cat-testa-blocco{
+  position:absolute;left:16px;top:24px;display:flex;flex-direction:column;gap:6px;
+  transform-origin:top left;will-change:transform;
+}
+@media (min-width:960px){.cat-testa-blocco{left:22px}}
+.cat-testa-lbl{font:500 13px 'DM Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.cat-testa-h{
+  margin:0;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:80px;line-height:.88;
+  white-space:nowrap;text-transform:uppercase;color:#fff;letter-spacing:0;
+}
+.cat-testa-dig{display:inline-block;margin-left:.18em;opacity:0;transform:translateX(18px)}
+.cat-testa .iconbtn.cat-testa-btn{
+  position:absolute;right:12px;top:15px;pointer-events:auto;
+  background:rgba(255,255,255,.22);border-color:transparent;color:#fff;
+}
 </style>
 <div id="app">
   <header class="topbar">
@@ -4487,12 +4527,20 @@ function vCategoria(id) {
   const back = JSON.stringify({ name: "categorie" });
   const tornei = [...c.tornei].sort((a, b) => a.data < b.data ? -1 : 1);
   const tinta = coloreCat(c, S.categorie.indexOf(c));   // colore della categoria, usato dalle comunicazioni
+  // testata «che si fonde» (Claude Design, Categoria 11f): "Under" + "10", oppure "Prime" + "Mete"
+  const pm = c.nome === "Prime Mete";
+  const mU = /^U\s*(\d+)$/i.exec(c.nome || "");
+  const parola = pm ? "Prime" : mU ? "Under" : (c.nome || "").split(" ")[0];
+  const cifre = pm ? "Mete" : mU ? mU[1] : (c.nome || "").split(" ").slice(1).join(" ");
   return `<div class="stack-lg">
-    <div>
-      <div class="row">
-        <h1 class="page-title grow">${esc(c.fascia || c.nome)}</h1>
-        ${can("categorie") ? btnIcon("edit", "catEdit", c.id, "", "Modifica categoria") : ""}
-      </div>
+    <div class="cat-testa ${pm ? "pm" : ""}" style="--cat:${tinta}">
+      <div class="cat-testa-fondo"></div>
+      <div class="cat-testa-num" aria-hidden="true"><span>${esc(cifre || parola)}</span></div>
+      <div class="cat-testa-tit"><div class="cat-testa-blocco">
+        <span class="cat-testa-lbl">Categoria</span>
+        <h1 class="cat-testa-h">${esc(parola)}${cifre ? `<span class="cat-testa-dig">${esc(cifre)}</span>` : ""}</h1>
+      </div></div>
+      ${can("categorie") ? btnIcon("edit", "catEdit", c.id, "cat-testa-btn", "Modifica categoria") : ""}
     </div>
 
     <div>
@@ -6109,6 +6157,7 @@ function render() {
   if (VIEW.name === "home") bindSettimana(main); else _settGiorno = null;
   if (VIEW.name === "mio" || VIEW.name === "allenatore") { adattaNomeMia(main); riempiArchi(main); }
   if (VIEW.name === "partite") bindRuota(main);
+  if (VIEW.name === "categoria") aggiornaTestataCat();
   adattaTitoli(main);
 
   const rs = document.getElementById("roleSwitch");
@@ -6374,6 +6423,49 @@ function avviaParallasse() {
   aggiorna();
 }
 avviaParallasse();
+
+/* testata della categoria (Claude Design, Categoria 11f): nei primi 200px di scorrimento la
+   fascia colorata passa da 270 a 70px, il taglio inclinato si raddrizza, il numero gigante
+   rimpicciolisce e sfuma mentre le cifre si accostano alla parola ("Under" + "10").
+   Le formule sono quelle del file di Claude Design, valori in px. */
+function aggiornaTestataCat() {
+  const t = document.querySelector("#main .cat-testa");
+  if (!t) return;
+  const y = Math.max(0, scrollY);
+  const k = Math.min(1, y / 200), e = 1 - (1 - k) * (1 - k);
+  const L = (a, b) => a + (b - a) * e;
+  const sm = (a, b) => { const u = Math.min(1, Math.max(0, (e - a) / (b - a))); return u * u * (3 - 2 * u); };
+  const pm = t.classList.contains("pm");
+  const m = pm ? 0.42 : 1, r = pm ? 16 : -14, up = pm ? 70 : 0;
+  const H = L(270, 70), C = Math.max(250 - y, H), d = sm(0.55, 1);
+  const q = (el, css) => { const n = t.querySelector(el); if (n) Object.assign(n.style, css); };
+  q(".cat-testa-fondo", {
+    height: H.toFixed(1) + "px",
+    clipPath: `polygon(0 0,100% 0,100% ${L(H * .62, H).toFixed(1)}px,0 ${L(H * .88, H).toFixed(1)}px)`,
+    filter: `drop-shadow(0 6px 10px rgba(11,27,38,${(.25 * e).toFixed(2)}))`
+  });
+  q(".cat-testa-num", { height: C.toFixed(1) + "px" });
+  q(".cat-testa-num span", {
+    right: L(r, 120).toFixed(1) + "px", bottom: (C - H + L(-30 + up, -8)).toFixed(1) + "px",
+    transform: `scale(${(L(1, .27) * m).toFixed(3)})`, opacity: (1 - sm(.4, .85)).toFixed(2)
+  });
+  q(".cat-testa-tit", { height: H.toFixed(1) + "px" });
+  q(".cat-testa-blocco", {
+    top: L(24, 14).toFixed(1) + "px",
+    transform: `scale(${L(1, .7).toFixed(3)}) translateY(${L(0, -4.4).toFixed(1)}px)`
+  });
+  q(".cat-testa-lbl", { opacity: Math.max(0, 1 - e * 2.5).toFixed(2) });
+  q(".cat-testa-dig", { opacity: d.toFixed(2), transform: `translateX(${(18 * (1 - d)).toFixed(1)}px)` });
+}
+{
+  let inCoda = false;
+  addEventListener("scroll", () => {
+    if (inCoda) return;
+    inCoda = true;
+    requestAnimationFrame(() => { inCoda = false; aggiornaTestataCat(); });
+  }, { passive: true });
+  addEventListener("resize", aggiornaTestataCat);
+}
 
 /* avvio: l'app parte sempre dalla Home (richiesta di Alessio), anche se l'indirizzo
    ricorda l'ultima schermata aperta. replaceState sostituisce l'indirizzo senza
