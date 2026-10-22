@@ -1984,10 +1984,6 @@ html.foglio-aperto{overflow:hidden}
   white-space:nowrap;text-transform:uppercase;color:#fff;letter-spacing:0;
 }
 .cat-testa-dig{display:inline-block;margin-left:.18em;opacity:0;transform:translateX(18px)}
-.cat-testa .iconbtn.cat-testa-btn{
-  position:absolute;right:12px;top:15px;pointer-events:auto;
-  background:rgba(255,255,255,.22);border-color:transparent;color:#fff;
-}
 </style>
 <div id="app">
   <header class="topbar">
@@ -4540,7 +4536,6 @@ function vCategoria(id) {
         <span class="cat-testa-lbl">Categoria</span>
         <h1 class="cat-testa-h">${esc(parola)}${cifre ? `<span class="cat-testa-dig">${esc(cifre)}</span>` : ""}</h1>
       </div></div>
-      ${can("categorie") ? btnIcon("edit", "catEdit", c.id, "cat-testa-btn", "Modifica categoria") : ""}
     </div>
 
     <div>
