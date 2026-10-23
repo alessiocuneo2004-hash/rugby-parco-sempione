@@ -2007,6 +2007,14 @@ html.foglio-aperto{overflow:hidden}
 /* Impostazioni → Installa l'app: i passi per iPhone e per i browser senza pulsante */
 .installa-passi{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;color:var(--ink-2)}
 .installa-passi b{color:var(--ink)}
+
+/* ---------- Feedback (menu Altro) e feedback ricevuti nell'area di L1 ---------- */
+.fb-card{display:flex;flex-direction:column;gap:8px}
+.fb-card.nuovo{border-left:4px solid var(--accent)}
+.fb-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:calc(14px * var(--st))}
+.fb-chi{font-weight:700;color:var(--ink)}
+.fb-testo{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
+.fb-azioni{gap:8px;align-items:center}
 </style>
 <div id="app">
   <header class="topbar">
@@ -2056,6 +2064,10 @@ html.foglio-aperto{overflow:hidden}
     <button data-view="impostazioni" aria-label="Ruoli e impostazioni">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg>
       <span>Ruoli</span>
+    </button>
+    <button data-view="feedback" aria-label="Feedback">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5z"/><path d="M8 8.5h8M8 12h5"/></svg>
+      <span>Feedback</span>
     </button>
     <button data-view="altro" aria-label="Altre sezioni">
       <svg class="ic-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
@@ -2228,6 +2240,8 @@ function defaultData() {
       { id: uid(), nome: "Cena di inizio stagione", data: "2026-09-12", ora: "20:00", luogo: "Club house Campo Parco Sempione", costo: "25 € adulti · 12 € under 12", descr: "Cena di benvenuto per famiglie, giocatori e staff: presentazione della stagione 2026/27 e lotteria a premi. Prenotazione entro il 5 settembre in segreteria.", locandina: "" },
       { id: uid(), nome: "Sei Nazioni su maxischermo: Italia–Francia", data: "2027-02-06", ora: "15:30", luogo: "Club house", costo: "Gratuito", descr: "Guardiamo la partita tutti insieme al club. Merenda offerta ai bambini, birra e salamelle per i grandi.", locandina: "" }
     ],
+    // commenti sull'app scritti dalla sezione Feedback (menu Altro), letti dalla Direzione
+    feedback: [],
     contatti: [
       { id: uid(), nome: "Segreteria", descr: "Iscrizioni, quote e certificati medici", telefono: "+39 340 123 4567", email: "segreteria@rugbyparcosempione.it", indirizzo: "" },
       { id: uid(), nome: "Direzione sportiva", descr: "", telefono: "+39 348 765 4321", email: "direzione@rugbyparcosempione.it", indirizzo: "" },
@@ -2408,6 +2422,7 @@ function migrate(d) {
   }
   if (!d.permessi.eventi) d.permessi.eventi = { r2: true, r3: true, r4: false, r5: false };
   if (!Array.isArray(d.eventi)) d.eventi = [];
+  if (!Array.isArray(d.feedback)) d.feedback = [];   // 23 ott 2026: sezione Feedback
   // 17 ott 2026: eventi d'esempio in più (per vedere i manifesti a colori alterni),
   // aggiunti una volta sola anche a chi aveva già i dati salvati
   // 17 ott 2026: Prime Mete si chiama "Prime Mete" anche come titolo, non "3–5 anni"
@@ -2460,7 +2475,7 @@ function can(sez) {
 }
 /* Il Livello 5 (Genitori) è solo spettatore: vede Home, Categorie, Partite, Eventi, Contatti
    e Impostazioni (lì solo la scelta del calendario), ma non il Diario */
-const VISTE_SPETTATORE = ["home", "categorie", "partite", "eventi", "contatti", "impostazioni"];
+const VISTE_SPETTATORE = ["home", "categorie", "partite", "eventi", "contatti", "impostazioni", "feedback"];
 function canSee(navKey) {
   return ruoloCorrente().livello === 5 ? VISTE_SPETTATORE.includes(navKey) : true;
 }
@@ -2672,6 +2687,7 @@ function presenzePerMese(a) {
    ===================================================================== */
 
 const IC = {
+  chat: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5z"/><path d="M8 8.5h8M8 12h5"/>',
   download: '<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>',
   plus:  '<path d="M12 5v14M5 12h14"/>',
   edit:  '<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/>',
@@ -3373,7 +3389,7 @@ const NAV_PARENT = {
   home: "home", mio: "mio", categorie: "categorie", categoria: "categorie", diario: "categorie",
   allenatori: "allenatori", allenatore: "allenatori",
   partite: "partite", partita: "partite", eventi: "eventi", evento: "eventi",
-  contatti: "contatti", impostazioni: "impostazioni"
+  contatti: "contatti", impostazioni: "impostazioni", feedback: "feedback"
 };
 
 const ACT = {};
@@ -3420,7 +3436,8 @@ function hashToView(h) {
     eventi: () => ({ name: "eventi" }),
     evento: () => S.eventi.some(x => x.id === p[1]) && { name: "evento", id: p[1] },
     contatti: () => ({ name: "contatti" }),
-    impostazioni: () => ({ name: "impostazioni" })
+    impostazioni: () => ({ name: "impostazioni" }),
+    feedback: () => ({ name: "feedback" })
   };
   return (ok[name] && ok[name]()) || { name: "home" };
 }
@@ -4473,6 +4490,106 @@ function impegniMiaHTML(voci, a) {
     }).join("")}
   </div>`;
 }
+/* ---------- Feedback ----------
+   Sezione nel menu "Altro": chiunque (genitori compresi) scrive un commento sull'app e la
+   Direzione (L1) lo legge nella propria area, dove lo segna come letto o lo elimina.
+   Ogni telefono ha un suo codice (settings.idDispositivo) per riconoscere i commenti
+   inviati da lì e mostrarli in fondo alla pagina, con lo stato "letto". */
+function idDispositivo() {
+  if (!S.settings.idDispositivo) S.settings.idDispositivo = uid();
+  return S.settings.idDispositivo;
+}
+const quandoFb = q => {
+  const [d, h] = (q || "").split("T");
+  return fmtDate(d) + (h ? " · " + h : "");
+};
+function vFeedback() {
+  const r = ruoloCorrente();
+  const a = r.livello === 5 ? null : getCoach(S.settings.profiloAllenatore);
+  const miei = S.feedback.filter(f => f.da && f.da === S.settings.idDispositivo)
+    .sort((x, y) => x.quando < y.quando ? 1 : -1);
+  return `<div class="stack-lg">
+    <div><h1 class="page-title lungo">Feedback</h1></div>
+
+    <div class="card stack">
+      <p>Hai un'idea, hai trovato qualcosa che non funziona o vuoi suggerire una modifica all'app? Scrivila qui: la legge la Direzione.</p>
+      ${a ? "" : `
+      <div class="field">
+        <label for="fbNome">Il tuo nome (facoltativo)</label>
+        <input id="fbNome" autocomplete="name" placeholder="es. Marco, papà di Luca (U8)">
+      </div>`}
+      <div class="field">
+        <label for="fbTesto">Il tuo commento</label>
+        <textarea id="fbTesto" rows="5" placeholder="Scrivi qui il tuo commento"></textarea>
+      </div>
+      <button class="btn primary" data-act="fbInvia">${ic("chat")}Invia alla Direzione</button>
+    </div>
+
+    ${r.livello === 1 ? `
+    <button class="altro-item card" data-act="go" data-arg='{"name":"mio"}'>${ic("user")}<span>Feedback ricevuti<span class="d">Li trovi nella tua area</span></span></button>` : ""}
+
+    ${miei.length ? `
+    <div>
+      <div class="sec-head"><h2>Inviati da te</h2></div>
+      <div class="stack">
+        ${miei.map(f => `
+          <div class="card fb-card ${f.id === _nuovoId ? "entra" : ""}">
+            <div class="fb-meta"><span class="muted">${quandoFb(f.quando)}</span>
+              ${f.letto ? `<span class="pill green">Letto dalla Direzione</span>` : `<span class="pill">Inviato</span>`}</div>
+            <p class="fb-testo">${esc(f.testo)}</p>
+          </div>`).join("")}
+      </div>
+    </div>` : ""}
+  </div>`;
+}
+ACT.fbInvia = () => {
+  const t = document.getElementById("fbTesto");
+  const testo = (t.value || "").trim();
+  if (!testo) { t.focus(); toast("Scrivi prima il tuo commento"); return; }
+  const r = ruoloCorrente();
+  const a = r.livello === 5 ? null : getCoach(S.settings.profiloAllenatore);
+  const nome = a ? a.nome : (document.getElementById("fbNome")?.value || "").trim();
+  const now = new Date();
+  const ora = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+  const f = { id: uid(), quando: isoLocal(now) + "T" + ora, testo, autore: nome, ruolo: r.nome,
+    livello: r.livello, da: idDispositivo(), letto: false };
+  S.feedback.push(f);
+  _nuovoId = f.id;
+  save(); render();
+  toast("Grazie! Il tuo commento è arrivato alla Direzione");
+};
+function feedbackRicevutiHTML() {
+  const fb = [...S.feedback].sort((x, y) => x.quando < y.quando ? 1 : -1);
+  const nuovi = fb.filter(f => !f.letto).length;
+  return `
+    <div>
+      <div class="sec-head"><h2>Feedback</h2>${nuovi ? `<span class="pill green">${nuovi} ${nuovi === 1 ? "nuovo" : "nuovi"}</span>` : ""}</div>
+      <div class="stack">
+        ${fb.map(f => `
+          <div class="card fb-card ${f.letto ? "" : "nuovo"}">
+            <div class="fb-meta">
+              <span class="fb-chi">${esc(f.autore || "Anonimo")}<span class="muted"> · ${esc(f.ruolo || "")}</span></span>
+              <span class="muted">${quandoFb(f.quando)}</span>
+            </div>
+            <p class="fb-testo">${esc(f.testo)}</p>
+            <div class="row fb-azioni">
+              <button class="btn small ${f.letto ? "ghost" : ""}" data-act="fbLetto" data-arg="${f.id}">${f.letto ? "Segna da leggere" : "Segna come letto"}</button>
+              <span class="grow"></span>
+              ${btnIcon("trash", "fbDel", f.id, "", "Elimina feedback")}
+            </div>
+          </div>`).join("") || `<div class="empty">Nessun feedback per ora: qui arrivano i commenti scritti dalla sezione Feedback del menu Altro.</div>`}
+      </div>
+    </div>`;
+}
+ACT.fbLetto = id => {
+  const f = S.feedback.find(x => x.id === id);
+  if (!f) return;
+  f.letto = !f.letto; save(); render();
+};
+ACT.fbDel = id => confirmModal("Eliminare questo feedback?", () => {
+  S.feedback = S.feedback.filter(x => x.id !== id); save(); render(); toast("Feedback eliminato");
+});
+
 function vMio() {
   const a = getCoach(S.settings.profiloAllenatore);
   // i Genitori (L5) non hanno una "mia area" vera (niente presenze/impegni da allenatore):
@@ -4481,7 +4598,9 @@ function vMio() {
   if (ruoloCorrente().livello === 5) return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
     <button class="altro-item card" data-act="go" data-arg='{"name":"impostazioni"}'>${ic("ingranaggio")}<span>Impostazioni<span class="d">Calendario su cui salvare gli impegni</span></span></button>
   </div>`;
+  const fb = ruoloCorrente().livello === 1 ? feedbackRicevutiHTML() : "";
   if (!a) return `${miaTestataHTML(a)}<div class="stack-lg mia-corpo">
+    ${fb}
     <div class="card">
       <h3 style="font-size:calc(17px * var(--st));margin-bottom:6px">Chi sei?</h3>
       <p class="small" style="margin-bottom:12px">Scegli il tuo nome: questo dispositivo lo ricorderà e qui vedrai le tue presenze e i tuoi impegni. Potrai cambiarlo quando vuoi.</p>
@@ -4515,6 +4634,8 @@ function vMio() {
       </div>
       ${impegniMiaHTML(imp.slice(0, 12), a)}
     </div>
+
+    ${fb}
 
   </div>`;
 }
@@ -6163,7 +6284,7 @@ function renderChrome() {
   const usaAltro = stileMenu === "classico";
   // design system: barra diretta con Home, Categorie, Tornei, Eventi, Altro;
   // Allenatori passa dentro "Altro" insieme a Mio/Contatti/Impostazioni.
-  const GRUPPO_ALTRO = ["mio", "allenatori", "contatti", "impostazioni"];
+  const GRUPPO_ALTRO = ["mio", "allenatori", "contatti", "impostazioni", "feedback"];
   document.querySelectorAll("#nav button").forEach(b => {
     const v = b.dataset.view;
     if (v === "altro") {
@@ -6205,6 +6326,7 @@ function render() {
     eventi: vEventi,
     evento: () => vEvento(VIEW.id),
     contatti: vContatti,
+    feedback: vFeedback,
     impostazioni: vImpostazioni
   };
   main.innerHTML = (views[VIEW.name] || vHome)();
@@ -6374,7 +6496,8 @@ function openAltro() {
     { v: "mio", t: "La mia area", icona: "user" },
     { v: "allenatori", t: "Allenatori", icona: "users" },
     { v: "contatti", t: "Contatti", icona: "phone" },
-    { v: "impostazioni", t: "Impostazioni", icona: "ingranaggio" }
+    { v: "impostazioni", t: "Impostazioni", icona: "ingranaggio" },
+    { v: "feedback", t: "Feedback", icona: "chat" }
   ].filter(x => canSee(x.v));
   const r = ruoloCorrente();
   // il genitore non è un allenatore: niente nome del profilo allenatore in testa al pannello
