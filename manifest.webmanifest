@@ -1,0 +1,17 @@
+{
+  "name": "Rugby Parco Sempione",
+  "short_name": "RPS",
+  "description": "Gestione squadra del Rugby Parco Sempione: categorie, tornei, eventi, contatti.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#00253F",
+  "theme_color": "#00253F",
+  "icons": [
+    { "src": "icone/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icone/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icone/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
