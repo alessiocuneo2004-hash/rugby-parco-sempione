@@ -2015,6 +2015,70 @@ html.foglio-aperto{overflow:hidden}
 .fb-chi{font-weight:700;color:var(--ink)}
 .fb-testo{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
 .fb-azioni{gap:8px;align-items:center}
+
+/* ---------- tabellone della partita in corso (critica 23 ott 2026) ----------
+   Bordo campo: guanti, pioggia, sole. Un "+ meta" per squadra grande quanto la colonna
+   (76px di altezza), il "−1" piccolo e 24px più sotto, il fischio finale largo e da solo.
+   I colori dei comandi derivano da --live-fg/--live-bg, così restano leggibili sia sul
+   tabellone navy (tema chiaro) sia sul "foglio di carta" crema (tema scuro). */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.partita-live{gap:20px}
+.partita-live-testa{align-items:center;gap:10px}
+.partita-live .hero-card{padding-top:16px}
+.hero-card .btn{border-color:color-mix(in srgb,var(--live-fg) 34%,transparent)}
+.hero-card .btn:hover{background:color-mix(in srgb,var(--live-fg) 10%,transparent)}
+.hero-card hr.sep{border-top-color:color-mix(in srgb,var(--live-fg) 16%,transparent)}
+/* fischio finale pieno: salmone su navy (tema chiaro), rosso mattone sul crema (tema scuro) */
+.hero-card{--tab-danger:var(--alert-navy);--tab-danger-ink:#00253F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hero-card{--tab-danger:#A3342A;--tab-danger-ink:#FFFFFF}}
+:root[data-theme="dark"] .hero-card{--tab-danger:#A3342A;--tab-danger-ink:#FFFFFF}
+.hero-card .btn.danger.tab-grande{background:var(--tab-danger);border-color:var(--tab-danger);color:var(--tab-danger-ink)}
+.tabellone .squadra{overflow-wrap:anywhere}
+.meta-col{display:flex;flex-direction:column;align-items:stretch;gap:24px}
+.meta-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:76px;padding:0 10px;
+  border:0;border-radius:var(--r-md);cursor:pointer;touch-action:manipulation;
+  background:var(--live-pill-bg);color:var(--live-pill-ink);
+  font-family:var(--font-display);font-weight:800;font-size:calc(30px * var(--st));line-height:1;
+  letter-spacing:.01em;text-transform:uppercase;
+  box-shadow:0 3px 0 color-mix(in srgb,var(--live-pill-ink) 30%,transparent);
+  transition:transform 120ms cubic-bezier(.23,1,.32,1),box-shadow 120ms ease;
+}
+.meta-btn svg{width:26px;height:26px;stroke-width:3}
+.meta-btn:active{transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--live-pill-ink) 30%,transparent)}
+/* avversari: azzurro U6 con inchiostro scuro (5,6:1), si stacca sia dal navy sia dal crema */
+.tabellone>div:last-child .meta-btn{background:#3E93C8;color:#0B1B26;box-shadow:0 3px 0 rgba(11,27,38,.3)}
+/* i pulsanti delle due squadre restano allineati anche se un nome va su più righe */
+.tabellone{align-items:stretch}
+.tabellone>div{display:flex;flex-direction:column}
+.tabellone .squadra{flex:1;display:flex;align-items:flex-end;justify-content:center}
+.meta-meno{
+  align-self:center;min-width:88px;min-height:44px;padding:0 16px;cursor:pointer;touch-action:manipulation;
+  border-radius:var(--r-pill);background:transparent;color:var(--live-fg);
+  border:1.5px solid color-mix(in srgb,var(--live-fg) 40%,transparent);
+  font-family:var(--font-display);font-weight:800;font-size:calc(22px * var(--st));line-height:1;
+}
+.meta-meno:disabled{opacity:.35;cursor:default}
+.meta-btn:focus-visible,.meta-meno:focus-visible,.tab-azzera:focus-visible{outline:3px solid var(--live-pill-bg);outline-offset:3px}
+.sb-n{display:inline-block}
+.sb-n.pop{animation:metaPop 420ms cubic-bezier(.23,1,.32,1)}
+@keyframes metaPop{0%{transform:scale(1.22);color:var(--live-pill-bg)}100%{transform:none}}
+.meta-ultima{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;
+  padding:6px 6px 6px 14px;border-radius:var(--r-md);text-align:left;
+  background:color-mix(in srgb,var(--live-fg) 8%,transparent);
+  font-family:var(--font-data);font-size:calc(15px * var(--st));color:var(--live-fg);
+}
+.meta-ultima span{min-width:0;overflow-wrap:anywhere}
+.meta-ultima .btn.small{min-height:44px;flex:none}
+.tab-azione{margin-top:18px;display:flex;justify-content:center}
+.btn.tab-grande{width:100%;min-height:56px;font-size:calc(18px * var(--st))}
+.btn.tab-grande svg{width:22px;height:22px}
+.tab-azzera{
+  display:block;margin:14px auto 0;min-height:44px;padding:0 12px;background:none;border:0;cursor:pointer;
+  color:var(--live-muted);font:inherit;font-size:calc(15px * var(--st));text-decoration:underline;text-underline-offset:3px;
+}
+@media (prefers-reduced-motion:reduce){.sb-n.pop{animation:none}.meta-btn{transition:none}}
 </style>
 <div id="app">
   <header class="topbar">
@@ -2688,6 +2752,9 @@ function presenzePerMese(a) {
 
 const IC = {
   chat: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5z"/><path d="M8 8.5h8M8 12h5"/>',
+  undo:  '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  play:  '<path d="M7 4.5v15l12.5-7.5z"/>',
+  fischio: '<circle cx="9" cy="14" r="5.5"/><path d="M12.5 9.5L21 5v4l-6.2 2.4"/><path d="M9 14h.01"/>',
   download: '<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>',
   plus:  '<path d="M12 5v14M5 12h14"/>',
   edit:  '<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/>',
@@ -2822,12 +2889,12 @@ function fieldHTML(f) {
       `<label class="checkrow${o.fisso ? " fisso" : ""}"><input type="checkbox" data-cg="${f.key}" value="${esc(o.v)}" ${o.fisso || (f.value && f.value.includes(o.v)) ? "checked" : ""} ${o.fisso ? "disabled" : ""}> ${esc(o.t)}</label>`).join("")}${f.nota ? `<p class="small" style="margin:2px 0 0">${f.nota}</p>` : ""}</div>`;
   return `<div class="field"><label>${esc(f.label)}${f.required ? " *" : ""}</label><input name="${f.key}" type="${f.type || "text"}" value="${esc(v)}" placeholder="${esc(f.placeholder || "")}" ${f.min != null ? `min="${f.min}"` : ""} ${f.step ? `step="${f.step}"` : ""}></div>`;
 }
-function confirmModal(msg, fn) {
+function confirmModal(msg, fn, etichetta) {
   openModal({
     title: "Confermi?",
     info: esc(msg),
     fields: [],
-    saveLabel: "Conferma",
+    saveLabel: etichetta || "Conferma",
     onSave: fn
   });
 }
@@ -5572,32 +5639,52 @@ function vPartita(id) {
   const done = p.stato === "terminata";
   const editable = can("partite");
   const live4 = canLive();      // inizio, punteggio e fine partita: livelli 1–4
-  const scoreBtns = side => live4 && !done ? `
-    <div class="row" style="gap:8px;justify-content:center">
-      ${[["−1", -1, ""], ["+1", 1, " primary"]].map(([t, n, cls]) =>
-        `<button class="btn small score-btn${cls}" data-act="score" data-arg="${esc(JSON.stringify({ id: p.id, side, n }))}">${t}</button>`).join("")}
+  const noiNome = S.settings.club.replace("Rugby ", "");
+  const nomeDi = side => side === "noi" ? noiNome : p.avversario;
+  /* comandi da bordo campo (critica 23 ott 2026): con i guanti il "+ meta" dev'essere
+     impossibile da mancare e il "−1" impossibile da toccare per sbaglio. Quindi un solo
+     pulsante grande per squadra e, 24px più sotto, un "−1" piccolo e sobrio. Ci sono
+     solo durante la partita: prima si preme "Inizia partita", dopo il fischio non si segna. */
+  const scoreBtns = side => live4 && isLive ? `
+    <div class="meta-col">
+      <button class="meta-btn" data-act="score" data-arg="${esc(JSON.stringify({ id: p.id, side, n: 1 }))}"
+        aria-label="Meta per ${esc(nomeDi(side))}">${ic("plus")}<span>Meta</span></button>
+      <button class="meta-meno" data-act="score" data-arg="${esc(JSON.stringify({ id: p.id, side, n: -1 }))}"
+        aria-label="Togli una meta a ${esc(nomeDi(side))}" ${((side === "noi" ? p.puntiNoi : p.puntiLoro) ?? 0) === 0 ? "disabled" : ""}>−1</button>
     </div>` : "";
+  // l'ultima meta segnata resta scritta sotto il tabellone con il suo "Annulla": un tocco
+  // sbagliato si corregge subito, anche su telefoni che non vibrano e dopo che il
+  // messaggio in basso è sparito
+  const u = isLive && live4 && p.ultimo ? p.ultimo : null;
 
-  return `<div class="stack-lg">
+  const pills = `
+      <div class="row" style="flex-wrap:wrap;gap:6px">
+        ${pillCat(p.categoria)}
+        <span class="pill round">${esc(p.tipo)}</span>
+        ${isLive ? `<span class="pill round on">In corso</span>` : done ? `<span class="pill round">Terminata</span>` : ""}
+      </div>`;
+  return `<div class="stack-lg ${isLive && live4 ? "partita-live" : ""}">
+    ${isLive && live4 ? `
+    <div class="row partita-live-testa">
+      <h1 class="sr-only">Partita contro ${esc(p.avversario)}</h1>
+      <div class="grow">${pills}</div>
+      ${editable ? btnIcon("edit", "matchEdit", p.id, "", "Modifica dati partita") : ""}
+    </div>` : `
     <div class="stack" style="gap:16px">
       <div class="row">
         <h1 class="page-title grow">Partita</h1>
         ${editable ? btnIcon("edit", "matchEdit", p.id, "", "Modifica dati partita") : ""}
       </div>
-      <div class="row" style="flex-wrap:wrap;gap:6px">
-        ${pillCat(p.categoria)}
-        <span class="pill round">${esc(p.tipo)}</span>
-        ${isLive ? `<span class="pill round on">In corso</span>` : done ? `<span class="pill round">Terminata</span>` : ""}
-      </div>
-    </div>
+      ${pills}
+    </div>`}
 
     <div class="hero-card" style="text-align:center">
       <div class="eyebrow" style="color:var(--live-muted)">${fmtDateLong(p.data)} · ore ${esc(p.ora || " ")}</div>
       ${/* tabellone come nel mockup: punteggio unico e grande, nomi squadra sotto, comandi sotto ciascuna */""}
-      <div class="scorebig num">${p.puntiNoi ?? 0}<span class="vs">–</span>${p.puntiLoro ?? 0}</div>
+      <div class="scorebig num" aria-live="polite" aria-label="Punteggio ${p.puntiNoi ?? 0} a ${p.puntiLoro ?? 0}"><span class="sb-n ${_metaFlash === "noi" ? "pop" : ""}">${p.puntiNoi ?? 0}</span><span class="vs">–</span><span class="sb-n ${_metaFlash === "loro" ? "pop" : ""}">${p.puntiLoro ?? 0}</span></div>
       <div class="tabellone">
         <div>
-          <div class="squadra">${esc(S.settings.club.replace("Rugby ", ""))}</div>
+          <div class="squadra">${esc(noiNome)}</div>
           ${scoreBtns("noi")}
         </div>
         <div>
@@ -5605,15 +5692,25 @@ function vPartita(id) {
           ${scoreBtns("loro")}
         </div>
       </div>
+      ${u ? `
+      <div class="meta-ultima">
+        <span>${u.n > 0 ? "Meta" : "Tolta una meta"} · ${esc(nomeDi(u.side))} · ${esc(u.ora)}</span>
+        <button class="btn small" data-act="scoreUndo" data-arg="${p.id}">${ic("undo")}Annulla</button>
+      </div>` : ""}
       ${p.puntiNoi == null ? `<div class="muted" style="color:var(--live-muted);margin-top:6px">Non ancora iniziata</div>` : ""}
-      ${live4 ? `
-      <hr class="sep">
-      <div class="row" style="justify-content:center;flex-wrap:wrap;gap:8px">
-        ${p.stato !== "programmata" ? `<button class="btn small" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "programmata" }))}">Annulla</button>` : ""}
-        ${!isLive ? `<button class="btn small primary" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "in_corso" }))}">Inizia partita</button>` : ""}
-        ${isLive ? `<button class="btn small danger" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "terminata" }))}">Fischio finale</button>` : ""}
+      ${live4 && !done ? `
+      <div class="tab-azione">
+        ${isLive
+          ? `<button class="btn danger tab-grande" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "terminata" }))}">${ic("fischio")}Fischio finale</button>`
+          : `<button class="btn primary tab-grande" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "in_corso" }))}">${ic("play")}Inizia partita</button>`}
+      </div>` : ""}
+      ${live4 && done ? `
+      <div class="tab-azione">
+        <button class="btn small" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "in_corso" }))}">Riapri per correggere</button>
       </div>` : ""}
       ${p.note ? `<p class="small" style="margin-top:10px">${esc(p.note)}</p>` : ""}
+      ${live4 && isLive ? `
+      <button class="tab-azzera" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "programmata" }))}">Azzera la partita</button>` : ""}
     </div>
 
     <div>
@@ -5661,15 +5758,34 @@ function vPartita(id) {
     </div>
   </div>`;
 }
+let _metaFlash = null;   // squadra il cui numero "salta" una volta dopo una meta
+const oraAdesso = () => { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
 ACT.score = arg => {
   if (!canLive()) return;
   const { id, side, n } = JSON.parse(arg);
   const p = S.partite.find(x => x.id === id);
-  if (navigator.vibrate) navigator.vibrate(8);   // feedback tattile sul punto segnato
-  if (p.stato === "programmata") p.stato = "in_corso";
-  if (side === "noi") p.puntiNoi = Math.max(0, (p.puntiNoi ?? 0) + n);
-  else p.puntiLoro = Math.max(0, (p.puntiLoro ?? 0) + n);
+  if (!p || p.stato !== "in_corso") return;
+  const k = side === "noi" ? "puntiNoi" : "puntiLoro";
+  const prima = p[k] ?? 0;
+  if (n < 0 && prima === 0) return;          // niente sotto zero (e niente "annulla" a vuoto)
+  p[k] = Math.max(0, prima + n);
+  p.ultimo = { side, n, ora: oraAdesso() };
+  if (navigator.vibrate) navigator.vibrate(n > 0 ? 20 : [10, 40, 10]);
+  _metaFlash = n > 0 ? side : null;
+  save(); render(); _metaFlash = null;
+  const nome = side === "noi" ? S.settings.club.replace("Rugby ", "") : p.avversario;
+  toast(`${n > 0 ? "Meta" : "Tolta una meta"} · ${nome} · ${p.puntiNoi}–${p.puntiLoro}`);
+};
+// annulla l'ultima meta segnata (o tolta): una sola volta, poi il pulsante sparisce
+ACT.scoreUndo = id => {
+  if (!canLive()) return;
+  const p = S.partite.find(x => x.id === id);
+  if (!p || !p.ultimo) return;
+  const k = p.ultimo.side === "noi" ? "puntiNoi" : "puntiLoro";
+  p[k] = Math.max(0, (p[k] ?? 0) - p.ultimo.n);
+  p.ultimo = null;
   save(); render();
+  toast(`Annullato · ${p.puntiNoi}–${p.puntiLoro}`);
 };
 ACT.matchStato = arg => {
   if (!canLive()) return;
@@ -5677,6 +5793,7 @@ ACT.matchStato = arg => {
   const p = S.partite.find(x => x.id === id);
   const applica = () => {
     p.stato = stato;
+    p.ultimo = null;
     if (stato === "programmata") { p.puntiNoi = null; p.puntiLoro = null; }
     else { p.puntiNoi = p.puntiNoi ?? 0; p.puntiLoro = p.puntiLoro ?? 0; }
     save(); render();
@@ -5686,7 +5803,11 @@ ACT.matchStato = arg => {
   // con le mani fredde non deve poterlo cancellare senza chiedere conferma.
   const haPunteggio = (p.puntiNoi ?? 0) > 0 || (p.puntiLoro ?? 0) > 0;
   if (stato === "programmata" && haPunteggio) {
-    confirmModal(`Annullare la partita? Il punteggio attuale (${p.puntiNoi}–${p.puntiLoro}) andrà perso.`, applica);
+    confirmModal(`Azzerare la partita? Il punteggio attuale (${p.puntiNoi}–${p.puntiLoro}) andrà perso.`, applica, "Azzera");
+  } else if (stato === "terminata") {
+    // il fischio finale registra il risultato: con le mani fredde un tocco sbagliato non
+    // deve chiudere la partita senza chiedere
+    confirmModal(`Fischio finale con il risultato ${p.puntiNoi ?? 0}–${p.puntiLoro ?? 0}?`, applica, "Fischio finale");
   } else {
     applica();
   }
@@ -5754,7 +5875,7 @@ ACT.matchEdit = id => {
             ? [{ v: p.collegaTorneo, t: p.collegaTorneo.split("|")[0] + " (passato)" }] : [];
           const giocati = torneiPassati().filter(t => !prossimi.some(o => o.v === t.k) && t.k !== p?.collegaTorneo)
             .map(t => ({ v: t.k, t: t.nome + " " + fmtDate(t.data) + " (giocato)" }));
-          return [{ v: "", t: "Nessuno partita singola" }, ...prossimi, ...passato, ...giocati];
+          return [{ v: "", t: "Nessuno (partita singola)" }, ...prossimi, ...passato, ...giocati];
         })()
       },
       { key: "data", label: "Data", type: "date", value: p?.data || todayISO(), required: true },
