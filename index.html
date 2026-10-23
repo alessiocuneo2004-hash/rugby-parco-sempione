@@ -281,6 +281,15 @@ main{padding:20px 16px calc(96px + env(safe-area-inset-bottom));min-width:0;posi
   }
 }
 @media (prefers-reduced-motion:reduce){#watermark{transform:none}}
+/* dove il browser lo sa fare, la filigrana la muove lui stesso legandola allo scorrimento,
+   senza passare dallo script: niente ritardi di un fotogramma, quindi niente tremolio.
+   -3000px su 10000px di scorrimento = 30% (WM_PARALLASSE). */
+@supports (animation-timeline:scroll()){
+  @media (max-width:959px) and (prefers-reduced-motion:no-preference){
+    #watermark{animation:wmScorri linear both;animation-timeline:scroll(root block);animation-range:0px 10000px}
+  }
+}
+@keyframes wmScorri{from{transform:translateY(0)}to{transform:translateY(-3000px)}}
 /* Nessun filetto sotto il titolo: nel mockup non c'e, e il design system lo dichiara
    opzionale e "spento di default". */
 
@@ -675,8 +684,9 @@ button.figlio-hero-liv::after{content:"";position:absolute;inset:-12px -8px}
   display:flex;flex-direction:column;gap:8px;transform-origin:bottom center;
   background:rgba(255,255,255,.62);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 8px 20px rgba(11,27,38,.14);
   opacity:0;transform:translateY(8px) scale(.96);pointer-events:none;
-  -webkit-backdrop-filter:blur(0) saturate(100%);backdrop-filter:blur(0) saturate(100%);
-  transition:opacity 200ms ease,transform 220ms cubic-bezier(.23,1,.32,1),backdrop-filter 220ms ease,-webkit-backdrop-filter 220ms ease;
+  /* niente sfocatura finché la scheda è chiusa: anche a blur(0) ogni scheda teneva acceso
+     l'effetto vetro, e scorrere la pagina dei tornei pesava sul telefono */
+  transition:opacity 200ms ease,transform 220ms cubic-bezier(.23,1,.32,1);
 }
 .tc.aperta .tc-vetro{
   opacity:1;transform:none;pointer-events:auto;
@@ -1964,16 +1974,20 @@ html.foglio-aperto{overflow:hidden}
 .cat-testa-fondo{
   position:absolute;left:0;right:0;top:0;height:273px;background:var(--cat);
   transition:background-color 300ms ease;
-  clip-path:polygon(0 0,100% 0,100% 170.4px,0 240.6px);
+  clip-path:polygon(0 0,100% 0,100% 170.4px,0 240.6px);will-change:clip-path;
+}
+.cat-testa-ombra{
+  position:absolute;left:0;right:0;top:3px;height:16px;opacity:0;transform-origin:top left;
+  background:linear-gradient(rgba(11,27,38,.22),rgba(11,27,38,0));will-change:transform,opacity;
 }
 .cat-testa-num{position:absolute;left:0;right:0;top:3px;height:270px;overflow:hidden}
 .cat-testa-num span{
-  position:absolute;right:-14px;bottom:-30px;
+  position:absolute;right:0;bottom:0;transform:translate(14px,30px);
   font:800 270px/.8 'Big Shoulders Display',sans-serif;text-transform:uppercase;white-space:nowrap;
   color:var(--cat);-webkit-text-stroke:6px #fff;paint-order:stroke fill;
   transform-origin:bottom right;will-change:transform,opacity;
 }
-.cat-testa.pm .cat-testa-num span{right:16px;bottom:40px;transform:scale(.42)}
+.cat-testa.pm .cat-testa-num span{transform:translate(-16px,-40px) scale(.42)}
 .cat-testa-tit{position:absolute;left:0;right:0;top:3px;height:270px;overflow:hidden}
 .cat-testa-blocco{
   position:absolute;left:16px;top:24px;display:flex;flex-direction:column;gap:6px;
@@ -4533,6 +4547,7 @@ function vCategoria(id) {
   return `<div class="stack-lg">
     <div class="cat-testa ${pm ? "pm" : ""}" style="--cat:${tinta}">
       <div class="cat-testa-fondo"></div>
+      <div class="cat-testa-ombra"></div>
       <div class="cat-testa-num" aria-hidden="true"><span>${esc(cifre || parola)}</span></div>
       <div class="cat-testa-tit"><div class="cat-testa-blocco">
         <span class="cat-testa-lbl">Categoria</span>
@@ -6405,6 +6420,7 @@ document.addEventListener("keydown", e => {
 const WM_PARALLASSE = 0.30;
 function avviaParallasse() {
   if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  if (CSS.supports("animation-timeline:scroll()")) return;   // ci pensa lo stile (#watermark)
   const wm = document.getElementById("watermark");
   if (!wm) return;
   let inCoda = false;
@@ -6430,27 +6446,37 @@ function aggiornaTestataCat() {
   if (!t) return;
   const y = Math.max(0, scrollY);
   const k = Math.min(1, y / 200), e = 1 - (1 - k) * (1 - k);
+  // oltre i 200px la testata è già chiusa: niente da ridisegnare (succede di continuo
+  // scorrendo la pagina più in basso)
+  const W = t.clientWidth;
+  const chiave = (k < 1 ? y : "chiusa") + "|" + W;
+  if (t._ultima === chiave) return;
+  t._ultima = chiave;
   const L = (a, b) => a + (b - a) * e;
   const sm = (a, b) => { const u = Math.min(1, Math.max(0, (e - a) / (b - a))); return u * u * (3 - 2 * u); };
   const pm = t.classList.contains("pm");
   const m = pm ? 0.42 : 1, r = pm ? 16 : -14, up = pm ? 70 : 0;
   const H = L(270, 70), C = Math.max(250 - y, H), d = sm(0.55, 1);
+  const yDx = L(H * .62, H), ySx = L(H * .88, H);   // bordo sotto: a destra e a sinistra
   const q = (el, css) => { const n = t.querySelector(el); if (n) Object.assign(n.style, css); };
+  /* Per non far scattare lo scorrimento sul telefono qui si cambiano solo clip-path,
+     transform e opacity: nessuna altezza o posizione (che costringerebbero il browser a
+     ricalcolare l'impaginazione a ogni fotogramma) e nessun filtro sfocato. */
   // la fascia parte 3px più in alto, nascosta sotto la topbar (vedi .cat-testa nello stile)
-  q(".cat-testa-fondo", {
-    height: (H + 3).toFixed(1) + "px",
-    clipPath: `polygon(0 0,100% 0,100% ${(3 + L(H * .62, H)).toFixed(1)}px,0 ${(3 + L(H * .88, H)).toFixed(1)}px)`,
-    filter: `drop-shadow(0 6px 10px rgba(11,27,38,${(.25 * e).toFixed(2)}))`
+  q(".cat-testa-fondo", { clipPath: `polygon(0 0,100% 0,100% ${(3 + yDx).toFixed(1)}px,0 ${(3 + ySx).toFixed(1)}px)` });
+  // l'ombra sotto la fascia: una sfumatura inclinata come il bordo (prima era un drop-shadow)
+  q(".cat-testa-ombra", {
+    transform: `translateY(${ySx.toFixed(1)}px) skewY(${Math.atan2(yDx - ySx, W || 390).toFixed(4)}rad)`,
+    opacity: e.toFixed(2)
   });
-  q(".cat-testa-num", { height: C.toFixed(1) + "px" });
+  q(".cat-testa-num", { clipPath: `inset(0 0 ${(270 - C).toFixed(1)}px 0)` });
   q(".cat-testa-num span", {
-    right: L(r, 120).toFixed(1) + "px", bottom: (C - H + L(-30 + up, -8)).toFixed(1) + "px",
-    transform: `scale(${(L(1, .27) * m).toFixed(3)})`, opacity: (1 - sm(.4, .85)).toFixed(2)
+    transform: `translate(${(-L(r, 120)).toFixed(1)}px,${(H - L(-30 + up, -8) - 270).toFixed(1)}px) scale(${(L(1, .27) * m).toFixed(3)})`,
+    opacity: (1 - sm(.4, .85)).toFixed(2)
   });
-  q(".cat-testa-tit", { height: H.toFixed(1) + "px" });
+  q(".cat-testa-tit", { clipPath: `inset(0 0 ${(270 - H).toFixed(1)}px 0)` });
   q(".cat-testa-blocco", {
-    top: L(24, 14).toFixed(1) + "px",
-    transform: `scale(${L(1, .7).toFixed(3)}) translateY(${L(0, -4.4).toFixed(1)}px)`
+    transform: `translateY(${(L(24, 14) - 24).toFixed(1)}px) scale(${L(1, .7).toFixed(3)}) translateY(${L(0, -4.4).toFixed(1)}px)`
   });
   q(".cat-testa-lbl", { opacity: Math.max(0, 1 - e * 2.5).toFixed(2) });
   q(".cat-testa-dig", { opacity: d.toFixed(2), transform: `translateX(${(18 * (1 - d)).toFixed(1)}px)` });
