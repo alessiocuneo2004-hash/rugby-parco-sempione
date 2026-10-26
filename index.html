@@ -2074,8 +2074,10 @@ html.foglio-aperto{overflow:hidden}
 .tab-azione{margin-top:18px;display:flex;justify-content:center}
 .btn.tab-grande{width:100%;min-height:56px;font-size:calc(18px * var(--st))}
 .btn.tab-grande svg{width:22px;height:22px}
+/* "Azzera" separato dal fischio finale da una linea e 40px di spazio */
+.hero-card hr.sep.tab-sep{margin:28px 0 4px}
 .tab-azzera{
-  display:block;margin:14px auto 0;min-height:44px;padding:0 12px;background:none;border:0;cursor:pointer;
+  display:block;margin:4px auto -6px;min-height:44px;padding:0 12px;background:none;border:0;cursor:pointer;
   color:var(--live-muted);font:inherit;font-size:calc(15px * var(--st));text-decoration:underline;text-underline-offset:3px;
 }
 @media (prefers-reduced-motion:reduce){.sb-n.pop{animation:none}.meta-btn{transition:none}}
@@ -4473,39 +4475,40 @@ addEventListener("appinstalled", () => { _promptInstalla = null; if (VIEW.name =
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost"))
   addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 
-function cardAspetto() {
+function cardAspetto(soloTema) {
   return `
   <div>
     <div class="sec-head"><h2>Aspetto</h2></div>
     <div class="card stack">
       <div class="field">
-        <label>Tema</label>
+        <label for="themeSwitch">Tema</label>
         <select id="themeSwitch">
           <option value="auto" ${S.settings.tema === "auto" ? "selected" : ""}>Automatico (segue il dispositivo)</option>
           <option value="dark" ${S.settings.tema === "dark" ? "selected" : ""}>Scuro</option>
           <option value="light" ${S.settings.tema === "light" ? "selected" : ""}>Chiaro</option>
         </select>
       </div>
+      ${soloTema ? "" : `
       <div class="field">
-        <label>Stile del menu</label>
+        <label for="menuSwitch">Stile del menu</label>
         <select id="menuSwitch">
-          <option value="classico" ${S.settings.menu === "classico" ? "selected" : ""}>Classico barra in basso sul telefono, colonna sul PC</option>
-          <option value="tendina" ${S.settings.menu === "tendina" ? "selected" : ""}>A tendina si apre dall'icona ☰ in alto a sinistra</option>
-          <option value="alto" ${S.settings.menu === "alto" ? "selected" : ""}>Barra in alto sezioni in fila sotto l'intestazione</option>
+          <option value="classico" ${S.settings.menu === "classico" ? "selected" : ""}>Classico: barra in basso sul telefono, colonna sul PC</option>
+          <option value="tendina" ${S.settings.menu === "tendina" ? "selected" : ""}>A tendina: si apre dall'icona ☰ in alto a sinistra</option>
+          <option value="alto" ${S.settings.menu === "alto" ? "selected" : ""}>Barra in alto: sezioni in fila sotto l'intestazione</option>
         </select>
       </div>
       <p class="small">Prova i tre stili e tieni quello che ti convince: cambia solo il modo di spostarsi tra le sezioni, non i contenuti.</p>
       <hr class="sep">
       <div class="field">
-        <label>Prova di caricamento</label>
+        <label for="skSwitch">Prova di caricamento</label>
         <select id="skSwitch">
-          <option value="0" ${!Number(S.settings.provaCaricamento) ? "selected" : ""}>Spenta le schermate compaiono subito</option>
+          <option value="0" ${!Number(S.settings.provaCaricamento) ? "selected" : ""}>Spenta: le schermate compaiono subito</option>
           <option value="700" ${Number(S.settings.provaCaricamento) === 700 ? "selected" : ""}>Breve (0,7 s)</option>
           <option value="1800" ${Number(S.settings.provaCaricamento) === 1800 ? "selected" : ""}>Lunga (1,8 s)</option>
         </select>
       </div>
       <p class="small">Finge una connessione lenta per farti vedere i segnaposto grigi che appariranno
-      al posto dei contenuti mentre arrivano. Serve solo per guardarli: tienila spenta nell'uso normale.</p>
+      al posto dei contenuti mentre arrivano. Serve solo per guardarli: tienila spenta nell'uso normale.</p>`}
     </div>
   </div>`;
 }
@@ -5710,6 +5713,7 @@ function vPartita(id) {
       </div>` : ""}
       ${p.note ? `<p class="small" style="margin-top:10px">${esc(p.note)}</p>` : ""}
       ${live4 && isLive ? `
+      <hr class="sep tab-sep">
       <button class="tab-azzera" data-act="matchStato" data-arg="${esc(JSON.stringify({ id: p.id, stato: "programmata" }))}">Azzera la partita</button>` : ""}
     </div>
 
@@ -5739,7 +5743,9 @@ function vPartita(id) {
         <h2>Convocazioni</h2>
         ${editable ? btnAdd("Extra rosa", "convExtra", p.id) : ""}
       </div>
-      ${cat && cat.rosa.length ? `
+      ${!editable && !p.convocati.length ? `
+      <div class="empty">Convocazioni non ancora pubblicate: compariranno qui appena lo staff le sceglie.</div>` :
+      cat && cat.rosa.length ? `
       <div class="card stack" style="gap:2px">
         ${cat.rosa.map(g => {
           const on = p.convocati.includes(g.nome);
@@ -5989,7 +5995,7 @@ function vEvento(id) {
 
       ${e.locandina
         ? `<div class="poster evento-locandina imgsk"><img src="${e.locandina}" alt="Locandina di ${esc(e.nome)}" data-sk="1"></div>`
-        : `<div class="evento-locandina-vuota">${ic("up")}<span>Nessuna locandina</span></div>`}
+        : editabile ? `<div class="evento-locandina-vuota">${ic("up")}<span>Nessuna locandina</span></div>` : ""}
       ${editabile ? `
       <div class="row">
         <input type="file" id="posterFile" accept="image/*" hidden>
@@ -6180,7 +6186,7 @@ function vImpostazioni() {
   if (ruoloCorrente().livello === 5) return `<div class="stack-lg">
     <div><h1 class="page-title lungo">Impostazioni</h1></div>
     ${cardInstalla()}
-    ${cardAspetto()}
+    ${cardAspetto(true)}
     ${cardCalendario()}
   </div>`;
   return `<div class="stack-lg">
