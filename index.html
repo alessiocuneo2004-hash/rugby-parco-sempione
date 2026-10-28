@@ -1517,6 +1517,10 @@ html[data-senza-topbar] .topbar{display:none}
    sale di 62px sopra il blu; ogni banner è assoluto, con x e larghezza in percentuale. */
 .home-banner{position:relative;z-index:3;height:136px;margin:-62px -16px 0}
 @media (min-width:960px){.home-banner{margin:-62px auto 0;max-width:480px}}
+/* 28 ott 2026: 50px visibili fra il fondo dei banner (inclinati) e "La settimana",
+   sia con «La mia area» (n1) sia con i banner dei figli (n2, n3) */
+.home-banner.n1{margin-bottom:-11px}
+.home-banner.n2,.home-banner.n3{margin-bottom:-9px}
 .hb{
   position:absolute;height:112px;box-sizing:border-box;overflow:hidden;
   border-radius:24px;padding:13px 14px;display:flex;flex-direction:column;
